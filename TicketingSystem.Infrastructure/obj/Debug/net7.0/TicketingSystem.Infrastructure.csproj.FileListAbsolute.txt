@@ -15,3 +15,4 @@ D:\Engenharia_de_Software\project\TicketingSystem.Infrastructure\obj\Debug\net7.
 D:\Engenharia_de_Software\project\TicketingSystem.Infrastructure\obj\Debug\net7.0\TicketingSystem.Infrastructure.pdb
 D:\Engenharia_de_Software\project\TicketingSystem.Infrastructure\obj\Debug\net7.0\TicketingSystem.Infrastructure.genruntimeconfig.cache
 D:\Engenharia_de_Software\project\TicketingSystem.Infrastructure\obj\Debug\net7.0\ref\TicketingSystem.Infrastructure.dll
+D:\Engenharia_de_Software\project\TicketingSystem.Infrastructure\obj\Debug\net7.0\TicketingSystem.Infrastructure.sourcelink.json

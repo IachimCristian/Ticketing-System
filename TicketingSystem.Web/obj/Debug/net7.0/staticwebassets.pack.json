@@ -5,12 +5,20 @@
       "PackagePath": "staticwebassets\\TicketingSystem.Web.vjbafsurnc.bundle.scp.css"
     },
     {
+      "Id": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\css\\dashboard.css",
+      "PackagePath": "staticwebassets\\css\\dashboard.css"
+    },
+    {
       "Id": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\css\\site.css",
       "PackagePath": "staticwebassets\\css\\site.css"
     },
     {
       "Id": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\favicon.ico",
       "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\images\\logo-no-background.png",
+      "PackagePath": "staticwebassets\\images\\logo-no-background.png"
     },
     {
       "Id": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\js\\site.js",

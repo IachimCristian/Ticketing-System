@@ -1,0 +1,118 @@
+@page
+@model TicketingSystem.Web.Pages.Events.IndexModel
+@{
+    ViewData["Title"] = "Events";
+}
+
+<div class="page-header">
+    <h1>Browse Events</h1>
+    <div class="filters">
+        <input type="text" class="form-control" placeholder="Search events...">
+        <button class="btn btn-primary ms-2">Search</button>
+    </div>
+</div>
+
+<div class="row mt-4">
+    @foreach (var item in Model.Events)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card event-listing">
+                <div class="status-indicator"></div>
+                <div class="card-img-top bg-light text-center py-5">
+                    <span class="display-4 text-muted">X</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">@item.Title</h5>
+                    <p class="card-text"><strong>Date:</strong> @item.Date.ToString("MMMM d, yyyy")</p>
+                    <p class="card-text"><strong>Location:</strong> @item.Location</p>
+                    <p class="card-text">@item.Description</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        @if (item.Status == "Available")
+                        {
+                            <span class="badge bg-dark">Available</span>
+                            <a asp-page="/Events/Details" asp-route-id="@item.Id" class="btn btn-primary">View Details</a>
+                        }
+                        else if (item.Status == "Limited")
+                        {
+                            <span class="badge bg-secondary">Limited</span>
+                            <a asp-page="/Events/Details" asp-route-id="@item.Id" class="btn btn-primary">View Details</a>
+                        }
+                        else if (item.Status == "Sold Out")
+                        {
+                            <span class="badge bg-light text-dark border">Sold Out</span>
+                            <a href="#" class="btn btn-outline-dark">Join Waitlist</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .filters {
+        display: flex;
+        align-items: center;
+    }
+    
+    .filters .form-control {
+        border-radius: 0;
+        border: 1px solid #212121;
+    }
+    
+    .event-listing {
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        border: none;
+        border-radius: 0;
+    }
+    
+    .event-listing::after {
+        content: '';
+        position: absolute;
+        top: 5px;
+        right: -5px;
+        bottom: -5px;
+        left: 5px;
+        background-color: rgba(0,0,0,0.05);
+        z-index: -1;
+    }
+    
+    .event-listing:hover {
+        transform: translateY(-5px);
+    }
+    
+    .status-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background-color: #212121;
+    }
+    
+    .badge {
+        border-radius: 0;
+        font-weight: 500;
+        padding: 0.5em 0.8em;
+    }
+    
+    .btn-outline-dark {
+        border-radius: 0;
+    }
+    
+    h1 {
+        font-weight: 700;
+    }
+</style> 

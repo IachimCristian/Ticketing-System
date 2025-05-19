@@ -1,0 +1,42 @@
+@page
+@model TicketingSystem.Web.Pages.Dashboard.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_DashboardLayout";
+}
+
+<div class="dashboard-content">
+    <div class="search-section">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Search events..." aria-label="Search">
+            <button class="btn btn-outline-primary" type="button">Search</button>
+        </div>
+    </div>
+    
+    <div class="purchased-events mb-4">
+        <h2>Purchased Events</h2>
+        <div class="row g-4 mt-2">
+            @foreach (var item in Model.PurchasedEvents)
+            {
+                <div class="col-md-4">
+                    <div class="card event-card h-100">
+                        <div class="card-img-top placeholder-img d-flex align-items-center justify-content-center" style="height: 150px;">
+                            <span class="display-4">X</span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">@item.EventName</h5>
+                            <p class="card-text text-muted">@item.Date.ToString("MMM dd, yyyy")</p>
+                            <div class="card-text mb-2">
+                                <span class="badge status-@item.Status.ToLower()">@item.Status</span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a asp-page="/Events/Details" asp-route-id="@item.Id" class="btn btn-dark">View Details</a>
+                            <a href="#" class="btn btn-sm btn-outline-primary">Download Ticket</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div> 

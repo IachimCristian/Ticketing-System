@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "3caHJj9FGH+ILRA/RSDn64ioOCrJacLOVaxYebGlN14=",
+  "Hash": "JI2FBzs5KaT0mHhUmucmvf5o/T6T5emRTBIHmFSZ3So=",
   "Source": "TicketingSystem.Web",
   "BasePath": "_content/TicketingSystem.Web",
   "Mode": "Default",
@@ -59,6 +59,27 @@
       "OriginalItemSpec": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\obj\\Debug\\net7.0\\scopedcss\\projectbundle\\TicketingSystem.Web.bundle.scp.css"
     },
     {
+      "Identity": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\css\\dashboard.css",
+      "SourceId": "TicketingSystem.Web",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\",
+      "BasePath": "_content/TicketingSystem.Web",
+      "RelativePath": "css/dashboard#[.{fingerprint}]?.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "pqmyp4we8i",
+      "Integrity": "oXA9XwMr784aqbYeYBWRcIXwC57te0hz/J1QWXT5TPk=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\dashboard.css"
+    },
+    {
       "Identity": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\css\\site.css",
       "SourceId": "TicketingSystem.Web",
       "SourceType": "Discovered",
@@ -73,8 +94,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "b9sayid5wm",
-      "Integrity": "j6fhJSuuyLpOSLuPJU0TsDV0iNjor5S3rDnvxJrt4bg=",
+      "Fingerprint": "cb0bl5252a",
+      "Integrity": "qGC5NCbSsxzpahfcJK97zPk9GczrQbgG6QHFO6mEb5w=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\site.css"
@@ -99,6 +120,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\favicon.ico"
+    },
+    {
+      "Identity": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\images\\logo-no-background.png",
+      "SourceId": "TicketingSystem.Web",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\",
+      "BasePath": "_content/TicketingSystem.Web",
+      "RelativePath": "images/logo-no-background#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "8w7vtlxeq0",
+      "Integrity": "uHp/yoM8Oa1xAsLeOSHpBk20Vo2DaXvKRgq42S9zwjg=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\logo-no-background.png"
     },
     {
       "Identity": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\js\\site.js",
@@ -1384,8 +1426,8 @@
   ],
   "Endpoints": [
     {
-      "Route": "css/site.b9sayid5wm.css",
-      "AssetFile": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\css\\site.css",
+      "Route": "css/dashboard.css",
+      "AssetFile": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\css\\dashboard.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -1394,7 +1436,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "667"
+          "Value": "1319"
         },
         {
           "Name": "Content-Type",
@@ -1402,11 +1444,48 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"j6fhJSuuyLpOSLuPJU0TsDV0iNjor5S3rDnvxJrt4bg=\""
+          "Value": "\"oXA9XwMr784aqbYeYBWRcIXwC57te0hz/J1QWXT5TPk=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 17 May 2025 18:28:36 GMT"
+          "Value": "Sun, 18 May 2025 17:46:40 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-oXA9XwMr784aqbYeYBWRcIXwC57te0hz/J1QWXT5TPk="
+        }
+      ]
+    },
+    {
+      "Route": "css/dashboard.pqmyp4we8i.css",
+      "AssetFile": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\css\\dashboard.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1319"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"oXA9XwMr784aqbYeYBWRcIXwC57te0hz/J1QWXT5TPk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 18 May 2025 17:46:40 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1416,7 +1495,52 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "b9sayid5wm"
+          "Value": "pqmyp4we8i"
+        },
+        {
+          "Name": "label",
+          "Value": "css/dashboard.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-oXA9XwMr784aqbYeYBWRcIXwC57te0hz/J1QWXT5TPk="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.cb0bl5252a.css",
+      "AssetFile": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\css\\site.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3985"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"qGC5NCbSsxzpahfcJK97zPk9GczrQbgG6QHFO6mEb5w=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 19 May 2025 09:00:34 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "cb0bl5252a"
         },
         {
           "Name": "label",
@@ -1424,7 +1548,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-j6fhJSuuyLpOSLuPJU0TsDV0iNjor5S3rDnvxJrt4bg="
+          "Value": "sha256-qGC5NCbSsxzpahfcJK97zPk9GczrQbgG6QHFO6mEb5w="
         }
       ]
     },
@@ -1439,7 +1563,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "667"
+          "Value": "3985"
         },
         {
           "Name": "Content-Type",
@@ -1447,11 +1571,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"j6fhJSuuyLpOSLuPJU0TsDV0iNjor5S3rDnvxJrt4bg=\""
+          "Value": "\"qGC5NCbSsxzpahfcJK97zPk9GczrQbgG6QHFO6mEb5w=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 17 May 2025 18:28:36 GMT"
+          "Value": "Mon, 19 May 2025 09:00:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1461,7 +1585,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-j6fhJSuuyLpOSLuPJU0TsDV0iNjor5S3rDnvxJrt4bg="
+          "Value": "sha256-qGC5NCbSsxzpahfcJK97zPk9GczrQbgG6QHFO6mEb5w="
         }
       ]
     },
@@ -1544,6 +1668,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-Jtxf9L+5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM="
+        }
+      ]
+    },
+    {
+      "Route": "images/logo-no-background.8w7vtlxeq0.png",
+      "AssetFile": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\images\\logo-no-background.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "9438"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"uHp/yoM8Oa1xAsLeOSHpBk20Vo2DaXvKRgq42S9zwjg=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 18 May 2025 11:55:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "8w7vtlxeq0"
+        },
+        {
+          "Name": "label",
+          "Value": "images/logo-no-background.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-uHp/yoM8Oa1xAsLeOSHpBk20Vo2DaXvKRgq42S9zwjg="
+        }
+      ]
+    },
+    {
+      "Route": "images/logo-no-background.png",
+      "AssetFile": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\images\\logo-no-background.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "9438"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"uHp/yoM8Oa1xAsLeOSHpBk20Vo2DaXvKRgq42S9zwjg=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 18 May 2025 11:55:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-uHp/yoM8Oa1xAsLeOSHpBk20Vo2DaXvKRgq42S9zwjg="
         }
       ]
     },

@@ -75,3 +75,5 @@ D:\Engenharia_de_Software\project\TicketingSystem.Web\obj\Debug\net7.0\refint\Ti
 D:\Engenharia_de_Software\project\TicketingSystem.Web\obj\Debug\net7.0\TicketingSystem.Web.pdb
 D:\Engenharia_de_Software\project\TicketingSystem.Web\obj\Debug\net7.0\TicketingSystem.Web.genruntimeconfig.cache
 D:\Engenharia_de_Software\project\TicketingSystem.Web\obj\Debug\net7.0\ref\TicketingSystem.Web.dll
+D:\Engenharia_de_Software\project\TicketingSystem.Web\obj\Debug\net7.0\TicketingSystem.Web.sourcelink.json
+D:\Engenharia_de_Software\project\TicketingSystem.Web\bin\Debug\net7.0\Newtonsoft.Json.dll

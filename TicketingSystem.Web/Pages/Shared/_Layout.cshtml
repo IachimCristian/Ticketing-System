@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TicketingSystem.Web</title>
+    <title>@ViewData["Title"] - Ticksy</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -13,7 +13,9 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">TicketingSystem.Web</a>
+                <div class="logo">
+                    <img src="~/images/logo-no-background.png" alt="Ticksy" class="logo-img" />
+                </div>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -24,9 +26,29 @@
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Events/Index">Events</a>
                         </li>
                     </ul>
+                    <div class="auth-buttons">
+                        @if (Context.Session.GetString("Username") != null)
+                        {
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Welcome, @Context.Session.GetString("Username")
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-item" asp-page="/Dashboard/Index">My Dashboard</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-page="/Account/Logout">Logout</a></li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <a asp-page="/Account/Login" class="btn btn-outline-primary me-2">Login</a>
+                            <a asp-page="/Account/Register" class="btn btn-primary">Register</a>
+                        }
+                    </div>
                 </div>
             </div>
         </nav>
@@ -38,8 +60,8 @@
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - TicketingSystem.Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        <div class="container py-3">
+            &copy; 2023 - Ticksy - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
 

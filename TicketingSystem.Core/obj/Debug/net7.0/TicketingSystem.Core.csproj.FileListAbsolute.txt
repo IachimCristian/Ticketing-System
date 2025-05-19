@@ -9,3 +9,4 @@ D:\Engenharia_de_Software\project\TicketingSystem.Core\obj\Debug\net7.0\Ticketin
 D:\Engenharia_de_Software\project\TicketingSystem.Core\obj\Debug\net7.0\refint\TicketingSystem.Core.dll
 D:\Engenharia_de_Software\project\TicketingSystem.Core\obj\Debug\net7.0\TicketingSystem.Core.pdb
 D:\Engenharia_de_Software\project\TicketingSystem.Core\obj\Debug\net7.0\ref\TicketingSystem.Core.dll
+D:\Engenharia_de_Software\project\TicketingSystem.Core\obj\Debug\net7.0\TicketingSystem.Core.sourcelink.json
