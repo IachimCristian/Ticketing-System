@@ -27,10 +27,12 @@
                         <div class="mb-3">
                             <strong>Date:</strong> @Model.EventDate.ToString("MMM dd, yyyy")
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <strong>Location:</strong> @Model.Location
                         </div>
-                        <button class="btn btn-primary mt-3">Buy Ticket</button>
+                        <div class="mt-3">
+                            <a asp-page="/Tickets/Purchase" asp-route-eventId="@Model.Id" class="btn btn-dark btn-sm">Buy Ticket</a>
+                        </div>
                     </div>
                 </div>
             </div>

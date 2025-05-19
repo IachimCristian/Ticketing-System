@@ -1,0 +1,35 @@
+@page "{ticketId}"
+@model TicketingSystem.Web.Pages.Tickets.ConfirmationModel
+@{
+    ViewData["Title"] = "Ticket Confirmation";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <img src="~/images/logo-no-background.png" alt="Ticksy" style="height: 40px;" />
+    </div>
+    <div>
+        <img src="~/images/logo-no-background.png" alt="Ticksy" style="height: 40px;" />
+    </div>
+</div>
+
+<h2 class="fs-4 mb-4 text-center">Ticket Purchase Complete</h2>
+
+<div class="card mb-4">
+    <div class="card-body text-center">
+        <p class="mb-3">Your ticket has been purchased successfully!</p>
+        
+        <div class="qr-code-container mx-auto mb-3">
+            <div class="qr-code-placeholder">
+                <span>X</span>
+            </div>
+            <p class="text-center mt-2">QR Code</p>
+        </div>
+        
+        <p class="mb-0">Present this QR code at the venue for entry.</p>
+    </div>
+</div>
+
+<div class="text-center">
+    <a asp-page="/Dashboard/Index" class="btn btn-dark">Return to Dashboard</a>
+</div> 

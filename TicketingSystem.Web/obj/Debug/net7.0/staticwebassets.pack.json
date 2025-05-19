@@ -5,6 +5,10 @@
       "PackagePath": "staticwebassets\\TicketingSystem.Web.vjbafsurnc.bundle.scp.css"
     },
     {
+      "Id": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\css\\admin.css",
+      "PackagePath": "staticwebassets\\css\\admin.css"
+    },
+    {
       "Id": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\css\\dashboard.css",
       "PackagePath": "staticwebassets\\css\\dashboard.css"
     },

@@ -28,6 +28,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Events/Index">Events</a>
                         </li>
+                        @if (Context.Session.GetString("UserType") == "Admin")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Admin/Index">Admin Dashboard</a>
+                            </li>
+                        }
                     </ul>
                     <div class="auth-buttons">
                         @if (Context.Session.GetString("Username") != null)
@@ -38,6 +44,10 @@
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="userDropdown">
                                     <li><a class="dropdown-item" asp-page="/Dashboard/Index">My Dashboard</a></li>
+                                    @if (Context.Session.GetString("UserType") == "Admin")
+                                    {
+                                        <li><a class="dropdown-item" asp-page="/Admin/Index">Admin Dashboard</a></li>
+                                    }
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" asp-page="/Account/Logout">Logout</a></li>
                                 </ul>

@@ -270,3 +270,22 @@ h1, h2, h3, h4, h5 {
   border-top: 1px solid #f0f0f0;
   padding: 10px;
 }
+
+/* QR Code Styles */
+.qr-code-container {
+  width: 200px;
+  margin-top: 20px;
+}
+
+.qr-code-placeholder {
+  width: 180px;
+  height: 180px;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: #aaa;
+}

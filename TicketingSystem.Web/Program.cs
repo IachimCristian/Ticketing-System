@@ -1,7 +1,27 @@
+using Microsoft.EntityFrameworkCore;
+using TicketingSystem.Core.Entities;
+using TicketingSystem.Core.Interfaces;
+using TicketingSystem.Core.Services;
+using TicketingSystem.Infrastructure.Data;
+using TicketingSystem.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+// Add database context
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register repositories
+builder.Services.AddScoped<IUserRepository<Customer>, UserRepository<Customer>>();
+builder.Services.AddScoped<IUserRepository<Organizer>, UserRepository<Organizer>>();
+builder.Services.AddScoped<IUserRepository<Administrator>, UserRepository<Administrator>>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+// Register services
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 // Add HttpClient for API calls
 builder.Services.AddHttpClient("TicketingAPI", client =>

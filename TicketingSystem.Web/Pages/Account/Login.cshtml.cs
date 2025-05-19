@@ -2,16 +2,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
+using TicketingSystem.Core.Services;
 
 namespace TicketingSystem.Web.Pages.Account
 {
     public class LoginModel : PageModel
     {
-        private readonly IHttpClientFactory _clientFactory;
+        private readonly IAuthenticationService _authService;
 
-        public LoginModel(IHttpClientFactory clientFactory)
+        public LoginModel(IAuthenticationService authService)
         {
-            _clientFactory = clientFactory;
+            _authService = authService;
         }
 
         [BindProperty]
@@ -37,27 +39,38 @@ namespace TicketingSystem.Web.Pages.Account
         {
         }
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            // Hardcoded credentials for the user we saw in the screenshot
-            if (LoginInput.Email == "john@example.com" && LoginInput.Password == "MySecureP@ss123")
+            try
             {
-                // Store user details in session
-                HttpContext.Session.SetString("UserId", "85BFA281-2AF1-4F55-927F-B4B5F5CE73D1");
-                HttpContext.Session.SetString("Username", "john_doe");
-                HttpContext.Session.SetString("Email", "john@example.com");
-                HttpContext.Session.SetString("UserType", "Customer");
+                // Authenticate user using the service
+                var user = await _authService.AuthenticateAsync(LoginInput.Email, LoginInput.Password);
                 
-                return RedirectToPage("/Index");
-            }
-            else
-            {
+                if (user != null)
+                {
+                    // Get user type (Admin, Customer, Organizer)
+                    string userType = _authService.GetUserType(user);
+                    
+                    // Store user details in session
+                    HttpContext.Session.SetString("UserId", user.Id.ToString());
+                    HttpContext.Session.SetString("Username", user.Username);
+                    HttpContext.Session.SetString("Email", user.Email);
+                    HttpContext.Session.SetString("UserType", userType);
+                    
+                    return RedirectToPage("/Index");
+                }
+                
                 ErrorMessage = "Invalid login attempt. Please check your email and password.";
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "An error occurred during login. Please try again later.";
                 return Page();
             }
         }

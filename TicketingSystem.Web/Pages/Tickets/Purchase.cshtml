@@ -1,0 +1,110 @@
+@page "{eventId}"
+@model TicketingSystem.Web.Pages.Tickets.PurchaseModel
+@{
+    ViewData["Title"] = "Ticket Purchase";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <img src="~/images/logo-no-background.png" alt="Ticksy" style="height: 40px;" />
+    </div>
+    <a asp-page="/Account/Logout" class="btn btn-outline-dark btn-sm">Logout</a>
+</div>
+
+<h2 class="fs-4 mb-3">Ticket Purchase</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="event-image-placeholder mb-3">
+                    <span>X</span>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <h5>@Model.Event.Title</h5>
+                <p class="mb-2"><strong>Date:</strong> @Model.Event.Date.ToString("MMMM d, yyyy")</p>
+                <p class="mb-2"><strong>Location:</strong> @Model.Event.Location</p>
+                <p class="mb-2"><strong>Price:</strong> $@Model.Event.Price.ToString("0.00")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="post">
+    <input type="hidden" asp-for="EventId" />
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Select Seat</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="d-flex gap-2 mb-2">
+                        @for (int i = 1; i <= 4; i++)
+                        {
+                            <div class="form-check">
+                                @if (i == 1)
+                                {
+                                    <input class="form-check-input" type="radio" asp-for="SeatNumber" value="@i" id="seat@(i)" checked />
+                                }
+                                else
+                                {
+                                    <input class="form-check-input" type="radio" asp-for="SeatNumber" value="@i" id="seat@(i)" />
+                                }
+                                <label class="form-check-label" for="seat@(i)">@i</label>
+                            </div>
+                        }
+                    </div>
+                    <div>
+                        <span>Section: <strong>@Model.Section</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Payment</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Payment Method</label>
+                <div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="PaymentMethod" id="creditCard" value="CreditCard" checked />
+                        <label class="form-check-label" for="creditCard">Credit Card</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="PaymentMethod" id="paypal" value="PayPal" />
+                        <label class="form-check-label" for="paypal">PayPal</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="creditCardDetails">
+                <div class="mb-3">
+                    <label class="form-label">Card Number</label>
+                    <input type="text" class="form-control" asp-for="CardNumber" placeholder="1234 5678 9012 3456" />
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Expiry Date</label>
+                        <input type="text" class="form-control" asp-for="ExpiryDate" placeholder="MM/YY" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">CVV</label>
+                        <input type="text" class="form-control" asp-for="Cvv" placeholder="123" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-end mb-4">
+        <button type="submit" class="btn btn-dark">Purchase</button>
+    </div>
+</form> 
