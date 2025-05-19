@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "JI2FBzs5KaT0mHhUmucmvf5o/T6T5emRTBIHmFSZ3So=",
+  "Hash": "d9MUk9OgLcQmAY4urXipoJRghet7B38Gnf9X6c1THr8=",
   "Source": "TicketingSystem.Web",
   "BasePath": "_content/TicketingSystem.Web",
   "Mode": "Default",
@@ -94,8 +94,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "cb0bl5252a",
-      "Integrity": "qGC5NCbSsxzpahfcJK97zPk9GczrQbgG6QHFO6mEb5w=",
+      "Fingerprint": "lqs2e9tdn9",
+      "Integrity": "A2A+iEqcIriWzKn6H5R3OMITDTU3DxZd/yYM7CUpVKM=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\site.css"
@@ -1508,51 +1508,6 @@
       ]
     },
     {
-      "Route": "css/site.cb0bl5252a.css",
-      "AssetFile": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\css\\site.css",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "3985"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"qGC5NCbSsxzpahfcJK97zPk9GczrQbgG6QHFO6mEb5w=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 19 May 2025 09:00:34 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "cb0bl5252a"
-        },
-        {
-          "Name": "label",
-          "Value": "css/site.css"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-qGC5NCbSsxzpahfcJK97zPk9GczrQbgG6QHFO6mEb5w="
-        }
-      ]
-    },
-    {
       "Route": "css/site.css",
       "AssetFile": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\css\\site.css",
       "Selectors": [],
@@ -1563,7 +1518,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "3985"
+          "Value": "4647"
         },
         {
           "Name": "Content-Type",
@@ -1571,11 +1526,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"qGC5NCbSsxzpahfcJK97zPk9GczrQbgG6QHFO6mEb5w=\""
+          "Value": "\"A2A+iEqcIriWzKn6H5R3OMITDTU3DxZd/yYM7CUpVKM=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 19 May 2025 09:00:34 GMT"
+          "Value": "Mon, 19 May 2025 10:27:12 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1585,7 +1540,52 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-qGC5NCbSsxzpahfcJK97zPk9GczrQbgG6QHFO6mEb5w="
+          "Value": "sha256-A2A+iEqcIriWzKn6H5R3OMITDTU3DxZd/yYM7CUpVKM="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.lqs2e9tdn9.css",
+      "AssetFile": "D:\\Engenharia_de_Software\\project\\TicketingSystem.Web\\wwwroot\\css\\site.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4647"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"A2A+iEqcIriWzKn6H5R3OMITDTU3DxZd/yYM7CUpVKM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 19 May 2025 10:27:12 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "lqs2e9tdn9"
+        },
+        {
+          "Name": "label",
+          "Value": "css/site.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-A2A+iEqcIriWzKn6H5R3OMITDTU3DxZd/yYM7CUpVKM="
         }
       ]
     },

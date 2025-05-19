@@ -8,6 +8,7 @@ namespace TicketingSystem.Web.Pages.Dashboard
     public class IndexModel : PageModel
     {
         public List<PurchasedEvent> PurchasedEvents { get; set; }
+        public List<EventViewModel> UpcomingEvents { get; set; }
 
         public void OnGet()
         {
@@ -47,6 +48,32 @@ namespace TicketingSystem.Web.Pages.Dashboard
                     TicketType = "Premium"
                 }
             };
+
+            // Mock data for upcoming events
+            UpcomingEvents = new List<EventViewModel>
+            {
+                new EventViewModel
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Comedy Night",
+                    Date = DateTime.Now.AddDays(10),
+                    Location = "City Theater"
+                },
+                new EventViewModel
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Jazz Festival",
+                    Date = DateTime.Now.AddDays(20),
+                    Location = "Central Park"
+                },
+                new EventViewModel
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Art Exhibition",
+                    Date = DateTime.Now.AddDays(15),
+                    Location = "City Gallery"
+                }
+            };
         }
     }
 
@@ -57,5 +84,13 @@ namespace TicketingSystem.Web.Pages.Dashboard
         public DateTime Date { get; set; }
         public string Status { get; set; }
         public string TicketType { get; set; }
+    }
+
+    public class EventViewModel
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; }
+        public DateTime Date { get; set; }
+        public string Location { get; set; }
     }
 } 
