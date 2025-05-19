@@ -10,3 +10,4 @@ D:\Engenharia_de_Software\project\TicketingSystem.Core\obj\Debug\net7.0\refint\T
 D:\Engenharia_de_Software\project\TicketingSystem.Core\obj\Debug\net7.0\TicketingSystem.Core.pdb
 D:\Engenharia_de_Software\project\TicketingSystem.Core\obj\Debug\net7.0\ref\TicketingSystem.Core.dll
 D:\Engenharia_de_Software\project\TicketingSystem.Core\obj\Debug\net7.0\TicketingSystem.Core.sourcelink.json
+D:\Engenharia_de_Software\project\TicketingSystem.Core\obj\Debug\net7.0\TicketingSystem.Core.csproj.AssemblyReference.cache

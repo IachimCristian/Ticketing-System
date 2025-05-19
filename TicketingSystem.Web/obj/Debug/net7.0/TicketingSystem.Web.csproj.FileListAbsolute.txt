@@ -77,3 +77,4 @@ D:\Engenharia_de_Software\project\TicketingSystem.Web\obj\Debug\net7.0\Ticketing
 D:\Engenharia_de_Software\project\TicketingSystem.Web\obj\Debug\net7.0\ref\TicketingSystem.Web.dll
 D:\Engenharia_de_Software\project\TicketingSystem.Web\obj\Debug\net7.0\TicketingSystem.Web.sourcelink.json
 D:\Engenharia_de_Software\project\TicketingSystem.Web\bin\Debug\net7.0\Newtonsoft.Json.dll
+D:\Engenharia_de_Software\project\TicketingSystem.Web\bin\Debug\net7.0\BCrypt.Net-Next.dll

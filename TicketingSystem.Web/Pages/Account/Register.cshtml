@@ -13,6 +13,48 @@
             <div class="card-body">
                 <form method="post">
                     <div class="mb-3">
+                        <label asp-for="RegisterInput.UserType" class="form-label">Register as</label>
+                        <select asp-for="RegisterInput.UserType" id="userTypeSelect" class="form-select" onchange="toggleFields()">
+                            <option value="customer">Customer</option>
+                            <option value="organizer">Organizer</option>
+                        </select>
+                    </div>
+
+                    <!-- Customer Fields -->
+                    <div id="customerFields">
+                        <div class="mb-3">
+                            <label asp-for="RegisterInput.Phone" class="form-label">Phone</label>
+                            <input asp-for="RegisterInput.Phone" class="form-control" />
+                            <span asp-validation-for="RegisterInput.Phone" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="RegisterInput.Address" class="form-label">Address</label>
+                            <input asp-for="RegisterInput.Address" class="form-control" />
+                            <span asp-validation-for="RegisterInput.Address" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Organizer Fields -->
+                    <div id="organizerFields" style="display: none;">
+                        <div class="mb-3">
+                            <label asp-for="RegisterInput.OrganizationName" class="form-label">Organization Name</label>
+                            <input asp-for="RegisterInput.OrganizationName" class="form-control" />
+                            <span asp-validation-for="RegisterInput.OrganizationName" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="RegisterInput.Description" class="form-label">Description</label>
+                            <textarea asp-for="RegisterInput.Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="RegisterInput.Description" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="RegisterInput.ContactPhone" class="form-label">Contact Phone</label>
+                            <input asp-for="RegisterInput.ContactPhone" class="form-control" />
+                            <span asp-validation-for="RegisterInput.ContactPhone" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Common Fields -->
+                    <div class="mb-3">
                         <label asp-for="RegisterInput.Username" class="form-label">Username</label>
                         <input asp-for="RegisterInput.Username" class="form-control" />
                         <span asp-validation-for="RegisterInput.Username" class="text-danger"></span>
@@ -32,13 +74,7 @@
                         <input asp-for="RegisterInput.ConfirmPassword" type="password" class="form-control" />
                         <span asp-validation-for="RegisterInput.ConfirmPassword" class="text-danger"></span>
                     </div>
-                    <div class="mb-3">
-                        <label asp-for="RegisterInput.UserType" class="form-label">Register as</label>
-                        <select asp-for="RegisterInput.UserType" class="form-select">
-                            <option value="customer">Customer</option>
-                            <option value="organizer">Organizer</option>
-                        </select>
-                    </div>
+                    
                     <button type="submit" class="btn btn-primary">Register</button>
                 </form>
             </div>
@@ -53,4 +89,24 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function toggleFields() {
+            const userType = document.getElementById('userTypeSelect').value;
+            const customerFields = document.getElementById('customerFields');
+            const organizerFields = document.getElementById('organizerFields');
+            
+            if (userType === 'customer') {
+                customerFields.style.display = 'block';
+                organizerFields.style.display = 'none';
+            } else {
+                customerFields.style.display = 'none';
+                organizerFields.style.display = 'block';
+            }
+        }
+        
+        // Run on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleFields();
+        });
+    </script>
 } 
