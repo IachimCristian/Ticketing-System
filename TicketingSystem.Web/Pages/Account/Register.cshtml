@@ -11,6 +11,28 @@
                 <h2>Register</h2>
             </div>
             <div class="card-body">
+                @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+                {
+                    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+                }
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger">@Model.ErrorMessage</div>
+                }
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach (var modelState in ViewData.ModelState.Values)
+                            {
+                                foreach (var error in modelState.Errors)
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                }
                 <form method="post">
                     <div class="mb-3">
                         <label asp-for="RegisterInput.UserType" class="form-label">Register as</label>

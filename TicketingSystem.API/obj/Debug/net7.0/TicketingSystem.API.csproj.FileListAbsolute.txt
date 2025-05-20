@@ -82,3 +82,4 @@ D:\Engenharia_de_Software\project\TicketingSystem.API\obj\Debug\net7.0\Ticketing
 D:\Engenharia_de_Software\project\TicketingSystem.API\obj\Debug\net7.0\TicketingSystem.API.genruntimeconfig.cache
 D:\Engenharia_de_Software\project\TicketingSystem.API\obj\Debug\net7.0\ref\TicketingSystem.API.dll
 D:\Engenharia_de_Software\project\TicketingSystem.API\obj\Debug\net7.0\TicketingSystem.API.sourcelink.json
+D:\Engenharia_de_Software\project\TicketingSystem.API\bin\Debug\net7.0\BCrypt.Net-Next.dll

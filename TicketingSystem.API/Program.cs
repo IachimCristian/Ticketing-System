@@ -33,6 +33,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddHttpClient("API", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:5071/");
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

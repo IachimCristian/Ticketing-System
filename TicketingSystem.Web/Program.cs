@@ -23,10 +23,10 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 // Register services
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
-// Add HttpClient for API calls
-builder.Services.AddHttpClient("TicketingAPI", client =>
+// Configure HttpClient for the API
+builder.Services.AddHttpClient("API", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7272/");
+    client.BaseAddress = new Uri("http://localhost:5071/");
 });
 
 // Add session services
