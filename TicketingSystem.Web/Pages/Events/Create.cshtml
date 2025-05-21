@@ -1,0 +1,75 @@
+@page
+@model TicketingSystem.Web.Pages.Events.CreateModel
+@{
+    ViewData["Title"] = "Create Event";
+}
+
+<h2>Create Event</h2>
+
+@if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var modelState in ViewData.ModelState.Values)
+            {
+                foreach (var error in modelState.Errors)
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            }
+        </ul>
+    </div>
+}
+
+<form method="post">
+    <div class="mb-3">
+        <label asp-for="EventInput.Title" class="form-label">Title</label>
+        <input asp-for="EventInput.Title" class="form-control" />
+        <span asp-validation-for="EventInput.Title" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="EventInput.Description" class="form-label">Description</label>
+        <textarea asp-for="EventInput.Description" class="form-control"></textarea>
+        <span asp-validation-for="EventInput.Description" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="EventInput.StartDate" class="form-label">Start Date</label>
+        <input asp-for="EventInput.StartDate" type="datetime-local" class="form-control" />
+        <span asp-validation-for="EventInput.StartDate" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="EventInput.EndDate" class="form-label">End Date</label>
+        <input asp-for="EventInput.EndDate" type="datetime-local" class="form-control" />
+        <span asp-validation-for="EventInput.EndDate" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="EventInput.Location" class="form-label">Location</label>
+        <input asp-for="EventInput.Location" class="form-control" />
+        <span asp-validation-for="EventInput.Location" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="EventInput.Capacity" class="form-label">Capacity</label>
+        <input asp-for="EventInput.Capacity" type="number" class="form-control" />
+        <span asp-validation-for="EventInput.Capacity" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="EventInput.TicketPrice" class="form-label">Ticket Price</label>
+        <input asp-for="EventInput.TicketPrice" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="EventInput.TicketPrice" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="EventInput.ImageUrl" class="form-label">Image URL</label>
+        <input asp-for="EventInput.ImageUrl" class="form-control" />
+        <span asp-validation-for="EventInput.ImageUrl" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Create Event</button>
+    <a asp-page="/Events/Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} 
