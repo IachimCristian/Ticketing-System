@@ -2,45 +2,73 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using TicketingSystem.Core.Entities;
+using TicketingSystem.Core.Interfaces;
 
 namespace TicketingSystem.Web.Pages.Events
 {
     public class IndexModel : PageModel
     {
-        public List<EventViewModel> Events { get; set; }
+        private readonly IEventService _eventService;
 
-        public void OnGet()
+        public IndexModel(IEventService eventService)
         {
-            Events = new List<EventViewModel>
+            _eventService = eventService;
+        }
+
+        public List<EventViewModel> Events { get; set; } = new List<EventViewModel>();
+        public string SearchTerm { get; set; }
+
+        public async Task OnGetAsync(string searchTerm = null)
+        {
+            SearchTerm = searchTerm;
+            IEnumerable<Event> events;
+
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
             {
-                new EventViewModel
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "Music Festival",
-                    Date = new DateTime(2023, 6, 15),
-                    Location = "Downtown Arena",
-                    Description = "Join us for a night of amazing music with top artists around the world!",
-                    Status = "Available"
-                },
-                new EventViewModel
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "Tech Conference",
-                    Date = new DateTime(2023, 7, 10),
-                    Location = "Convention Center",
-                    Description = "Learn about the latest technologies and network with industry experts.",
-                    Status = "Limited"
-                },
-                new EventViewModel
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "Food Festival",
-                    Date = new DateTime(2023, 8, 5),
-                    Location = "City Park",
-                    Description = "Sample delicious food from various cuisines and enjoy live entertainment.",
-                    Status = "Sold Out"
-                }
-            };
+                // If there's a search term, use search functionality
+                events = await _eventService.SearchEventsAsync(SearchTerm);
+            }
+            else
+            {
+                // Otherwise get all upcoming events
+                events = await _eventService.GetUpcomingEventsAsync();
+            }
+
+            // Map database events to view models
+            Events = events.Select(e => new EventViewModel
+            {
+                Id = e.Id,
+                Title = e.Title,
+                Date = e.StartDate,
+                Location = e.Location,
+                Description = e.Description,
+                TicketPrice = e.TicketPrice,
+                ImageUrl = e.ImageUrl,
+                // Determine status based on ticket availability and capacity
+                Status = DetermineEventStatus(e)
+            }).ToList();
+        }
+
+        private string DetermineEventStatus(Event e)
+        {
+            if (!e.IsActive)
+                return "Cancelled";
+
+            // In a real app, you'd check ticket counts against capacity
+            // For now, we'll use a simplified approach based on date
+            if (e.StartDate < DateTime.Now)
+                return "Completed";
+            
+            if (e.Capacity <= 10)
+                return "Limited";
+            
+            if (e.Capacity <= 0)
+                return "Sold Out";
+            
+            return "Available";
         }
     }
 
@@ -51,6 +79,8 @@ namespace TicketingSystem.Web.Pages.Events
         public DateTime Date { get; set; }
         public string Location { get; set; }
         public string Description { get; set; }
+        public string ImageUrl { get; set; }
+        public decimal TicketPrice { get; set; }
         public string Status { get; set; }
     }
 } 

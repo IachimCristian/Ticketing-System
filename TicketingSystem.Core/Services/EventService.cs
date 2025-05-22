@@ -7,7 +7,7 @@ using TicketingSystem.Core.Services.Commands;
 
 namespace TicketingSystem.Core.Services
 {
-    public class EventService
+    public class EventService : IEventService
     {
         private readonly IEventRepository _eventRepository;
         private readonly ITicketRepository _ticketRepository;

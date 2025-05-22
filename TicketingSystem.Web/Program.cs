@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TicketingSystem.Core.Entities;
 using TicketingSystem.Core.Interfaces;
 using TicketingSystem.Core.Services;
+using TicketingSystem.Core.Services.Observers;
 using TicketingSystem.Infrastructure.Data;
 using TicketingSystem.Infrastructure.Repositories;
 
@@ -18,10 +19,21 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IUserRepository<Customer>, UserRepository<Customer>>();
 builder.Services.AddScoped<IUserRepository<Organizer>, UserRepository<Organizer>>();
 builder.Services.AddScoped<IUserRepository<Administrator>, UserRepository<Administrator>>();
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Register services
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddSingleton<INotificationSubject, NotificationService>();
+builder.Services.AddSingleton<EmailNotificationObserver>();
+builder.Services.AddSingleton<SMSNotificationObserver>();
+builder.Services.AddSingleton<INotificationObserver>(sp => sp.GetRequiredService<EmailNotificationObserver>());
+builder.Services.AddSingleton<INotificationObserver>(sp => sp.GetRequiredService<SMSNotificationObserver>());
+builder.Services.AddScoped<ISeatMapService, SeatMapService>();
+builder.Services.AddSingleton<PaymentStrategyFactory>();
+builder.Services.AddScoped<TicketPurchaseFacade>();
 
 // Configure HttpClient for the API
 builder.Services.AddHttpClient("API", client =>
@@ -46,6 +58,13 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+// Register notification observers
+var notificationService = app.Services.GetRequiredService<INotificationSubject>();
+var emailObserver = app.Services.GetRequiredService<EmailNotificationObserver>();
+var smsObserver = app.Services.GetRequiredService<SMSNotificationObserver>();
+notificationService.RegisterObserverAsync(emailObserver).GetAwaiter().GetResult();
+notificationService.RegisterObserverAsync(smsObserver).GetAwaiter().GetResult();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

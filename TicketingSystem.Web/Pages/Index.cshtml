@@ -1,4 +1,5 @@
 ﻿@page
+@using Microsoft.AspNetCore.Http
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
@@ -8,38 +9,45 @@
     <div class="featured-events">
         <h2 style="margin-bottom: 20px;">Featured Events</h2>
         <div class="event-cards">
-            <div class="event-card">
-                <div class="placeholder-img">
-                    <span>X</span>
+            @if (Model.FeaturedEvents.Any())
+            {
+                foreach (var eventItem in Model.FeaturedEvents)
+                {
+                    <div class="event-card">
+                        @if (!string.IsNullOrEmpty(eventItem.ImageUrl))
+                        {
+                            <img src="@eventItem.ImageUrl" class="event-img" alt="@eventItem.Title">
+                        }
+                        else
+                        {
+                            <div class="placeholder-img">
+                                <span>X</span>
+                            </div>
+                        }
+                        <div class="event-info">
+                            <h3>@eventItem.Title</h3>
+                            <p>@eventItem.Date</p>
+                        </div>
+                        <a asp-page="/Events/Details" asp-route-id="@eventItem.Id" class="card-link"></a>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-events">
+                    <p>No upcoming events found.</p>
+                    <p>Check back later or create your own event!</p>
                 </div>
-                <div class="event-info">
-                    <h3>Music Festival</h3>
-                    <p>June 15, 2023</p>
-                </div>
-            </div>
-            <div class="event-card">
-                <div class="placeholder-img">
-                    <span>X</span>
-                </div>
-                <div class="event-info">
-                    <h3>Tech Conference</h3>
-                    <p>July 10, 2023</p>
-                </div>
-            </div>
-            <div class="event-card">
-                <div class="placeholder-img">
-                    <span>X</span>
-                </div>
-                <div class="event-info">
-                    <h3>Food Festival</h3>
-                    <p>August 5, 2023</p>
-                </div>
-            </div>
+            }
         </div>
     </div>
     
     <div class="browse-events-section">
         <a asp-page="/Events/Index" class="btn btn-primary">Browse Events</a>
+        @if (Model.HttpContext.Session.GetString("UserType") == "Organizer")
+        {
+            <a asp-page="/Events/Create" class="btn btn-outline-dark ms-2">Create Event</a>
+        }
     </div>
 </div>
 
@@ -107,6 +115,12 @@
         font-size: 40px;
         color: #aaa;
     }
+    
+    .event-img {
+        height: 150px;
+        width: 100%;
+        object-fit: cover;
+    }
 
     .event-info {
         padding: 15px;
@@ -126,6 +140,14 @@
         color: #666;
     }
 
+    .card-link {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
     .browse-events-section {
         margin-top: 40px;
     }
@@ -142,5 +164,19 @@
     .btn-primary:hover {
         background-color: #000;
         border-color: #000;
+    }
+    
+    .btn-outline-dark {
+        padding: 12px 30px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 0;
+    }
+    
+    .no-events {
+        width: 100%;
+        padding: 30px;
+        background-color: #f9f9f9;
+        border: 1px solid #eee;
     }
 </style>

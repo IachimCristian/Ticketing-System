@@ -15,6 +15,8 @@ namespace TicketingSystem.Infrastructure.Data
         public DbSet<Event> Events { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<SeatMap> SeatMaps { get; set; }
+        public DbSet<SeatSection> SeatSections { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,6 +26,16 @@ namespace TicketingSystem.Infrastructure.Data
             modelBuilder.Entity<Customer>().ToTable("Customers");
             modelBuilder.Entity<Organizer>().ToTable("Organizers");
             modelBuilder.Entity<Administrator>().ToTable("Administrators");
+            
+            // Configure SeatMap and SeatSection
+            modelBuilder.Entity<SeatMap>().ToTable("SeatMaps");
+            modelBuilder.Entity<SeatSection>().ToTable("SeatSections");
+            
+            // Configure relationship between SeatMap and SeatSection
+            modelBuilder.Entity<SeatSection>()
+                .HasOne<SeatMap>()
+                .WithMany(sm => sm.Sections)
+                .HasForeignKey("SeatMapId");
         }
     }
 } 

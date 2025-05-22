@@ -6,44 +6,83 @@
 
 <div class="page-header">
     <h1>Browse Events</h1>
-    <div class="filters">
-        <input type="text" class="form-control" placeholder="Search events...">
-        <button class="btn btn-primary ms-2">Search</button>
-    </div>
+    <form method="get" class="filters">
+        <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Search events...">
+        <button type="submit" class="btn btn-primary ms-2">Search</button>
+    </form>
 </div>
 
 <div class="row mt-4">
-    @foreach (var item in Model.Events)
+    @if (Model.Events.Any())
     {
-        <div class="col-md-4 mb-4">
-            <div class="card event-listing">
-                <div class="status-indicator"></div>
-                <div class="card-img-top bg-light text-center py-5">
-                    <span class="display-4 text-muted">X</span>
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">@item.Title</h5>
-                    <p class="card-text"><strong>Date:</strong> @item.Date.ToString("MMMM d, yyyy")</p>
-                    <p class="card-text"><strong>Location:</strong> @item.Location</p>
-                    <p class="card-text">@item.Description</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        @if (item.Status == "Available")
-                        {
-                            <span class="badge bg-dark">Available</span>
-                            <a asp-page="/Events/Details" asp-route-id="@item.Id" class="btn btn-primary">View Details</a>
-                        }
-                        else if (item.Status == "Limited")
-                        {
-                            <span class="badge bg-secondary">Limited</span>
-                            <a asp-page="/Events/Details" asp-route-id="@item.Id" class="btn btn-primary">View Details</a>
-                        }
-                        else if (item.Status == "Sold Out")
-                        {
-                            <span class="badge bg-light text-dark border">Sold Out</span>
-                            <a href="#" class="btn btn-outline-dark">Join Waitlist</a>
-                        }
+        @foreach (var item in Model.Events)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card event-listing">
+                    <div class="status-indicator"></div>
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@item.ImageUrl" class="card-img-top" alt="@item.Title">
+                    }
+                    else
+                    {
+                        <div class="card-img-top bg-light text-center py-5">
+                            <span class="display-4 text-muted">X</span>
+                        </div>
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Title</h5>
+                        <p class="card-text"><strong>Date:</strong> @item.Date.ToString("MMMM d, yyyy")</p>
+                        <p class="card-text"><strong>Location:</strong> @item.Location</p>
+                        <p class="card-text text-truncate">@item.Description</p>
+                        <p class="card-text">
+                            <strong>Price:</strong> 
+                            @if (item.TicketPrice == 0)
+                            {
+                                <span>Free</span>
+                            }
+                            else
+                            {
+                                <span>$@item.TicketPrice.ToString("F2")</span>
+                            }
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            @if (item.Status == "Available")
+                            {
+                                <span class="badge bg-dark">Available</span>
+                                <a asp-page="/Events/Details" asp-route-id="@item.Id" class="btn btn-primary">View Details</a>
+                            }
+                            else if (item.Status == "Limited")
+                            {
+                                <span class="badge bg-secondary">Limited</span>
+                                <a asp-page="/Events/Details" asp-route-id="@item.Id" class="btn btn-primary">View Details</a>
+                            }
+                            else if (item.Status == "Sold Out")
+                            {
+                                <span class="badge bg-light text-dark border">Sold Out</span>
+                                <a href="#" class="btn btn-outline-dark">Join Waitlist</a>
+                            }
+                            else if (item.Status == "Cancelled")
+                            {
+                                <span class="badge bg-danger">Cancelled</span>
+                                <a asp-page="/Events/Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">View Details</a>
+                            }
+                            else if (item.Status == "Completed")
+                            {
+                                <span class="badge bg-info">Completed</span>
+                                <a asp-page="/Events/Details" asp-route-id="@item.Id" class="btn btn-outline-secondary">View Details</a>
+                            }
+                        </div>
                     </div>
                 </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="alert alert-info">
+                No events found. @if (!string.IsNullOrEmpty(Model.SearchTerm)) { <span>Try a different search term.</span> }
             </div>
         </div>
     }
@@ -114,5 +153,10 @@
     
     h1 {
         font-weight: 700;
+    }
+    
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
     }
 </style> 

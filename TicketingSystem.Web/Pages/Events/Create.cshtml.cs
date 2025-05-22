@@ -2,38 +2,49 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using TicketingSystem.Core.Entities;
+using TicketingSystem.Core.Interfaces;
+using TicketingSystem.Core.Services;
 
 namespace TicketingSystem.Web.Pages.Events
 {
     public class CreateModel : PageModel
     {
-        private readonly IHttpClientFactory _clientFactory;
-        public CreateModel(IHttpClientFactory clientFactory)
+        private readonly IEventService _eventService;
+
+        public CreateModel(IEventService eventService)
         {
-            _clientFactory = clientFactory;
+            _eventService = eventService;
         }
 
         [BindProperty]
-        public EventInputModel EventInput { get; set; }
+        public EventInputModel EventInput { get; set; } = new EventInputModel();
 
         public class EventInputModel
         {
             [Required]
             public string Title { get; set; }
+            
             public string Description { get; set; }
+            
             [Required]
             [DataType(DataType.DateTime)]
-            public DateTime StartDate { get; set; }
+            public DateTime StartDate { get; set; } = DateTime.Now.AddDays(1);
+            
             [Required]
             [DataType(DataType.DateTime)]
-            public DateTime EndDate { get; set; }
+            public DateTime EndDate { get; set; } = DateTime.Now.AddDays(1).AddHours(2);
+            
             public string Location { get; set; }
-            public int Capacity { get; set; }
-            public decimal TicketPrice { get; set; }
+            
+            [Range(1, 10000)]
+            public int Capacity { get; set; } = 100;
+            
+            [Range(0, 10000)]
+            public decimal TicketPrice { get; set; } = 0;
+            
             public string ImageUrl { get; set; }
         }
 
@@ -47,35 +58,34 @@ namespace TicketingSystem.Web.Pages.Events
             var organizerId = HttpContext.Session.GetString("UserId");
             if (string.IsNullOrEmpty(organizerId))
             {
-                ModelState.AddModelError(string.Empty, "Organizer not logged in.");
+                ModelState.AddModelError(string.Empty, "You must be logged in as an organizer to create events.");
                 return Page();
             }
 
-            var eventDto = new
+            try
             {
-                title = EventInput.Title,
-                description = EventInput.Description,
-                startDate = EventInput.StartDate,
-                endDate = EventInput.EndDate,
-                location = EventInput.Location,
-                capacity = EventInput.Capacity,
-                ticketPrice = EventInput.TicketPrice,
-                imageUrl = EventInput.ImageUrl,
-                organizerId = organizerId
-            };
+                // Use the EventBuilder from Core to create the event (Builder pattern)
+                var newEvent = new EventBuilder()
+                    .WithTitle(EventInput.Title)
+                    .WithDescription(EventInput.Description)
+                    .WithDates(EventInput.StartDate, EventInput.EndDate)
+                    .AtLocation(EventInput.Location)
+                    .WithCapacity(EventInput.Capacity)
+                    .WithTicketPrice(EventInput.TicketPrice)
+                    .WithImage(EventInput.ImageUrl)
+                    .ByOrganizer(Guid.Parse(organizerId))
+                    .IsActive(true)
+                    .Build();
 
-            using var client = new HttpClient();
-            var response = await client.PostAsJsonAsync("http://localhost:5071/api/Events", eventDto);
+                // Use the service to create the event
+                var createdEvent = await _eventService.CreateEventAsync(newEvent);
 
-            if (response.IsSuccessStatusCode)
-            {
                 TempData["SuccessMessage"] = "Event created successfully!";
                 return RedirectToPage("/Events/Index");
             }
-            else
+            catch (Exception ex)
             {
-                var error = await response.Content.ReadAsStringAsync();
-                ModelState.AddModelError(string.Empty, $"Failed to create event: {error}");
+                ModelState.AddModelError(string.Empty, $"Failed to create event: {ex.Message}");
                 return Page();
             }
         }

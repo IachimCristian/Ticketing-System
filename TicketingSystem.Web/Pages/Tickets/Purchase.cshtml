@@ -8,103 +8,404 @@
     <div>
         <img src="~/images/logo-no-background.png" alt="Ticksy" style="height: 40px;" />
     </div>
-    <a asp-page="/Account/Logout" class="btn btn-outline-dark btn-sm">Logout</a>
+    <a asp-page="/Events/Index" class="btn btn-outline-secondary btn-sm">Back</a>
 </div>
 
 <h2 class="fs-4 mb-3">Ticket Purchase</h2>
 
-<div class="card mb-4">
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="event-image-placeholder mb-3">
-                    <span>X</span>
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @Model.ErrorMessage
+    </div>
+}
+
+@if (Model.Event != null)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    @if (!string.IsNullOrEmpty(Model.Event.ImageUrl))
+                    {
+                        <img src="@Model.Event.ImageUrl" class="img-fluid" alt="@Model.Event.Title">
+                    }
+                    else
+                    {
+                        <div class="event-image-placeholder mb-3">
+                            <span>X</span>
+                        </div>
+                    }
                 </div>
-            </div>
-            <div class="col-md-8">
-                <h5>@Model.Event.Title</h5>
-                <p class="mb-2"><strong>Date:</strong> @Model.Event.Date.ToString("MMMM d, yyyy")</p>
-                <p class="mb-2"><strong>Location:</strong> @Model.Event.Location</p>
-                <p class="mb-2"><strong>Price:</strong> $@Model.Event.Price.ToString("0.00")</p>
+                <div class="col-md-8">
+                    <h5>@Model.Event.Title</h5>
+                    <p class="mb-2"><strong>Date:</strong> @Model.Event.StartDate.ToString("MMMM d, yyyy")</p>
+                    <p class="mb-2"><strong>Time:</strong> @Model.Event.StartDate.ToString("h:mm tt") - @Model.Event.EndDate.ToString("h:mm tt")</p>
+                    <p class="mb-2"><strong>Location:</strong> @Model.Event.Location</p>
+                    <p class="mb-2">
+                        <strong>Base Price:</strong> 
+                        @if (Model.Event.TicketPrice <= 0)
+                        {
+                            <span>Free</span>
+                        }
+                        else
+                        {
+                            <span>$@Model.Event.TicketPrice.ToString("0.00")</span>
+                        }
+                    </p>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<form method="post">
-    <input type="hidden" asp-for="EventId" />
+    <form method="post">
+        <input type="hidden" asp-for="EventId" />
 
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="mb-0">Select Seat</h5>
-        </div>
-        <div class="card-body">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="d-flex gap-2 mb-2">
-                        @for (int i = 1; i <= 4; i++)
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Select Seat</h5>
+            </div>
+            <div class="card-body">
+                <div class="seat-selection-container">
+                    <div class="seat-legend mb-3">
+                        @foreach (var seatSection in Model.SeatSections)
                         {
-                            <div class="form-check">
-                                @if (i == 1)
+                            <div class="seat-legend-item">
+                                <div class="seat-icon" style="background-color: @seatSection.Color;"></div>
+                                <div>
+                                    <div>Section @seatSection.Name</div>
+                                    <div class="text-muted small">$@seatSection.FinalPrice.ToString("0.00")</div>
+                                </div>
+                            </div>
+                        }
+                        <div class="seat-legend-item">
+                            <div class="seat-icon seat-unavailable"></div>
+                            <div>
+                                <div>Unavailable</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="airplane-header text-center mb-3">
+                        <div class="airplane-front">Front</div>
+                    </div>
+                    
+                    @* Debug info *@
+                    <div class="text-muted small mb-2">
+                        @Model.SeatLayout.Count rows, 
+                        @(Model.SeatLayout.Count > 0 ? Model.SeatLayout[0].Count : 0) columns per row
+                    </div>
+                    
+                    <div class="airplane-container">
+                        @for (int i = 0; i < Model.SeatLayout.Count; i++)
+                        {
+                            var row = Model.SeatLayout[i];
+                            <div class="seat-row">
+                                <div class="row-number">Row @(i + 1)</div>
+                                @for (int j = 0; j < row.Count; j++)
                                 {
-                                    <input class="form-check-input" type="radio" asp-for="SeatNumber" value="@i" id="seat@(i)" checked />
+                                    var seat = row[j];
+                                    string seatNumber = (j + 1).ToString();
+                                    string seatId = $"seat-{i+1}-{j}";
+                                    string seatClass = seat.IsAvailable ? "seat" : "seat seat-unavailable";
+                                    seatClass += j == 5 || j == 14 ? " seat-aisle" : "";
+
+                                    <div class="seat-cell">
+                                        @if (seat.IsAvailable)
+                                        {
+                                            <input type="radio" 
+                                                   id="@seatId" 
+                                                   name="seatSelection" 
+                                                   value="@(seat.Row),@(seat.Column)" 
+                                                   class="seat-input" 
+                                                   onchange="selectSeat(@seat.Row, @seat.Column, '@seat.Section', @seat.Price)" />
+                                            <label for="@seatId" 
+                                                   class="@seatClass" 
+                                                   style="background-color: @seat.SectionColor;" 
+                                                   title="Row @(i+1) Seat @(j+1) - Section @seat.Section - $@seat.Price.ToString("0.00")">
+                                                @seatNumber
+                                            </label>
+                                        }
+                                        else
+                                        {
+                                            <div class="@seatClass" title="Unavailable">@seatNumber</div>
+                                        }
+                                    </div>
                                 }
-                                else
-                                {
-                                    <input class="form-check-input" type="radio" asp-for="SeatNumber" value="@i" id="seat@(i)" />
-                                }
-                                <label class="form-check-label" for="seat@(i)">@i</label>
                             </div>
                         }
                     </div>
-                    <div>
-                        <span>Section: <strong>@Model.Section</strong></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="mb-0">Payment</h5>
-        </div>
-        <div class="card-body">
-            <div class="mb-3">
-                <label class="form-label">Payment Method</label>
-                <div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" asp-for="PaymentMethod" id="creditCard" value="CreditCard" checked />
-                        <label class="form-check-label" for="creditCard">Credit Card</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" asp-for="PaymentMethod" id="paypal" value="PayPal" />
-                        <label class="form-check-label" for="paypal">PayPal</label>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="creditCardDetails">
-                <div class="mb-3">
-                    <label class="form-label">Card Number</label>
-                    <input type="text" class="form-control" asp-for="CardNumber" placeholder="1234 5678 9012 3456" />
                 </div>
                 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Expiry Date</label>
-                        <input type="text" class="form-control" asp-for="ExpiryDate" placeholder="MM/YY" />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">CVV</label>
-                        <input type="text" class="form-control" asp-for="Cvv" placeholder="123" />
+                <div class="seat-selection-summary mt-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6>Selected Seat</h6>
+                            <div id="selectedSeatInfo" class="mb-3">
+                                <span class="text-muted">No seat selected</span>
+                            </div>
+                            <input type="hidden" asp-for="SelectedRow" id="selectedRow" />
+                            <input type="hidden" asp-for="SelectedColumn" id="selectedColumn" />
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Payment</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Payment Method</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" asp-for="PaymentMethod" id="creditCard" value="CreditCard" checked />
+                            <label class="form-check-label" for="creditCard">Credit Card</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" asp-for="PaymentMethod" id="paypal" value="PayPal" />
+                            <label class="form-check-label" for="paypal">PayPal</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="creditCardDetails">
+                    <div class="mb-3">
+                        <label class="form-label">Card Number</label>
+                        <input type="text" class="form-control" asp-for="CardNumber" placeholder="1234 5678 9012 3456" />
+                        <span asp-validation-for="CardNumber" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Expiry Date</label>
+                            <input type="text" class="form-control" asp-for="ExpiryDate" placeholder="MM/YY" />
+                            <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">CVV</label>
+                            <input type="text" class="form-control" asp-for="Cvv" placeholder="123" />
+                            <span asp-validation-for="Cvv" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-end mb-4">
+            <button type="submit" class="btn btn-dark" id="purchaseButton" disabled>Purchase</button>
+        </div>
+    </form>
+}
+
+<style>
+    .event-image-placeholder {
+        height: 150px;
+        background-color: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #ccc;
+    }
     
-    <div class="text-end mb-4">
-        <button type="submit" class="btn btn-dark">Purchase</button>
-    </div>
-</form> 
+    .seat-selection-container {
+        margin-bottom: 20px;
+    }
+    
+    .seat-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    
+    .seat-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .seat-icon {
+        width: 24px;
+        height: 24px;
+        border: 1px solid #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .seat-unavailable {
+        background-color: #7f8c8d !important;
+        color: #ecf0f1;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .seat-unavailable::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: repeating-linear-gradient(
+            45deg,
+            rgba(255, 0, 0, 0.3),
+            rgba(255, 0, 0, 0.3) 5px,
+            rgba(255, 0, 0, 0) 5px,
+            rgba(255, 0, 0, 0) 10px
+        );
+    }
+    
+    .airplane-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        border: 1px solid #ddd;
+        padding: 20px;
+        background-color: #f9f9f9;
+        width: 100%;
+        min-height: 200px;
+        overflow-x: auto;
+        box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+    }
+    
+    .airplane-header {
+        position: relative;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    
+    .airplane-front {
+        background-color: #e0e0e0;
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 4px;
+    }
+    
+    .seat-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: nowrap;
+    }
+    
+    .row-number {
+        width: 70px;
+        text-align: left;
+        padding-right: 10px;
+        font-weight: bold;
+        flex-shrink: 0;
+        font-size: 14px;
+    }
+    
+    .seat-cell {
+        position: relative;
+        width: 30px;
+        height: 30px;
+        margin: 2px;
+        flex-shrink: 0;
+        display: inline-block;
+    }
+    
+    .seat {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 10px;
+        user-select: none;
+        background-color: #3498db;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .seat-input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        width: 0;
+        height: 0;
+    }
+    
+    .seat-input:checked + .seat {
+        border: 2px solid #212121;
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.3);
+    }
+    
+    .seat-aisle {
+        margin-right: 15px;
+    }
+    
+    #selectedSeatInfo {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            
+            // Debug seat layout
+            console.log('SeatLayout count: @Model.SeatLayout.Count');
+            @if (Model.SeatLayout.Count > 0) {
+                <text>
+                console.log('First row seat count: @Model.SeatLayout[0].Count');
+                </text>
+            }
+            
+            const paymentMethod = document.getElementById('creditCard');
+            const payPalMethod = document.getElementById('paypal');
+            const creditCardDetails = document.getElementById('creditCardDetails');
+            
+            paymentMethod.addEventListener('change', function() {
+                if (this.checked) {
+                    creditCardDetails.style.display = 'block';
+                }
+            });
+            
+            payPalMethod.addEventListener('change', function() {
+                if (this.checked) {
+                    creditCardDetails.style.display = 'none';
+                }
+            });
+        });
+        
+        function selectSeat(row, column, section, price) {
+            document.getElementById('selectedRow').value = row;
+            document.getElementById('selectedColumn').value = column;
+            
+            const formattedPrice = new Intl.NumberFormat('en-US', { 
+                style: 'currency', 
+                currency: 'USD' 
+            }).format(price);
+            
+            document.getElementById('selectedSeatInfo').innerHTML = `
+                <div>
+                    <strong>Seat:</strong> Row ${row}, Seat ${column + 1} (Section ${section})
+                </div>
+                <div>
+                    <strong>Price:</strong> ${formattedPrice}
+                </div>
+            `;
+            
+            document.getElementById('purchaseButton').disabled = false;
+        }
+    </script>
+} 
