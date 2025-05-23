@@ -73,17 +73,17 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="event-description mb-4">
                         <h4>About this Event</h4>
                         <p>@Model.Event.Description</p>
                     </div>
-                    
+
                     <div class="event-organizer mb-4">
                         <h4>Organized by</h4>
                         <p>@(Model.Event.Organizer?.OrganizationName ?? "Event Organizer")</p>
                     </div>
-                    
+
                     <div class="text-center mt-4">
                         @if (!Model.Event.IsActive)
                         {
@@ -104,9 +104,16 @@
                             </div>
                             <button class="btn btn-outline-dark">Join Waitlist</button>
                         }
-                        else
+                       else
                         {
-                            <a asp-page="/Tickets/Purchase" asp-route-eventId="@Model.Event.Id" class="btn btn-dark">Buy Ticket</a>
+                            @if (Model.CurrentUserId == Model.Event.OrganizerId)
+                            {
+                                <a asp-page="/Organizer/ManageEvent" asp-route-id="@Model.Event.Id" class="btn btn-warning">Manage</a>
+                            }
+                            else
+                            {
+                                <a asp-page="/Tickets/Purchase" asp-route-eventId="@Model.Event.Id" class="btn btn-dark">Buy Ticket</a>
+                            }
                         }
                     </div>
                 </div>
@@ -119,4 +126,4 @@
     .event-description p {
         white-space: pre-line;
     }
-</style> 
+</style>

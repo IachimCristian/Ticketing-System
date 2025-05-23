@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Http; 
 using System;
 using System.Threading.Tasks;
 using TicketingSystem.Core.Entities;
@@ -24,6 +25,16 @@ namespace TicketingSystem.Web.Pages.Events
         public Event Event { get; set; }
         public bool EventNotFound { get; set; }
         public string ErrorMessage { get; set; }
+
+        // ✅ Proprietate adăugată pentru a obține ID-ul 
+        public Guid? CurrentUserId
+        {
+            get
+            {
+                var userIdStr = HttpContext.Session.GetString("UserId");
+                return Guid.TryParse(userIdStr, out var userId) ? userId : (Guid?)null;
+            }
+        }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -52,4 +63,4 @@ namespace TicketingSystem.Web.Pages.Events
             }
         }
     }
-} 
+}

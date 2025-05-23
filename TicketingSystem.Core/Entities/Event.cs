@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 
+
 namespace TicketingSystem.Core.Entities
 {
     public class Event
@@ -16,9 +17,9 @@ namespace TicketingSystem.Core.Entities
         public string ImageUrl { get; set; }
         public bool IsActive { get; set; }
         public Guid OrganizerId { get; set; }
-        public virtual Organizer Organizer { get; set; }
+        public virtual Organizer? Organizer { get; set; }
         public virtual ICollection<Ticket> Tickets { get; set; }
-        
+
         public Event()
         {
             Id = Guid.NewGuid();

@@ -55,7 +55,14 @@ namespace TicketingSystem.Infrastructure.Repositories
 
         public async Task SaveChangesAsync()
         {
+            foreach (var entry in _context.ChangeTracker.Entries())
+            {
+                Console.WriteLine($"Entity: {entry.Entity.GetType().Name}, State: {entry.State}");
+            }
+
             await _context.SaveChangesAsync();
         }
+
+        
     }
 } 

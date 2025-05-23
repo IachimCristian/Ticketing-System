@@ -126,7 +126,7 @@
                                     }
                                 </td>
                                 <td class="text-end">
-                                    <a href="#" class="btn btn-sm btn-outline-dark">Manage</a>
+                                        <a asp-page="/Organizer/ManageEvent" asp-route-id="@evt.Id" class="btn btn-sm btn-outline-dark">Manage</a>
                                     @if (evt.StartDate > DateTime.Now)
                                     {
                                         <a asp-page="/Organizer/ScanTicket" class="btn btn-sm btn-dark">Scan Tickets</a>
