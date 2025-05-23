@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using TicketingSystem.Core.Entities;
 using TicketingSystem.Core.Interfaces;
 using TicketingSystem.Core.Services;
+using BCrypt.Net;
 
 namespace TicketingSystem.API.Controllers
 {
@@ -30,7 +31,7 @@ namespace TicketingSystem.API.Controllers
         {
             // First try to find the user as a customer
             var customer = await _customerRepository.GetByEmailAsync(loginDto.Email);
-            if (customer != null && customer.Password == loginDto.Password)
+            if (customer != null && VerifyPassword(loginDto.Password, customer.Password))
             {
                 return Ok(new { 
                     Id = customer.Id,
@@ -43,7 +44,7 @@ namespace TicketingSystem.API.Controllers
 
             // Try to find the user as an organizer
             var organizer = await _organizerRepository.GetByEmailAsync(loginDto.Email);
-            if (organizer != null && organizer.Password == loginDto.Password)
+            if (organizer != null && VerifyPassword(loginDto.Password, organizer.Password))
             {
                 return Ok(new { 
                     Id = organizer.Id,
@@ -56,7 +57,7 @@ namespace TicketingSystem.API.Controllers
 
             // Try to find the user as an administrator
             var admin = await _adminRepository.GetByEmailAsync(loginDto.Email);
-            if (admin != null && admin.Password == loginDto.Password)
+            if (admin != null && VerifyPassword(loginDto.Password, admin.Password))
             {
                 return Ok(new { 
                     Id = admin.Id,
@@ -69,6 +70,27 @@ namespace TicketingSystem.API.Controllers
 
             // If we get here, login failed
             return Unauthorized(new { Message = "Invalid email or password" });
+        }
+
+        // Helper method to verify passwords
+        private bool VerifyPassword(string providedPassword, string storedPassword)
+        {
+            // For backward compatibility with non-hashed passwords (like admin account)
+            if (!storedPassword.StartsWith("$2a$") && !storedPassword.StartsWith("$2b$") && !storedPassword.StartsWith("$2y$"))
+            {
+                return providedPassword == storedPassword;
+            }
+            
+            // For BCrypt hashed passwords
+            try
+            {
+                return BCrypt.Net.BCrypt.Verify(providedPassword, storedPassword);
+            }
+            catch
+            {
+                // If the hash is invalid, fail safely
+                return false;
+            }
         }
 
         [HttpPost("customers")]
