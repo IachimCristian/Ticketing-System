@@ -32,8 +32,16 @@ builder.Services.AddSingleton<SMSNotificationObserver>();
 builder.Services.AddSingleton<INotificationObserver>(sp => sp.GetRequiredService<EmailNotificationObserver>());
 builder.Services.AddSingleton<INotificationObserver>(sp => sp.GetRequiredService<SMSNotificationObserver>());
 builder.Services.AddScoped<ISeatMapService, SeatMapService>();
+builder.Services.AddScoped<ITicketValidationService, TicketValidationService>();
 builder.Services.AddSingleton<PaymentStrategyFactory>();
-builder.Services.AddScoped<TicketPurchaseFacade>();
+builder.Services.AddScoped<TicketPurchaseFacade>(sp => new TicketPurchaseFacade(
+    sp.GetRequiredService<IEventRepository>(),
+    sp.GetRequiredService<ITicketRepository>(),
+    sp.GetRequiredService<IUserRepository<Customer>>(),
+    sp.GetRequiredService<IRepository<Payment>>(),
+    sp.GetRequiredService<PaymentStrategyFactory>(),
+    sp.GetRequiredService<INotificationSubject>()
+));
 
 // Configure HttpClient for the API
 builder.Services.AddHttpClient("API", client =>

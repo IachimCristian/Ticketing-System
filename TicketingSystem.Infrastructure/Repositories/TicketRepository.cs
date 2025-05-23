@@ -47,7 +47,10 @@ namespace TicketingSystem.Infrastructure.Repositories
                 return false;
             }
 
-            return QRCodeGenerator.Instance.ValidateQRCode(qrCode, ticket.Id);
+            Guid extractedTicketId;
+            bool isValid = QRCodeGenerator.Instance.ValidateQRCode(qrCode, out extractedTicketId);
+            
+            return isValid;
         }
     }
 } 

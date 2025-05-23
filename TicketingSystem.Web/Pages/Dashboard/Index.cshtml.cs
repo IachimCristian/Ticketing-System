@@ -2,88 +2,99 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
+using TicketingSystem.Core.Interfaces;
+using TicketingSystem.Core.Entities;
+using Microsoft.AspNetCore.Http;
 
 namespace TicketingSystem.Web.Pages.Dashboard
 {
     public class IndexModel : PageModel
     {
-        public List<PurchasedEvent> PurchasedEvents { get; set; }
-        public List<EventViewModel> UpcomingEvents { get; set; }
+        private readonly ITicketRepository _ticketRepository;
+        private readonly IEventService _eventService;
+        
+        public List<PurchasedEvent> PurchasedEvents { get; set; } = new List<PurchasedEvent>();
+        public List<EventViewModel> UpcomingEvents { get; set; } = new List<EventViewModel>();
+        
+        public string Username { get; set; }
+        public string UserType { get; set; }
+        public string ErrorMessage { get; set; }
 
-        public void OnGet()
+        public IndexModel(ITicketRepository ticketRepository, IEventService eventService)
+        {
+            _ticketRepository = ticketRepository;
+            _eventService = eventService;
+        }
+
+        public async Task<IActionResult> OnGetAsync()
         {
             // Check if user is logged in
             var userId = HttpContext.Session.GetString("UserId");
+            Username = HttpContext.Session.GetString("Username");
+            UserType = HttpContext.Session.GetString("UserType");
+            
             if (string.IsNullOrEmpty(userId))
             {
-                Response.Redirect("/Account/Login");
-                return;
+                return RedirectToPage("/Account/Login");
+            }
+            
+            // Redirect organizers to organizer dashboard
+            if (UserType == "Organizer")
+            {
+                return RedirectToPage("/Organizer/Dashboard");
             }
 
-            // Mock data for purchased events
-            PurchasedEvents = new List<PurchasedEvent>
+            try
             {
-                new PurchasedEvent
+                // Get real purchased tickets for this customer
+                if (Guid.TryParse(userId, out Guid customerId))
                 {
-                    Id = Guid.NewGuid(),
-                    EventName = "Summer Music Festival",
-                    Date = DateTime.Now.AddDays(15),
-                    Status = "Upcoming",
-                    TicketType = "VIP"
-                },
-                new PurchasedEvent
-                {
-                    Id = Guid.NewGuid(),
-                    EventName = "Tech Conference 2025",
-                    Date = DateTime.Now.AddDays(30),
-                    Status = "Upcoming",
-                    TicketType = "Standard"
-                },
-                new PurchasedEvent
-                {
-                    Id = Guid.NewGuid(),
-                    EventName = "Comedy Night",
-                    Date = DateTime.Now.AddDays(-5),
-                    Status = "Past",
-                    TicketType = "Premium"
+                    var tickets = await _ticketRepository.GetTicketsByCustomerAsync(customerId);
+                    
+                    PurchasedEvents = tickets.Select(t => new PurchasedEvent
+                    {
+                        Id = t.Id,
+                        EventId = t.EventId,
+                        EventName = t.Event?.Title ?? "Unknown Event",
+                        Date = t.Event?.StartDate ?? DateTime.Now,
+                        Status = t.Event?.StartDate > DateTime.Now ? "Upcoming" : "Past",
+                        TicketType = t.Payment?.PaymentMethod ?? "Standard",
+                        TicketNumber = t.TicketNumber
+                    }).ToList();
                 }
-            };
-
-            // Mock data for upcoming events
-            UpcomingEvents = new List<EventViewModel>
+                
+                // Get real upcoming events
+                var upcomingEvents = await _eventService.GetUpcomingEventsAsync();
+                UpcomingEvents = upcomingEvents.Select(e => new EventViewModel
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Date = e.StartDate,
+                    Location = e.Location,
+                    ImageUrl = e.ImageUrl,
+                    TicketPrice = e.TicketPrice
+                }).ToList();
+            }
+            catch (Exception ex)
             {
-                new EventViewModel
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "Comedy Night",
-                    Date = DateTime.Now.AddDays(10),
-                    Location = "City Theater"
-                },
-                new EventViewModel
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "Jazz Festival",
-                    Date = DateTime.Now.AddDays(20),
-                    Location = "Central Park"
-                },
-                new EventViewModel
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "Art Exhibition",
-                    Date = DateTime.Now.AddDays(15),
-                    Location = "City Gallery"
-                }
-            };
+                ErrorMessage = $"Error loading dashboard data: {ex.Message}";
+            }
+            
+            return Page();
         }
     }
 
     public class PurchasedEvent
     {
         public Guid Id { get; set; }
+        public Guid EventId { get; set; }
         public string EventName { get; set; }
         public DateTime Date { get; set; }
         public string Status { get; set; }
         public string TicketType { get; set; }
+        public string TicketNumber { get; set; }
     }
 
     public class EventViewModel
@@ -92,5 +103,7 @@ namespace TicketingSystem.Web.Pages.Dashboard
         public string Title { get; set; }
         public DateTime Date { get; set; }
         public string Location { get; set; }
+        public string ImageUrl { get; set; }
+        public decimal TicketPrice { get; set; }
     }
 } 

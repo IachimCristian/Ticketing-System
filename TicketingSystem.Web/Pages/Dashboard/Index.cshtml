@@ -11,26 +11,59 @@
     <a asp-page="/Account/Logout" class="btn btn-outline-dark btn-sm">Logout</a>
 </div>
 
-<h2 class="fs-4 mb-3">User Dashboard</h2>
+<h2 class="fs-4 mb-3">Welcome, @Model.Username!</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @Model.ErrorMessage
+    </div>
+}
 
 <div class="card mb-4">
-    <div class="card-header">
-        <h5 class="mb-0">Purchased Tickets</h5>
+    <div class="card-header d-flex justify-content-between">
+        <h5 class="mb-0">My Tickets</h5>
     </div>
     <div class="card-body">
         @if (Model.PurchasedEvents.Any())
         {
-            <div class="list-group">
-                @foreach (var ticket in Model.PurchasedEvents)
-                {
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">@ticket.EventName</h6>
-                            <small class="text-muted">@ticket.Date.ToString("MMM dd, yyyy") • @ticket.Status</small>
-                        </div>
-                        <a asp-page="/Events/Details" asp-route-id="@ticket.Id" class="btn btn-sm btn-outline-dark">View</a>
-                    </div>
-                }
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Ticket #</th>
+                            <th>Event</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Type</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ticket in Model.PurchasedEvents)
+                        {
+                            <tr>
+                                <td>@ticket.TicketNumber</td>
+                                <td>@ticket.EventName</td>
+                                <td>@ticket.Date.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @if (ticket.Status == "Upcoming")
+                                    {
+                                        <span class="badge bg-success">@ticket.Status</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@ticket.Status</span>
+                                    }
+                                </td>
+                                <td>@ticket.TicketType</td>
+                                <td>
+                                    <a asp-page="/Tickets/Confirmation" asp-route-ticketId="@ticket.Id" class="btn btn-sm btn-outline-dark">View</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         }
         else
@@ -40,20 +73,40 @@
     </div>
 </div>
 
+<h3 class="fs-5 mb-3">Upcoming Events</h3>
+
 <div class="row g-2 mb-4">
-    @foreach (var item in Model.UpcomingEvents)
+    @foreach (var item in Model.UpcomingEvents.Take(3))
     {
         <div class="col-md-4 col-sm-6 mb-2">
             <div class="card h-100 event-card">
-                <div class="event-image-placeholder">
-                    <span>X</span>
+                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                {
+                    <img src="@item.ImageUrl" class="card-img-top event-image" alt="@item.Title">
+                }
+                else
+                {
+                    <div class="event-image-placeholder">
+                        <span>X</span>
+                    </div>
+                }
+                <div class="card-body p-3">
+                    <h5 class="card-title fs-6 mb-1">@item.Title</h5>
+                    <p class="card-text mb-2">
+                        <small class="text-muted d-block">@item.Date.ToString("MMM dd, yyyy")</small>
+                        <small class="text-muted d-block">@item.Location</small>
+                    </p>
+                    @if (item.TicketPrice <= 0)
+                    {
+                        <span class="badge bg-info">Free</span>
+                    }
+                    else
+                    {
+                        <span class="fw-bold">$@item.TicketPrice.ToString("0.00")</span>
+                    }
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title fs-6">@item.Title</h5>
-                    <small class="text-muted d-block mb-2">@item.Date.ToString("MMM dd, yyyy")</small>
-                </div>
-                <div class="card-footer text-center">
-                    <a asp-page="/Events/Details" asp-route-id="@item.Id" class="btn btn-dark btn-sm">Buy</a>
+                <div class="card-footer p-2 text-center">
+                    <a asp-page="/Events/Details" asp-route-id="@item.Id" class="btn btn-dark btn-sm">View Event</a>
                 </div>
             </div>
         </div>
@@ -61,5 +114,31 @@
 </div>
 
 <div class="text-center">
-    <a asp-page="/Events/Index" class="btn btn-dark">Browse Events</a>
-</div> 
+    <a asp-page="/Events/Index" class="btn btn-dark">Browse All Events</a>
+</div>
+
+<style>
+    .event-card {
+        transition: all 0.2s ease;
+    }
+    
+    .event-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    
+    .event-image-placeholder {
+        height: 120px;
+        background-color: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: #ccc;
+    }
+    
+    .event-image {
+        height: 120px;
+        object-fit: cover;
+    }
+</style> 

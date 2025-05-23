@@ -11,6 +11,7 @@ namespace TicketingSystem.Core.Services
         private readonly IEventRepository _eventRepository;
         private readonly ITicketRepository _ticketRepository;
         private readonly IUserRepository<Customer> _customerRepository;
+        private readonly IRepository<Payment> _paymentRepository;
         private readonly PaymentStrategyFactory _paymentStrategyFactory;
         private readonly INotificationSubject _notificationService;
         
@@ -18,12 +19,14 @@ namespace TicketingSystem.Core.Services
             IEventRepository eventRepository,
             ITicketRepository ticketRepository,
             IUserRepository<Customer> customerRepository,
+            IRepository<Payment> paymentRepository,
             PaymentStrategyFactory paymentStrategyFactory,
             INotificationSubject notificationService)
         {
             _eventRepository = eventRepository ?? throw new ArgumentNullException(nameof(eventRepository));
             _ticketRepository = ticketRepository ?? throw new ArgumentNullException(nameof(ticketRepository));
             _customerRepository = customerRepository ?? throw new ArgumentNullException(nameof(customerRepository));
+            _paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
             _paymentStrategyFactory = paymentStrategyFactory ?? throw new ArgumentNullException(nameof(paymentStrategyFactory));
             _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
         }
@@ -78,6 +81,13 @@ namespace TicketingSystem.Core.Services
                 _notificationService);
             
             await purchaseCommand.ExecuteAsync();
+            
+            // Save payment first
+            if (ticket.Payment != null)
+            {
+                await _paymentRepository.AddAsync(ticket.Payment);
+                await _paymentRepository.SaveChangesAsync();
+            }
             
             // Save ticket
             await _ticketRepository.AddAsync(ticket);

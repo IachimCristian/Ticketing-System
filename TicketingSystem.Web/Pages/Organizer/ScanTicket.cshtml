@@ -1,0 +1,177 @@
+@page
+@model TicketingSystem.Web.Pages.Organizer.ScanTicketModel
+@{
+    ViewData["Title"] = "Ticket Scanner";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <img src="~/images/logo-no-background.png" alt="Ticksy" style="height: 40px;" />
+    </div>
+    <a asp-page="/Dashboard/Index" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+</div>
+
+<h2 class="fs-4 mb-4">Ticket Scanner</h2>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-@Model.StatusMessageType alert-dismissible fade show" role="alert">
+        @Model.StatusMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Scan QR Code</h5>
+            </div>
+            <div class="card-body">
+                @* In a real application, you'd add a QR code scanner component here *@
+                <p class="mb-4">
+                    <strong>Instructions:</strong> Scan the QR code on the customer's ticket.
+                </p>
+                
+                <form method="post" asp-page-handler="Validate">
+                    <div class="mb-3">
+                        <label asp-for="QRCode" class="form-label">QR Code Value</label>
+                        <input type="text" class="form-control" asp-for="QRCode" placeholder="Enter QR code or scan with device" autofocus>
+                        <div class="form-text">Enter the QR code manually or scan it using a device.</div>
+                    </div>
+                    
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-dark">Validate Ticket</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mb-3">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Live Camera Scanner</h5>
+            </div>
+            <div class="card-body text-center">
+                <div id="scanner-placeholder" class="mb-3">
+                    <div class="camera-placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-qr-code-scan" viewBox="0 0 16 16">
+                            <path d="M0 .5A.5.5 0 0 1 .5 0h3a.5.5 0 0 1 0 1H1v2.5a.5.5 0 0 1-1 0v-3Zm12 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0V1h-2.5a.5.5 0 0 1-.5-.5ZM.5 12a.5.5 0 0 1 .5.5V15h2.5a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5Zm15 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1 0-1H15v-2.5a.5.5 0 0 1 .5-.5ZM4 4h1v1H4V4Z"/>
+                            <path d="M7 2H2v5h5V2ZM3 3h3v3H3V3Zm2 8H4v1h1v-1Z"/>
+                            <path d="M7 9H2v5h5V9Zm-4 1h3v3H3v-3Zm8-6h1v1h-1V4Z"/>
+                            <path d="M9 2h5v5H9V2Zm1 1v3h3V3h-3ZM8 8v2h1v1H8v1h2v-2h1v2h1v-1h2v-1h-3V8H8Zm2 2H9V9h1v1Zm4 2h-1v1h-2v1h3v-2Zm-4 2v-1H8v1h2Z"/>
+                            <path d="M12 9h2V8h-2v1Z"/>
+                        </svg>
+                        <p class="mt-2">Camera not active</p>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-dark" id="start-camera" onclick="alert('This would activate the camera in a real application.')">
+                    Start Camera
+                </button>
+            </div>
+            <div class="card-footer text-muted">
+                <small>Note: In a real application, this would use the device camera to scan QR codes.</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Ticket Information</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.ValidatedTicket != null)
+                {
+                    <div class="ticket-details">
+                        <div class="validation-result mb-3">
+                            <span class="badge bg-success p-2">Valid Ticket</span>
+                        </div>
+                        
+                        <h6>Event Information</h6>
+                        <dl class="row mb-3">
+                            <dt class="col-sm-4">Event Name</dt>
+                            <dd class="col-sm-8">@Model.TicketEvent?.Title</dd>
+                            
+                            <dt class="col-sm-4">Date</dt>
+                            <dd class="col-sm-8">
+                                @Model.TicketEvent?.StartDate.ToString("MMM dd, yyyy")
+                                @Model.TicketEvent?.StartDate.ToString("h:mm tt")
+                            </dd>
+                            
+                            <dt class="col-sm-4">Location</dt>
+                            <dd class="col-sm-8">@Model.TicketEvent?.Location</dd>
+                        </dl>
+                        
+                        <h6>Ticket Information</h6>
+                        <dl class="row mb-3">
+                            <dt class="col-sm-4">Ticket #</dt>
+                            <dd class="col-sm-8">@Model.ValidatedTicket.TicketNumber</dd>
+                            
+                            <dt class="col-sm-4">Status</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-primary">@Model.ValidatedTicket.Status</span>
+                            </dd>
+                            
+                            <dt class="col-sm-4">Price</dt>
+                            <dd class="col-sm-8">$@Model.ValidatedTicket.Price.ToString("0.00")</dd>
+                        </dl>
+                        
+                        <h6>Customer Information</h6>
+                        <dl class="row mb-3">
+                            <dt class="col-sm-4">Name</dt>
+                            <dd class="col-sm-8">@Model.TicketCustomer?.Username</dd>
+                            
+                            <dt class="col-sm-4">Email</dt>
+                            <dd class="col-sm-8">@Model.TicketCustomer?.Email</dd>
+                        </dl>
+                        
+                        @if (Model.ValidatedTicket.Status != "Used")
+                        {
+                            <form method="post" asp-page-handler="MarkUsed" asp-route-ticketId="@Model.ValidatedTicket.Id" 
+                                  onsubmit="return confirm('Are you sure you want to mark this ticket as used?')">
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-success">Mark as Used</button>
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info mb-0">
+                                This ticket has already been marked as used.
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-ticket-perforated text-muted mb-3" viewBox="0 0 16 16">
+                            <path d="M4 4.85v.9h1v-.9H4Zm7 0v.9h1v-.9h-1Zm-7 1.8v.9h1v-.9H4Zm7 0v.9h1v-.9h-1Zm-7 1.8v.9h1v-.9H4Zm7 0v.9h1v-.9h-1Zm-7 1.8v.9h1v-.9H4Zm7 0v.9h1v-.9h-1Z"/>
+                            <path d="M1.5 3A1.5 1.5 0 0 0 0 4.5V6a.5.5 0 0 0 .5.5 1.5 1.5 0 1 1 0 3 .5.5 0 0 0-.5.5v1.5A1.5 1.5 0 0 0 1.5 13h13a1.5 1.5 0 0 0 1.5-1.5V10a.5.5 0 0 0-.5-.5 1.5 1.5 0 0 1 0-3A.5.5 0 0 0 16 6V4.5A1.5 1.5 0 0 0 14.5 3h-13ZM1 4.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v1.05a2.5 2.5 0 0 0 0 4.9v1.05a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-1.05a2.5 2.5 0 0 0 0-4.9V4.5Z"/>
+                        </svg>
+                        <p class="text-muted">No ticket has been scanned yet.<br>Use the form on the left to validate a ticket.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .camera-placeholder {
+        width: 100%;
+        height: 260px;
+        background-color: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #adb5bd;
+        border: 2px dashed #dee2e6;
+        border-radius: 4px;
+    }
+    
+    .validation-result {
+        text-align: center;
+    }
+</style> 

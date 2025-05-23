@@ -13,7 +13,7 @@ namespace TicketingSystem.Web.Pages.Admin
     public class IndexModel : PageModel
     {
         private readonly IRepository<Customer> _customerRepository;
-        private readonly IRepository<Organizer> _organizerRepository;
+        private readonly IRepository<TicketingSystem.Core.Entities.Organizer> _organizerRepository;
         private readonly IRepository<Administrator> _adminRepository;
         private readonly IRepository<Event> _eventRepository;
         private readonly IRepository<Payment> _paymentRepository;
@@ -29,7 +29,7 @@ namespace TicketingSystem.Web.Pages.Admin
 
         public IndexModel(
             IRepository<Customer> customerRepository,
-            IRepository<Organizer> organizerRepository,
+            IRepository<TicketingSystem.Core.Entities.Organizer> organizerRepository,
             IRepository<Administrator> adminRepository,
             IRepository<Event> eventRepository,
             IRepository<Payment> paymentRepository,

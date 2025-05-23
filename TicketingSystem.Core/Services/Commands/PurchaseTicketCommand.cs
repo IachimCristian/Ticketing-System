@@ -37,6 +37,7 @@ namespace TicketingSystem.Core.Services.Commands
             _ticket.Status = "Sold";
             _ticket.CustomerId = _customer.Id;
             _ticket.PaymentId = _payment.Id;
+            _ticket.Payment = _payment;
             
             // Generate QR code
             _ticket.QRCode = QRCodeGenerator.Instance.GenerateQRCode(

@@ -370,21 +370,25 @@
                 </text>
             }
             
-            const paymentMethod = document.getElementById('creditCard');
+            const creditCardMethod = document.getElementById('creditCard');
             const payPalMethod = document.getElementById('paypal');
             const creditCardDetails = document.getElementById('creditCardDetails');
             
-            paymentMethod.addEventListener('change', function() {
-                if (this.checked) {
+            // Function to toggle credit card fields visibility
+            function toggleCreditCardFields() {
+                if (creditCardMethod.checked) {
                     creditCardDetails.style.display = 'block';
-                }
-            });
-            
-            payPalMethod.addEventListener('change', function() {
-                if (this.checked) {
+                } else if (payPalMethod.checked) {
                     creditCardDetails.style.display = 'none';
                 }
-            });
+            }
+            
+            // Set initial state on page load
+            toggleCreditCardFields();
+            
+            // Add event listeners
+            creditCardMethod.addEventListener('change', toggleCreditCardFields);
+            payPalMethod.addEventListener('change', toggleCreditCardFields);
         });
         
         function selectSeat(row, column, section, price) {

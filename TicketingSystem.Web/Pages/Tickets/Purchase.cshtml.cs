@@ -47,13 +47,16 @@ namespace TicketingSystem.Web.Pages.Tickets
         public string PaymentMethod { get; set; } = "CreditCard";
 
         [BindProperty]
-        [CreditCard]
+        [CreditCard(ErrorMessage = "The CardNumber field is not a valid credit card number.")]
+        [RequiredIf("PaymentMethod", "CreditCard", ErrorMessage = "Card Number is required when using Credit Card payment.")]
         public string CardNumber { get; set; }
 
         [BindProperty]
+        [RequiredIf("PaymentMethod", "CreditCard", ErrorMessage = "Expiry Date is required when using Credit Card payment.")]
         public string ExpiryDate { get; set; }
 
         [BindProperty]
+        [RequiredIf("PaymentMethod", "CreditCard", ErrorMessage = "CVV is required when using Credit Card payment.")]
         public string Cvv { get; set; }
 
         public Event Event { get; set; }
@@ -131,6 +134,14 @@ namespace TicketingSystem.Web.Pages.Tickets
 
         public async Task<IActionResult> OnPostAsync()
         {
+            // Skip validation for credit card fields if PayPal is selected
+            if (PaymentMethod == "PayPal")
+            {
+                ModelState.Remove("CardNumber");
+                ModelState.Remove("ExpiryDate");
+                ModelState.Remove("Cvv");
+            }
+
             if (!ModelState.IsValid)
             {
                 await OnGetAsync();
@@ -193,5 +204,35 @@ namespace TicketingSystem.Web.Pages.Tickets
         public decimal PriceMultiplier { get; set; }
         public decimal BasePrice { get; set; }
         public decimal FinalPrice { get; set; }
+    }
+
+    public class RequiredIfAttribute : ValidationAttribute
+    {
+        private readonly string _propertyName;
+        private readonly object _desiredValue;
+
+        public RequiredIfAttribute(string propertyName, object desiredValue, string errorMessage = "")
+        {
+            _propertyName = propertyName;
+            _desiredValue = desiredValue;
+            ErrorMessage = errorMessage;
+        }
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            var instance = validationContext.ObjectInstance;
+            var type = instance.GetType();
+            var propertyValue = type.GetProperty(_propertyName).GetValue(instance, null);
+
+            if (propertyValue?.ToString() == _desiredValue.ToString())
+            {
+                if (value == null || (value is string stringValue && string.IsNullOrWhiteSpace(stringValue)))
+                {
+                    return new ValidationResult(ErrorMessage);
+                }
+            }
+
+            return ValidationResult.Success;
+        }
     }
 } 
