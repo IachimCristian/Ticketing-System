@@ -7,6 +7,7 @@ namespace TicketingSystem.Core.Interfaces
 {
     public interface IEventService
     {
+        Task<IEnumerable<Event>> GetAllEventsAsync();
         Task<IEnumerable<Event>> GetUpcomingEventsAsync();
         Task<Event> GetEventByIdAsync(Guid id);
         Task<IEnumerable<Event>> GetEventsByOrganizerAsync(Guid organizerId);

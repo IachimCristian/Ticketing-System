@@ -38,8 +38,7 @@ namespace TicketingSystem.Web.Pages
                     {
                         Id = e.Id,
                         Title = e.Title,
-                        Date = e.StartDate.ToString("MMMM d, yyyy"),
-                        ImageUrl = e.ImageUrl
+                        Date = e.StartDate.ToString("MMMM d, yyyy")
                     })
                     .ToList();
             }
@@ -55,6 +54,5 @@ namespace TicketingSystem.Web.Pages
         public Guid Id { get; set; }
         public string Title { get; set; }
         public string Date { get; set; }
-        public string ImageUrl { get; set; }
     }
 }

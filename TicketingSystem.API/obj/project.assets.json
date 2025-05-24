@@ -1165,7 +1165,10 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v7.0",
         "dependencies": {
-          "BCrypt.Net-Next": "4.0.3"
+          "BCrypt.Net-Next": "4.0.3",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "7.0.0",
+          "Microsoft.Extensions.Logging": "7.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "7.0.0"
         },
         "compile": {
           "bin/placeholder/TicketingSystem.Core.dll": {}

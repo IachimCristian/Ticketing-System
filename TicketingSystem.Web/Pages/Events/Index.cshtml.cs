@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,12 @@ namespace TicketingSystem.Web.Pages.Events
     public class IndexModel : PageModel
     {
         private readonly IEventService _eventService;
+        private readonly ILogger<IndexModel> _logger;
 
-        public IndexModel(IEventService eventService)
+        public IndexModel(IEventService eventService, ILogger<IndexModel> logger)
         {
             _eventService = eventService;
+            _logger = logger;
         }
 
         public List<EventViewModel> Events { get; set; } = new List<EventViewModel>();
@@ -23,33 +26,57 @@ namespace TicketingSystem.Web.Pages.Events
 
         public async Task OnGetAsync(string searchTerm = null)
         {
-            SearchTerm = searchTerm;
-            IEnumerable<Event> events;
+            try
+            {
+                SearchTerm = searchTerm;
+                IEnumerable<Event> events = new List<Event>();
 
-            if (!string.IsNullOrWhiteSpace(SearchTerm))
-            {
-                // If there's a search term, use search functionality
-                events = await _eventService.SearchEventsAsync(SearchTerm);
-            }
-            else
-            {
-                // Otherwise get all upcoming events
-                events = await _eventService.GetUpcomingEventsAsync();
-            }
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(SearchTerm))
+                    {
+                        // If there's a search term, use search functionality
+                        events = await _eventService.SearchEventsAsync(SearchTerm);
+                    }
+                    else
+                    {
+                        // Otherwise get all upcoming events
+                        events = await _eventService.GetUpcomingEventsAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Database error fetching events: {Message}", ex.Message);
+                    // Continue with empty events collection
+                    ModelState.AddModelError(string.Empty, "Could not retrieve events from the database. The database schema may need to be updated.");
+                }
 
-            // Map database events to view models
-            Events = events.Select(e => new EventViewModel
+                // Map database events to view models
+                Events = events.Select(e => new EventViewModel
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Date = e.StartDate,
+                    Location = e.Location,
+                    Description = e.Description,
+                    TicketPrice = e.TicketPrice,
+                    Capacity = e.Capacity,
+                    AvailableSeatCount = CalculateAvailableSeats(e),
+                    // Determine status based on ticket availability
+                    Status = DetermineEventStatus(e)
+                }).ToList();
+            }
+            catch (Exception ex)
             {
-                Id = e.Id,
-                Title = e.Title,
-                Date = e.StartDate,
-                Location = e.Location,
-                Description = e.Description,
-                TicketPrice = e.TicketPrice,
-                ImageUrl = e.ImageUrl,
-                // Determine status based on ticket availability and capacity
-                Status = DetermineEventStatus(e)
-            }).ToList();
+                _logger.LogError(ex, "Error in page processing: {Message}", ex.Message);
+                ModelState.AddModelError(string.Empty, "An error occurred while processing the page.");
+            }
+        }
+
+        private int CalculateAvailableSeats(Event e)
+        {
+            int soldTickets = e.Tickets?.Count(t => t.Status != "Cancelled") ?? 0;
+            return e.Capacity - soldTickets;
         }
 
         private string DetermineEventStatus(Event e)
@@ -57,16 +84,17 @@ namespace TicketingSystem.Web.Pages.Events
             if (!e.IsActive)
                 return "Cancelled";
 
-            // In a real app, you'd check ticket counts against capacity
-            // For now, we'll use a simplified approach based on date
+            // Check if event has already passed
             if (e.StartDate < DateTime.Now)
                 return "Completed";
             
-            if (e.Capacity <= 10)
-                return "Limited";
+            int availableSeats = CalculateAvailableSeats(e);
             
-            if (e.Capacity <= 0)
+            if (availableSeats <= 0)
                 return "Sold Out";
+            
+            if (availableSeats <= 10)
+                return "Limited";
             
             return "Available";
         }
@@ -79,8 +107,9 @@ namespace TicketingSystem.Web.Pages.Events
         public DateTime Date { get; set; }
         public string Location { get; set; }
         public string Description { get; set; }
-        public string ImageUrl { get; set; }
         public decimal TicketPrice { get; set; }
+        public int Capacity { get; set; }
+        public int AvailableSeatCount { get; set; }
         public string Status { get; set; }
     }
 } 

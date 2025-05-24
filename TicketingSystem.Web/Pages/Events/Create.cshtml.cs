@@ -44,8 +44,6 @@ namespace TicketingSystem.Web.Pages.Events
             
             [Range(0, 10000)]
             public decimal TicketPrice { get; set; } = 0;
-            
-            public string ImageUrl { get; set; }
         }
 
         public void OnGet() { }
@@ -72,7 +70,6 @@ namespace TicketingSystem.Web.Pages.Events
                     .AtLocation(EventInput.Location)
                     .WithCapacity(EventInput.Capacity)
                     .WithTicketPrice(EventInput.TicketPrice)
-                    .WithImage(EventInput.ImageUrl)
                     .ByOrganizer(Guid.Parse(organizerId))
                     .IsActive(true)
                     .Build();

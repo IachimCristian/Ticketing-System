@@ -126,7 +126,7 @@ namespace TicketingSystem.Web.Pages.Admin
                 {
                     Id = payment.Id,
                     Amount = payment.Amount,
-                    Date = payment.PaymentDate,
+                    Date = payment.TransactionDate,
                     Username = payment.Customer?.Username ?? "Unknown",
                     EventTitle = eventTitle
                 });

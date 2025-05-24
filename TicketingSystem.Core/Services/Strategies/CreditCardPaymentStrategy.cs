@@ -20,7 +20,8 @@ namespace TicketingSystem.Core.Services.Strategies
                 CustomerId = customer.Id,
                 Customer = customer,
                 PaymentMethod = Name,
-                TransactionId = $"CC-{Guid.NewGuid().ToString().Substring(0, 8)}",
+                TransactionDate = DateTime.UtcNow,
+                Description = $"Credit Card payment for {amount:C}",
                 Status = "Completed"
             };
             

@@ -18,21 +18,60 @@
     </div>
 }
 
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">
+        @Model.SuccessMessage
+    </div>
+}
+
 @if (Model.Ticket != null && Model.Event != null)
 {
-    <h2 class="fs-4 mb-4 text-center">Ticket Purchase Complete</h2>
+    <h2 class="fs-4 mb-4 text-center">
+        @if (Model.Ticket.Status == "Sold")
+        {
+            <text>Ticket Purchase Complete</text>
+        }
+        else if (Model.Ticket.Status == "Cancelled")
+        {
+            <text>Ticket Cancelled</text>
+        }
+        else
+        {
+            <text>Ticket Details</text>
+        }
+    </h2>
 
     <div class="card mb-4">
         <div class="card-body">
-            <div class="text-center mb-4">
-                <div class="success-icon mb-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-check-circle text-success" viewBox="0 0 16 16">
-                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                        <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
-                    </svg>
+            @if (Model.Ticket.Status == "Sold")
+            {
+                <div class="text-center mb-4">
+                    <div class="success-icon mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-check-circle text-success" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                        </svg>
+                    </div>
+                    <h5 class="mb-0">Your ticket has been purchased successfully!</h5>
                 </div>
-                <h5 class="mb-0">Your ticket has been purchased successfully!</h5>
-            </div>
+            }
+            @if (Model.Ticket.Status == "Cancelled")
+            {
+                <div class="text-center mb-4">
+                    <div class="canceled-icon mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-x-circle text-danger" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </div>
+                    <h5 class="mb-0">This ticket has been cancelled.</h5>
+                    @if (Model.RefundIssued)
+                    {
+                        <p class="mt-2">A refund has been processed and will be credited back to your original payment method.</p>
+                    }
+                </div>
+            }
 
             <div class="row mb-4">
                 <div class="col-md-6">
@@ -53,40 +92,110 @@
                     <p class="mb-1">Ticket Number: @Model.Ticket.TicketNumber</p>
                     <p class="mb-1">Purchase Date: @Model.Ticket.PurchaseDate.ToString("MMMM d, yyyy h:mm tt")</p>
                     <p class="mb-1">Price: $@Model.Ticket.Price.ToString("0.00")</p>
-                    <p class="mb-1">Status: @Model.Ticket.Status</p>
+                    <p class="mb-1">
+                        Status: 
+                        @if (Model.Ticket.Status == "Sold")
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else if (Model.Ticket.Status == "Cancelled")
+                        {
+                            <span class="badge bg-danger">Cancelled</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@Model.Ticket.Status</span>
+                        }
+                    </p>
                 </div>
             </div>
 
-            <div class="text-center">
-                <div class="qr-code-container mx-auto mb-3">
-                    @if (!string.IsNullOrEmpty(Model.Ticket.QRCode))
-                    {
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=@Model.Ticket.QRCode" 
-                             alt="QR Code" class="img-fluid qr-image" />
-                    }
-                    else
-                    {
-                        <div class="qr-code-placeholder">
-                            <span>X</span>
-                        </div>
-                    }
-                    <p class="text-center mt-2">QR Code</p>
+            @if (Model.Ticket.Status == "Sold")
+            {
+                <div class="text-center">
+                    <div class="qr-code-container mx-auto mb-3">
+                        @if (!string.IsNullOrEmpty(Model.Ticket.QRCode))
+                        {
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=@Model.Ticket.QRCode" 
+                                 alt="QR Code" class="img-fluid qr-image" />
+                        }
+                        else
+                        {
+                            <div class="qr-code-placeholder">
+                                <span>X</span>
+                            </div>
+                        }
+                        <p class="text-center mt-2">QR Code</p>
+                    </div>
+                    
+                    <p>Present this QR code at the venue for entry.</p>
                 </div>
-                
-                <p>Present this QR code at the venue for entry.</p>
-            </div>
+            }
         </div>
     </div>
 
     <div class="text-center mb-4">
-        <a href="javascript:window.print()" class="btn btn-outline-dark me-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer me-1" viewBox="0 0 16 16">
-                <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
-                <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
-            </svg>
-            Print Ticket
-        </a>
+        @if (Model.Ticket.Status == "Sold")
+        {
+            <a href="javascript:window.print()" class="btn btn-outline-dark me-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer me-1" viewBox="0 0 16 16">
+                    <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                    <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+                </svg>
+                Print Ticket
+            </a>
+            @if (Model.CanBeCancelled)
+            {
+                <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#cancelTicketModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle me-1" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                    Cancel Ticket
+                </button>
+            }
+        }
         <a asp-page="/Dashboard/Index" class="btn btn-dark">Go to Dashboard</a>
+    </div>
+    
+    <!-- Cancel Ticket Modal -->
+    <div class="modal fade" id="cancelTicketModal" tabindex="-1" aria-labelledby="cancelTicketModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cancelTicketModalLabel">Confirm Ticket Cancellation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to cancel this ticket?</p>
+                    <ul>
+                        <li>Ticket Number: @Model.Ticket.TicketNumber</li>
+                        <li>Event: @Model.Event.Title</li>
+                        <li>Date: @Model.Event.StartDate.ToString("MMMM d, yyyy")</li>
+                    </ul>
+                    <p class="text-danger">This action cannot be undone.</p>
+                    
+                    @if (Model.CanBeRefunded)
+                    {
+                        <div class="alert alert-info">
+                            <p class="mb-0">You will receive a refund of $@Model.RefundAmount.ToString("0.00") to your original payment method.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <p class="mb-0">This ticket cannot be refunded based on the event refund policy or time restrictions.</p>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep Ticket</button>
+                    <form method="post">
+                        <button type="submit" asp-page-handler="CancelTicketAsync" class="btn btn-danger">Cancel Ticket</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 }
 else if (string.IsNullOrEmpty(Model.ErrorMessage))

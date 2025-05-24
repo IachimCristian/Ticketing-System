@@ -1,22 +1,47 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace TicketingSystem.Core.Entities
 {
     public class Ticket
     {
         public Guid Id { get; set; }
+
+        [Required]
+        [StringLength(20)]
         public string TicketNumber { get; set; }
-        public decimal Price { get; set; }
-        public DateTime PurchaseDate { get; set; }
-        public string QRCode { get; set; }
-        public string Status { get; set; } // Available, Sold, Used, Cancelled
+
         public Guid EventId { get; set; }
-        public virtual Event Event { get; set; }
+
         public Guid CustomerId { get; set; }
-        public virtual Customer Customer { get; set; }
-        public Guid? PaymentId { get; set; }
-        public virtual Payment Payment { get; set; }
+
+        public DateTime PurchaseDate { get; set; }
+
+        [Required]
+        [StringLength(20)]
+        public string Status { get; set; }
+
+        public decimal Price { get; set; }
+
+        [StringLength(500)]
+        public string QRCode { get; set; }
+
+        // Payment information
+        public Guid PaymentId { get; set; }
         
+        // Refund information
+        public Guid? RefundId { get; set; }
+        
+        // Seat information
+        public Guid? SeatId { get; set; }
+        public int? SeatRow { get; set; }
+        public int? SeatColumn { get; set; }
+        
+        // Navigation properties
+        public virtual Event Event { get; set; }
+        public virtual Customer Customer { get; set; }
+        public virtual Payment Payment { get; set; }
+
         public Ticket()
         {
             Id = Guid.NewGuid();

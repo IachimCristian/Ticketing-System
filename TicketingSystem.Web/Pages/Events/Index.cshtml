@@ -20,16 +20,9 @@
             <div class="col-md-4 mb-4">
                 <div class="card event-listing">
                     <div class="status-indicator"></div>
-                    @if (!string.IsNullOrEmpty(item.ImageUrl))
-                    {
-                        <img src="@item.ImageUrl" class="card-img-top" alt="@item.Title">
-                    }
-                    else
-                    {
-                        <div class="card-img-top bg-light text-center py-5">
-                            <span class="display-4 text-muted">X</span>
-                        </div>
-                    }
+                    <div class="card-img-top bg-light text-center py-5">
+                        <span class="display-4 text-muted">X</span>
+                    </div>
                     <div class="card-body">
                         <h5 class="card-title">@item.Title</h5>
                         <p class="card-text"><strong>Date:</strong> @item.Date.ToString("MMMM d, yyyy")</p>
@@ -45,6 +38,9 @@
                             {
                                 <span>$@item.TicketPrice.ToString("F2")</span>
                             }
+                        </p>
+                        <p class="card-text">
+                            <strong>Seats:</strong> @item.AvailableSeatCount / @item.Capacity
                         </p>
                         <div class="d-flex justify-content-between align-items-center">
                             @if (item.Status == "Available")

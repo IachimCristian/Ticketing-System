@@ -21,11 +21,15 @@ builder.Services.AddScoped<IUserRepository<Organizer>, UserRepository<Organizer>
 builder.Services.AddScoped<IUserRepository<Administrator>, UserRepository<Administrator>>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Register services
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<TicketPurchaseFacade>();
+builder.Services.AddScoped<ITicketPurchaseFacade>(provider => provider.GetRequiredService<TicketPurchaseFacade>());
 builder.Services.AddSingleton<INotificationSubject, NotificationService>();
 builder.Services.AddSingleton<EmailNotificationObserver>();
 builder.Services.AddSingleton<SMSNotificationObserver>();
@@ -34,14 +38,6 @@ builder.Services.AddSingleton<INotificationObserver>(sp => sp.GetRequiredService
 builder.Services.AddScoped<ISeatMapService, SeatMapService>();
 builder.Services.AddScoped<ITicketValidationService, TicketValidationService>();
 builder.Services.AddSingleton<PaymentStrategyFactory>();
-builder.Services.AddScoped<TicketPurchaseFacade>(sp => new TicketPurchaseFacade(
-    sp.GetRequiredService<IEventRepository>(),
-    sp.GetRequiredService<ITicketRepository>(),
-    sp.GetRequiredService<IUserRepository<Customer>>(),
-    sp.GetRequiredService<IRepository<Payment>>(),
-    sp.GetRequiredService<PaymentStrategyFactory>(),
-    sp.GetRequiredService<INotificationSubject>()
-));
 
 // Configure HttpClient for the API
 builder.Services.AddHttpClient("API", client =>

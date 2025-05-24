@@ -1,47 +1,57 @@
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using TicketingSystem.Core.Entities;
 using TicketingSystem.Core.Interfaces;
 using TicketingSystem.Infrastructure.Data;
 
 namespace TicketingSystem.Infrastructure.Repositories
 {
-    public class PaymentRepository : Repository<Payment>, IPaymentRepository
+    public class PaymentRepository : IPaymentRepository
     {
-        public PaymentRepository(AppDbContext context) : base(context)
+        private readonly AppDbContext _context;
+
+        public PaymentRepository(AppDbContext context)
         {
+            _context = context;
         }
 
-        public async Task<IEnumerable<Payment>> GetPaymentsByCustomerAsync(Guid customerId)
+        public async Task<Payment> GetByIdAsync(Guid id)
         {
-            return await _dbSet
-                .Include(p => p.Tickets)
+            return await _context.Payments
+                .Include(p => p.Customer)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<IEnumerable<Payment>> GetByCustomerIdAsync(Guid customerId)
+        {
+            return await _context.Payments
                 .Where(p => p.CustomerId == customerId)
-                .OrderByDescending(p => p.PaymentDate)
+                .OrderByDescending(p => p.TransactionDate)
                 .ToListAsync();
         }
 
-        public async Task<Payment> GetPaymentByTransactionIdAsync(string transactionId)
+        public async Task<IEnumerable<Payment>> GetRefundsForPaymentAsync(Guid paymentId)
         {
-            return await _dbSet
-                .Include(p => p.Tickets)
-                .FirstOrDefaultAsync(p => p.TransactionId == transactionId);
+            return await _context.Payments
+                .Where(p => p.RelatedPaymentId == paymentId)
+                .OrderByDescending(p => p.TransactionDate)
+                .ToListAsync();
         }
 
-        public async Task<bool> ProcessRefundAsync(Guid paymentId)
+        public async Task<Payment> AddAsync(Payment payment)
         {
-            var payment = await _dbSet.FindAsync(paymentId);
-            if (payment == null || payment.Status != "Completed")
-            {
-                return false;
-            }
+            await _context.Payments.AddAsync(payment);
+            await _context.SaveChangesAsync();
+            return payment;
+        }
 
-            payment.Status = "Refunded";
-            await SaveChangesAsync();
-            return true;
+        public async Task UpdateAsync(Payment payment)
+        {
+            _context.Payments.Update(payment);
+            await _context.SaveChangesAsync();
         }
     }
 } 

@@ -166,11 +166,33 @@ namespace TicketingSystem.Web.Pages.Tickets
                     return Page();
                 }
 
+                // Get the event to find the ticket price
+                var eventDetails = await _eventService.GetEventByIdAsync(EventId);
+                if (eventDetails == null)
+                {
+                    ErrorMessage = "Event not found";
+                    await OnGetAsync();
+                    return Page();
+                }
+                
+                // Get the seat section price multiplier
+                var seatMap = await _seatMapService.GetSeatMapForEventAsync(EventId);
+                var section = seatMap.Sections.FirstOrDefault(s => 
+                    SelectedRow >= s.StartRow && SelectedRow <= s.EndRow && 
+                    SelectedColumn >= s.StartColumn && SelectedColumn <= s.EndColumn);
+                
+                // Calculate the final price
+                decimal priceMultiplier = section?.PriceMultiplier ?? 1.0m;
+                decimal finalPrice = eventDetails.TicketPrice * priceMultiplier;
+
                 // Purchase the ticket
                 var ticket = await _ticketPurchaseFacade.PurchaseTicketAsync(
                     EventId, 
                     customerId, 
-                    PaymentMethod);
+                    finalPrice,
+                    SelectedRow,
+                    SelectedColumn,
+                    null);
                 
                 // Redirect to the confirmation page with the ticket ID
                 return RedirectToPage("/Tickets/Confirmation", new { ticketId = ticket.Id });

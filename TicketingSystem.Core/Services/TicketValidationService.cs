@@ -77,7 +77,11 @@ namespace TicketingSystem.Core.Services
                 result.Message = "Ticket is valid";
                 result.Ticket = ticket;
                 result.Event = ticket.Event;
-                result.Customer = ticket.Customer;
+                
+                // We need to fetch the customer separately since there's no navigation property
+                // This would typically be done through a customer repository
+                // For now, we'll just set the ID and the UI layer will handle the rest
+                result.Customer = new Customer { Id = ticket.CustomerId };
                 
                 return result;
             }

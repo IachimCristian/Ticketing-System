@@ -26,16 +26,10 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    @if (!string.IsNullOrEmpty(Model.Event.ImageUrl))
-                    {
-                        <img src="@Model.Event.ImageUrl" class="img-fluid" alt="@Model.Event.Title">
-                    }
-                    else
-                    {
-                        <div class="event-image-placeholder mb-3">
-                            <span>X</span>
-                        </div>
-                    }
+                    @* Event image has been removed from the model *@
+                    <div class="event-image-placeholder mb-3">
+                        <span>X</span>
+                    </div>
                 </div>
                 <div class="col-md-8">
                     <h5>@Model.Event.Title</h5>

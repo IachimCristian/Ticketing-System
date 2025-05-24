@@ -51,7 +51,8 @@ namespace TicketingSystem.Core.Services
         
         public EventBuilder WithImage(string imageUrl)
         {
-            _event.ImageUrl = imageUrl;
+            // ImageUrl property has been removed from Event entity
+            // This method is kept for backward compatibility but does nothing
             return this;
         }
         

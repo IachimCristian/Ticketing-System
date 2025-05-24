@@ -5,10 +5,12 @@ using TicketingSystem.Core.Entities;
 
 namespace TicketingSystem.Core.Interfaces
 {
-    public interface IPaymentRepository : IRepository<Payment>
+    public interface IPaymentRepository
     {
-        Task<IEnumerable<Payment>> GetPaymentsByCustomerAsync(Guid customerId);
-        Task<Payment> GetPaymentByTransactionIdAsync(string transactionId);
-        Task<bool> ProcessRefundAsync(Guid paymentId);
+        Task<Payment> GetByIdAsync(Guid id);
+        Task<IEnumerable<Payment>> GetByCustomerIdAsync(Guid customerId);
+        Task<IEnumerable<Payment>> GetRefundsForPaymentAsync(Guid paymentId);
+        Task<Payment> AddAsync(Payment payment);
+        Task UpdateAsync(Payment payment);
     }
 } 

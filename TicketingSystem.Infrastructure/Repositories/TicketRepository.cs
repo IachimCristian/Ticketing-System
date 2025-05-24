@@ -28,7 +28,6 @@ namespace TicketingSystem.Infrastructure.Repositories
         public async Task<IEnumerable<Ticket>> GetTicketsByEventAsync(Guid eventId)
         {
             return await _dbSet
-                .Include(t => t.Customer)
                 .Where(t => t.EventId == eventId)
                 .ToListAsync();
         }

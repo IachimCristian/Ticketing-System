@@ -60,7 +60,7 @@ namespace TicketingSystem.Web.Pages.Dashboard
                         EventName = t.Event?.Title ?? "Unknown Event",
                         Date = t.Event?.StartDate ?? DateTime.Now,
                         Status = t.Event?.StartDate > DateTime.Now ? "Upcoming" : "Past",
-                        TicketType = t.Payment?.PaymentMethod ?? "Standard",
+                        TicketType = "Standard",
                         TicketNumber = t.TicketNumber
                     }).ToList();
                 }
@@ -73,7 +73,6 @@ namespace TicketingSystem.Web.Pages.Dashboard
                     Title = e.Title,
                     Date = e.StartDate,
                     Location = e.Location,
-                    ImageUrl = e.ImageUrl,
                     TicketPrice = e.TicketPrice
                 }).ToList();
             }
@@ -103,7 +102,6 @@ namespace TicketingSystem.Web.Pages.Dashboard
         public string Title { get; set; }
         public DateTime Date { get; set; }
         public string Location { get; set; }
-        public string ImageUrl { get; set; }
         public decimal TicketPrice { get; set; }
     }
 } 

@@ -15,22 +15,35 @@ namespace TicketingSystem.Core.Services
         
         public EventService(
             IEventRepository eventRepository,
-            ITicketRepository ticketRepository,
-            INotificationSubject notificationService)
+            INotificationSubject notificationService,
+            ITicketRepository ticketRepository = null)
         {
             _eventRepository = eventRepository ?? throw new ArgumentNullException(nameof(eventRepository));
-            _ticketRepository = ticketRepository ?? throw new ArgumentNullException(nameof(ticketRepository));
             _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+            _ticketRepository = ticketRepository;
         }
         
-        public async Task<IEnumerable<Event>> GetUpcomingEventsAsync()
+        public async Task<IEnumerable<Event>> GetAllEventsAsync()
         {
-            return await _eventRepository.GetUpcomingEventsAsync();
+            return await _eventRepository.GetAllAsync();
         }
         
         public async Task<Event> GetEventByIdAsync(Guid id)
         {
             return await _eventRepository.GetByIdAsync(id);
+        }
+        
+        public async Task<IEnumerable<Event>> GetUpcomingEventsAsync()
+        {
+            try
+            {
+                return await _eventRepository.GetUpcomingEventsAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                throw new ApplicationException("Error retrieving upcoming events", ex);
+            }
         }
         
         public async Task<IEnumerable<Event>> GetEventsByOrganizerAsync(Guid organizerId)
@@ -79,16 +92,11 @@ namespace TicketingSystem.Core.Services
         {
             var @event = await _eventRepository.GetByIdAsync(eventId);
             if (@event == null)
-            {
                 return false;
-            }
-            
-            var command = new CancelEventCommand(@event, _notificationService);
-            await command.ExecuteAsync();
-            
+
+            @event.IsActive = false;
             await _eventRepository.UpdateAsync(@event);
             await _eventRepository.SaveChangesAsync();
-            
             return true;
         }
         
@@ -99,6 +107,11 @@ namespace TicketingSystem.Core.Services
         
         public async Task<IEnumerable<Ticket>> GetEventTicketsAsync(Guid eventId)
         {
+            if (_ticketRepository == null)
+            {
+                throw new InvalidOperationException("Ticket repository is not available");
+            }
+            
             return await _ticketRepository.GetTicketsByEventAsync(eventId);
         }
     }

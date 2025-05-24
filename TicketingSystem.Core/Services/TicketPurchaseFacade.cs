@@ -6,7 +6,7 @@ using TicketingSystem.Core.Services.Commands;
 
 namespace TicketingSystem.Core.Services
 {
-    public class TicketPurchaseFacade
+    public class TicketPurchaseFacade : ITicketPurchaseFacade
     {
         private readonly IEventRepository _eventRepository;
         private readonly ITicketRepository _ticketRepository;
@@ -34,6 +34,9 @@ namespace TicketingSystem.Core.Services
         public async Task<Ticket> PurchaseTicketAsync(
             Guid eventId, 
             Guid customerId, 
+            decimal price,
+            int? seatRow, 
+            int? seatColumn,
             string paymentMethod)
         {
             // Get event and customer
@@ -65,8 +68,11 @@ namespace TicketingSystem.Core.Services
             {
                 EventId = eventId,
                 Event = @event,
-                Price = @event.TicketPrice,
-                Status = "Available"
+                CustomerId = customerId,
+                Price = price,
+                Status = "Available",
+                SeatRow = seatRow,
+                SeatColumn = seatColumn
             };
             
             // Get payment strategy

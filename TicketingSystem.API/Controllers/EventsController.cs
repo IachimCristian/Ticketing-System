@@ -59,7 +59,7 @@ namespace TicketingSystem.API.Controllers
                 .WithDescription(eventDto.Description)
                 .WithDates(eventDto.StartDate, eventDto.EndDate)
                 .AtLocation(eventDto.Location)
-                .WithCapacity(eventDto.Capacity)
+                .WithCapacity(eventDto.TotalTickets)
                 .WithTicketPrice(eventDto.TicketPrice)
                 .WithImage(eventDto.ImageUrl)
                 .ByOrganizer(eventDto.OrganizerId)
@@ -84,9 +84,9 @@ namespace TicketingSystem.API.Controllers
             @event.StartDate = eventDto.StartDate;
             @event.EndDate = eventDto.EndDate;
             @event.Location = eventDto.Location;
-            @event.Capacity = eventDto.Capacity;
+            @event.TotalTickets = eventDto.TotalTickets;
+            @event.AvailableTickets = eventDto.AvailableTickets;
             @event.TicketPrice = eventDto.TicketPrice;
-            @event.ImageUrl = eventDto.ImageUrl;
 
             await _eventService.UpdateEventAsync(@event);
             return Ok(@event);
@@ -111,7 +111,8 @@ namespace TicketingSystem.API.Controllers
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string Location { get; set; }
-        public int Capacity { get; set; }
+        public int TotalTickets { get; set; }
+        public int AvailableTickets { get; set; }
         public decimal TicketPrice { get; set; }
         public string ImageUrl { get; set; }
         public Guid OrganizerId { get; set; }

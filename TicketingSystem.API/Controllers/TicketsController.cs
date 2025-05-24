@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using TicketingSystem.Core.Services;
+using TicketingSystem.Core.Entities;
 
 namespace TicketingSystem.API.Controllers
 {
@@ -21,10 +22,17 @@ namespace TicketingSystem.API.Controllers
         {
             try
             {
+                // Convert payment method string to decimal (assuming it represents a payment amount)
+                decimal paymentAmount = 0.0m;
+                if (!string.IsNullOrEmpty(purchaseDto.PaymentMethod) && decimal.TryParse(purchaseDto.PaymentMethod, out paymentAmount))
+                {
+                    // Use the parsed decimal value
+                }
+
                 var ticket = await _ticketPurchaseFacade.PurchaseTicketAsync(
                     purchaseDto.EventId,
                     purchaseDto.CustomerId,
-                    purchaseDto.PaymentMethod);
+                    paymentAmount);
 
                 return CreatedAtAction(nameof(GetTicket), new { id = ticket.Id }, ticket);
             }
@@ -55,8 +63,8 @@ namespace TicketingSystem.API.Controllers
         {
             try
             {
-                var result = await _ticketPurchaseFacade.CancelTicketAsync(id, cancelDto.CustomerId);
-                if (!result)
+                var cancelledTicket = await _ticketPurchaseFacade.CancelTicketAsync(id, cancelDto.CustomerId);
+                if (cancelledTicket == null)
                 {
                     return NotFound();
                 }
