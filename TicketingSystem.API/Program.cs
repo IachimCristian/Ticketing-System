@@ -40,6 +40,7 @@ builder.Services.AddHttpClient("API", client =>
 
 
 var app = builder.Build();
+builder.WebHost.UseUrls("http://localhost:5071");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
