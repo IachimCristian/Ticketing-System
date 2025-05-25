@@ -19,11 +19,15 @@ html {
 
 body {
   margin-bottom: 60px;
-  background-color: #f8f9fa;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #212121;
   line-height: 1.4;
   font-weight: 400;
+}
+
+/* Light theme background - only when not dark theme */
+body:not(.dark-theme) {
+  background-color: #f8f9fa;
 }
 
 .container {
@@ -36,9 +40,9 @@ body {
 
 /* Minimalist black and white style to match the Ticksy logo */
 .navbar {
-  background-color: white !important;
-  border-bottom: 1px solid #e0e0e0 !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   padding: 0.5rem 0;
   min-height: 50px;
   position: relative;
@@ -46,13 +50,13 @@ body {
 }
 
 .navbar-brand, .nav-link {
-  color: #212121 !important;
+  color: #212121;
   font-weight: 500;
   font-size: 0.9rem;
 }
 
 .nav-link {
-  padding: 0.5rem 1rem !important;
+  padding: 0.5rem 1rem;
 }
 
 .auth-buttons {
@@ -63,15 +67,15 @@ body {
 }
 
 .footer {
-  background-color: white !important;
-  color: #212121 !important;
-  border-top: 1px solid #e0e0e0 !important;
+  background-color: white;
+  color: #212121;
+  border-top: 1px solid #e0e0e0;
   margin-top: auto;
   padding: 1rem 0 !important;
 }
 
 .footer a {
-  color: #212121 !important;
+  color: #212121;
 }
 
 .logo {
@@ -220,7 +224,7 @@ body {
 }
 
 .placeholder-img {
-  background-color: #f5f5f5 !important;
+  background-color: #f5f5f5;
 }
 
 .landing-page {
@@ -295,16 +299,16 @@ p {
 }
 
 .badge.bg-success {
-  background-color: #212121 !important;
+  background-color: #212121;
 }
 
 .badge.bg-warning {
-  background-color: #757575 !important;
-  color: white !important;
+  background-color: #757575;
+  color: white;
 }
 
 .badge.bg-danger {
-  background-color: #9e9e9e !important;
+  background-color: #9e9e9e;
 }
 
 .page-header h1 {
@@ -470,9 +474,9 @@ p {
 }
 
 .dropdown-toggle {
-  background-color: transparent !important;
-  border: 1px solid #212121 !important;
-  color: #212121 !important;
+  background-color: transparent;
+  border: 1px solid #212121;
+  color: #212121;
   font-size: 0.875rem;
   padding: 0.5rem 1rem;
   border-radius: 8px;
@@ -487,14 +491,14 @@ p {
 }
 
 .dropdown-toggle:hover {
-  background-color: #212121 !important;
-  border-color: #212121 !important;
-  color: white !important;
+  background-color: #212121;
+  border-color: #212121;
+  color: white;
   transform: translateY(-1px);
 }
 
 .dropdown-toggle:focus {
-  box-shadow: 0 0 0 2px rgba(33, 33, 33, 0.1) !important;
+  box-shadow: 0 0 0 2px rgba(33, 33, 33, 0.1);
   outline: none;
 }
 

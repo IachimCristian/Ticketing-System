@@ -1,0 +1,539 @@
+@page
+@{
+    ViewData["Title"] = "Frequently Asked Questions";
+}
+
+<div class="container py-4">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary mb-3">Frequently Asked Questions</h1>
+        <p class="lead text-muted">Find answers to common questions about using Ticksy</p>
+    </div>
+
+    <!-- Quick Navigation -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-4">Quick Navigation</h5>
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <a href="#customer-faq" class="btn btn-outline-primary btn-lg w-100">
+                                <i class="fas fa-user mb-2 d-block"></i>
+                                Customer FAQ
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="#organizer-faq" class="btn btn-outline-success btn-lg w-100">
+                                <i class="fas fa-building mb-2 d-block"></i>
+                                Organizer FAQ
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="#general-faq" class="btn btn-outline-info btn-lg w-100">
+                                <i class="fas fa-question-circle mb-2 d-block"></i>
+                                General FAQ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer FAQ Section -->
+    <section id="customer-faq" class="mb-5">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-primary mb-4">
+                    <i class="fas fa-user me-2"></i>Customer FAQ
+                </h2>
+                <div class="accordion" id="customerAccordion">
+                    <!-- Account & Registration -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#customer-q1">
+                                How do I create an account?
+                            </button>
+                        </h2>
+                        <div id="customer-q1" class="accordion-collapse collapse show" data-bs-parent="#customerAccordion">
+                            <div class="accordion-body">
+                                <p>To create an account:</p>
+                                <ol>
+                                    <li>Click the "Register" button in the top navigation</li>
+                                    <li>Fill in your personal information (username, email, phone, address)</li>
+                                    <li>Create a secure password</li>
+                                    <li>Click "Register" to complete the process</li>
+                                </ol>
+                                <p>Once registered, you can log in and start browsing events!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ticket Purchasing -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#customer-q2">
+                                How do I purchase tickets?
+                            </button>
+                        </h2>
+                        <div id="customer-q2" class="accordion-collapse collapse" data-bs-parent="#customerAccordion">
+                            <div class="accordion-body">
+                                <p>To purchase tickets:</p>
+                                <ol>
+                                    <li>Browse events on the "Events" page</li>
+                                    <li>Click "View Event" on the event you're interested in</li>
+                                    <li>Select your preferred seat from the interactive seat map</li>
+                                    <li>Choose your payment method (Credit Card or PayPal)</li>
+                                    <li>Fill in payment details and click "Purchase"</li>
+                                </ol>
+                                <p>You'll receive a confirmation email and can view your tickets in your dashboard.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seat Selection -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#customer-q3">
+                                How does seat selection work?
+                            </button>
+                        </h2>
+                        <div id="customer-q3" class="accordion-collapse collapse" data-bs-parent="#customerAccordion">
+                            <div class="accordion-body">
+                                <p>Our interactive seat map shows:</p>
+                                <ul>
+                                    <li><strong>Blue seats:</strong> Standard section ($20.00)</li>
+                                    <li><strong>Purple seats:</strong> Premium section ($30.00)</li>
+                                    <li><strong>Red seats:</strong> VIP section ($40.00)</li>
+                                    <li><strong>Gray seats:</strong> Unavailable (already purchased)</li>
+                                </ul>
+                                <p>Simply click on any available seat to select it. The price will be displayed, and you can proceed to payment.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Management -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#customer-q4">
+                                How do I update my profile information?
+                            </button>
+                        </h2>
+                        <div id="customer-q4" class="accordion-collapse collapse" data-bs-parent="#customerAccordion">
+                            <div class="accordion-body">
+                                <p>To update your profile:</p>
+                                <ol>
+                                    <li>Go to your Dashboard</li>
+                                    <li>Click the "Profile" button in the top navigation</li>
+                                    <li>Update your personal information, contact details, or password</li>
+                                    <li>Click "Save Changes" to apply updates</li>
+                                </ol>
+                                <p>You can change your username, email, phone number, and address anytime.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#customer-q5">
+                                How do notifications work?
+                            </button>
+                        </h2>
+                        <div id="customer-q5" class="accordion-collapse collapse" data-bs-parent="#customerAccordion">
+                            <div class="accordion-body">
+                                <p>You'll receive notifications for:</p>
+                                <ul>
+                                    <li>Ticket purchase confirmations</li>
+                                    <li>Event updates and changes</li>
+                                    <li>Event reminders before the event</li>
+                                    <li>Refund notifications</li>
+                                    <li>Event cancellations</li>
+                                </ul>
+                                <p>Notifications appear in-app (bell icon), via email, and SMS. You can customize your notification preferences in your profile settings.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment & Refunds -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#customer-q6">
+                                What payment methods are accepted?
+                            </button>
+                        </h2>
+                        <div id="customer-q6" class="accordion-collapse collapse" data-bs-parent="#customerAccordion">
+                            <div class="accordion-body">
+                                <p>We accept:</p>
+                                <ul>
+                                    <li><strong>Credit Cards:</strong> Visa, MasterCard, American Express</li>
+                                    <li><strong>PayPal:</strong> For secure online payments</li>
+                                </ul>
+                                <p>All payments are processed securely. For refunds, please contact the event organizer or our support team.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Organizer FAQ Section -->
+    <section id="organizer-faq" class="mb-5">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-success mb-4">
+                    <i class="fas fa-building me-2"></i>Organizer FAQ
+                </h2>
+                <div class="accordion" id="organizerAccordion">
+                    <!-- Account Setup -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#organizer-q1">
+                                How do I become an event organizer?
+                            </button>
+                        </h2>
+                        <div id="organizer-q1" class="accordion-collapse collapse show" data-bs-parent="#organizerAccordion">
+                            <div class="accordion-body">
+                                <p>To become an organizer:</p>
+                                <ol>
+                                    <li>Register for an account and select "Organizer" as your account type</li>
+                                    <li>Provide your organization details (name, description, contact information)</li>
+                                    <li>Complete the verification process</li>
+                                    <li>Start creating and managing events!</li>
+                                </ol>
+                                <p>Organizer accounts have access to event creation, management tools, and ticket scanning features.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Creation -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#organizer-q2">
+                                How do I create an event?
+                            </button>
+                        </h2>
+                        <div id="organizer-q2" class="accordion-collapse collapse" data-bs-parent="#organizerAccordion">
+                            <div class="accordion-body">
+                                <p>To create an event:</p>
+                                <ol>
+                                    <li>Go to your Organizer Dashboard</li>
+                                    <li>Click "Create Event" in the navigation or quick actions</li>
+                                    <li>Fill in event details (title, description, dates, location)</li>
+                                    <li>Set ticket pricing and capacity</li>
+                                    <li>Upload an event image</li>
+                                    <li>Publish your event</li>
+                                </ol>
+                                <p>Once published, customers can view and purchase tickets for your event.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Management -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#organizer-q3">
+                                How do I manage my events?
+                            </button>
+                        </h2>
+                        <div id="organizer-q3" class="accordion-collapse collapse" data-bs-parent="#organizerAccordion">
+                            <div class="accordion-body">
+                                <p>From your Organizer Dashboard, you can:</p>
+                                <ul>
+                                    <li>View all your events and their status</li>
+                                    <li>Edit event details, dates, and pricing</li>
+                                    <li>Monitor ticket sales and attendance</li>
+                                    <li>Scan tickets at the event entrance</li>
+                                    <li>Send updates to ticket holders</li>
+                                </ul>
+                                <p>Use the "Manage" button next to each event to access these features.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ticket Scanning -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#organizer-q4">
+                                How does ticket scanning work?
+                            </button>
+                        </h2>
+                        <div id="organizer-q4" class="accordion-collapse collapse" data-bs-parent="#organizerAccordion">
+                            <div class="accordion-body">
+                                <p>Ticket scanning allows you to validate attendee tickets:</p>
+                                <ol>
+                                    <li>Access the "Scan Tickets" feature from your dashboard</li>
+                                    <li>Use your device's camera to scan QR codes on tickets</li>
+                                    <li>The system will verify if the ticket is valid</li>
+                                    <li>Track attendance in real-time</li>
+                                </ol>
+                                <p>This helps prevent fraud and provides accurate attendance data for your events.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Management -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#organizer-q5">
+                                How do I update my organization profile?
+                            </button>
+                        </h2>
+                        <div id="organizer-q5" class="accordion-collapse collapse" data-bs-parent="#organizerAccordion">
+                            <div class="accordion-body">
+                                <p>To update your organization profile:</p>
+                                <ol>
+                                    <li>Go to your Organizer Dashboard</li>
+                                    <li>Click the "Profile" button</li>
+                                    <li>Update organization name, description, contact phone</li>
+                                    <li>Modify account settings (username, email, password)</li>
+                                    <li>Save your changes</li>
+                                </ol>
+                                <p>Keep your profile updated to maintain trust with customers and improve discoverability.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- General FAQ Section -->
+    <section id="general-faq" class="mb-5">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-info mb-4">
+                    <i class="fas fa-question-circle me-2"></i>General FAQ
+                </h2>
+                <div class="accordion" id="generalAccordion">
+                    <!-- Platform Overview -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#general-q1">
+                                What is Ticksy?
+                            </button>
+                        </h2>
+                        <div id="general-q1" class="accordion-collapse collapse show" data-bs-parent="#generalAccordion">
+                            <div class="accordion-body">
+                                <p>Ticksy is a comprehensive event ticketing platform that connects event organizers with attendees. Our platform offers:</p>
+                                <ul>
+                                    <li>Easy event discovery and ticket purchasing</li>
+                                    <li>Interactive seat selection</li>
+                                    <li>Secure payment processing</li>
+                                    <li>Real-time notifications</li>
+                                    <li>Mobile-friendly ticket management</li>
+                                    <li>Professional organizer tools</li>
+                                </ul>
+                                <p>Whether you're attending events or organizing them, Ticksy makes the process simple and secure.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#general-q2">
+                                Is my personal information secure?
+                            </button>
+                        </h2>
+                        <div id="general-q2" class="accordion-collapse collapse" data-bs-parent="#generalAccordion">
+                            <div class="accordion-body">
+                                <p>Yes! We take security seriously:</p>
+                                <ul>
+                                    <li>All data is encrypted in transit and at rest</li>
+                                    <li>Secure payment processing through trusted providers</li>
+                                    <li>Regular security audits and updates</li>
+                                    <li>No storage of sensitive payment information</li>
+                                    <li>GDPR-compliant data handling</li>
+                                </ul>
+                                <p>Your privacy and security are our top priorities.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Technical Support -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#general-q3">
+                                How do I get technical support?
+                            </button>
+                        </h2>
+                        <div id="general-q3" class="accordion-collapse collapse" data-bs-parent="#generalAccordion">
+                            <div class="accordion-body">
+                                <p>If you need help:</p>
+                                <ol>
+                                    <li>Check this FAQ page for common solutions</li>
+                                    <li>Contact our support team via email</li>
+                                    <li>Use the in-app help features</li>
+                                    <li>Check our status page for system updates</li>
+                                </ol>
+                                <p>Our support team is available 24/7 to assist with any issues or questions.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile App -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#general-q4">
+                                Is there a mobile app?
+                            </button>
+                        </h2>
+                        <div id="general-q4" class="accordion-collapse collapse" data-bs-parent="#generalAccordion">
+                            <div class="accordion-body">
+                                <p>Ticksy is fully responsive and works great on mobile devices through your web browser. Features include:</p>
+                                <ul>
+                                    <li>Mobile-optimized interface</li>
+                                    <li>Touch-friendly seat selection</li>
+                                    <li>Mobile ticket display</li>
+                                    <li>Push notifications</li>
+                                    <li>Offline ticket access</li>
+                                </ul>
+                                <p>A dedicated mobile app is in development and will be available soon!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accessibility -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#general-q5">
+                                Is Ticksy accessible?
+                            </button>
+                        </h2>
+                        <div id="general-q5" class="accordion-collapse collapse" data-bs-parent="#generalAccordion">
+                            <div class="accordion-body">
+                                <p>Yes! Ticksy is designed with accessibility in mind:</p>
+                                <ul>
+                                    <li>Screen reader compatible</li>
+                                    <li>Keyboard navigation support</li>
+                                    <li>High contrast mode available</li>
+                                    <li>Alt text for all images</li>
+                                    <li>WCAG 2.1 compliance</li>
+                                </ul>
+                                <p>We're committed to making our platform accessible to everyone.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="text-center">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body py-5">
+                <h3 class="text-primary mb-3">Still have questions?</h3>
+                <p class="lead text-muted mb-4">Our support team is here to help!</p>
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-envelope text-primary me-2"></i>
+                                    <span>support@ticksy.com</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-phone text-primary me-2"></i>
+                                    <span>+1 (555) 123-4567</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    .accordion-button {
+        font-weight: 500;
+        font-size: 1.1rem;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
+    
+    .accordion-body {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .accordion-body ol, .accordion-body ul {
+        margin-bottom: 1rem;
+    }
+    
+    .accordion-body li {
+        margin-bottom: 0.5rem;
+    }
+    
+    section {
+        scroll-margin-top: 100px;
+    }
+    
+    .btn-lg i {
+        font-size: 2rem;
+    }
+    
+    .card {
+        transition: transform 0.2s ease-in-out;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .text-primary {
+        color: #0d6efd !important;
+    }
+    
+    .text-success {
+        color: #198754 !important;
+    }
+    
+    .text-info {
+        color: #0dcaf0 !important;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Auto-expand accordion based on URL hash
+        document.addEventListener('DOMContentLoaded', function() {
+            const hash = window.location.hash;
+            if (hash) {
+                const target = document.querySelector(hash);
+                if (target) {
+                    // Scroll to the section
+                    setTimeout(() => {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }, 100);
+                }
+            }
+        });
+    </script>
+} 

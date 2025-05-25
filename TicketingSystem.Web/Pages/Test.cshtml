@@ -1,0 +1,76 @@
+@page
+@{
+    ViewData["Title"] = "Dark Theme Test";
+}
+
+<div class="container py-4">
+    <h1>Dark Theme Test</h1>
+    
+    <div class="alert alert-info">
+        <strong>Instructions:</strong> Click the theme toggle button (🌙/☀️) in the bottom-right corner to test the dark theme.
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Test Card</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title">Card Title</h6>
+                    <p class="card-text">This is some sample text that should change color in dark theme.</p>
+                    <button class="btn btn-primary">Primary Button</button>
+                    <button class="btn btn-outline-dark ms-2">Outline Button</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Status Check</h5>
+                    <p id="status">Checking theme status...</p>
+                    <button id="toggleTest" class="btn btn-success">Manual Toggle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h3>Sample Content</h3>
+        <p>This is a paragraph that should change color.</p>
+        <ul>
+            <li>List item 1</li>
+            <li>List item 2</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const body = document.body;
+    const status = document.getElementById('status');
+    const toggleTest = document.getElementById('toggleTest');
+
+    function updateStatus() {
+        const isDark = body.classList.contains('dark-theme');
+        const bgColor = getComputedStyle(body).backgroundColor;
+        const textColor = getComputedStyle(body).color;
+        
+        status.innerHTML = `
+            <strong>Theme:</strong> ${isDark ? 'Dark 🌙' : 'Light ☀️'}<br>
+            <strong>Background:</strong> ${bgColor}<br>
+            <strong>Text Color:</strong> ${textColor}<br>
+            <strong>Body Classes:</strong> ${body.className || 'none'}
+        `;
+    }
+
+    toggleTest.addEventListener('click', function() {
+        body.classList.toggle('dark-theme');
+        updateStatus();
+    });
+
+    updateStatus();
+    setInterval(updateStatus, 1000);
+});
+</script> 

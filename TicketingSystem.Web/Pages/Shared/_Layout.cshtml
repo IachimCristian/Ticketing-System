@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dark-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TicketingSystem.Web.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
@@ -32,6 +33,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark nav-link-animated" asp-area="" asp-page="/Events/Index">Events</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark nav-link-animated" asp-area="" asp-page="/FAQ">FAQ</a>
                         </li>
                         @if (Context.Session.GetString("UserType") == "Organizer")
                         {
@@ -97,6 +101,11 @@
         </div>
     </footer>
 
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Theme">
+        <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true" />
@@ -104,6 +113,59 @@
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>
+        // Theme Toggle Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            const body = document.body;
+            
+            console.log('Theme toggle initialized');
+            console.log('Toggle button:', themeToggle);
+            console.log('Theme icon:', themeIcon);
+            
+            // Check for saved theme preference or default to light mode
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            console.log('Saved theme:', savedTheme);
+            
+            // Apply saved theme
+            if (savedTheme === 'dark') {
+                body.classList.add('dark-theme');
+                if (themeIcon) themeIcon.className = 'fas fa-sun';
+                console.log('Applied dark theme on load');
+            } else {
+                body.classList.remove('dark-theme');
+                if (themeIcon) themeIcon.className = 'fas fa-moon';
+                console.log('Applied light theme on load');
+            }
+            
+            // Theme toggle event listener
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    console.log('Theme toggle clicked');
+                    console.log('Current body classes before toggle:', body.className);
+                    
+                    if (body.classList.contains('dark-theme')) {
+                        // Switch to light theme
+                        body.classList.remove('dark-theme');
+                        if (themeIcon) themeIcon.className = 'fas fa-moon';
+                        localStorage.setItem('theme', 'light');
+                        console.log('Switched to light theme');
+                    } else {
+                        // Switch to dark theme
+                        body.classList.add('dark-theme');
+                        if (themeIcon) themeIcon.className = 'fas fa-sun';
+                        localStorage.setItem('theme', 'dark');
+                        console.log('Switched to dark theme');
+                    }
+                    
+                    console.log('Current body classes after toggle:', body.className);
+                    console.log('Current background color:', getComputedStyle(body).backgroundColor);
+                });
+            } else {
+                console.error('Theme toggle button not found!');
+            }
+        });
+
         // Navbar scroll animation
         window.addEventListener('scroll', function() {
             const navbar = document.querySelector('.navbar-animated');
