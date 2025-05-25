@@ -15,11 +15,29 @@ namespace TicketingSystem.Infrastructure.Repositories
         {
         }
 
+        public override async Task<Event> GetByIdAsync(Guid id)
+        {
+            try
+            {
+                return await _dbSet
+                    .Include(e => e.Tickets)
+                    .Include(e => e.Organizer)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(e => e.Id == id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetByIdAsync: {ex.Message}");
+                return null;
+            }
+        }
+
         public async Task<IEnumerable<Event>> GetUpcomingEventsAsync()
         {
             try
             {
                 var events = await _dbSet
+                    .Include(e => e.Tickets)
                     .Where(e => e.StartDate > DateTime.Now && e.IsActive)
                     .OrderBy(e => e.StartDate)
                     .AsNoTracking()
@@ -28,18 +46,11 @@ namespace TicketingSystem.Infrastructure.Repositories
                 if (events == null || !events.Any())
                 {
                     events = await _dbSet
+                        .Include(e => e.Tickets)
                         .Where(e => e.IsActive)
                         .OrderBy(e => e.StartDate)
                         .AsNoTracking()
                         .ToListAsync();
-                }
-
-                foreach (var evt in events)
-                {
-                    var ticketCount = await _context.Set<Ticket>()
-                        .CountAsync(t => t.EventId == evt.Id && t.Status != "Cancelled");
-                    
-                    evt.Tickets = new List<Ticket>();
                 }
                     
                 return events;
@@ -54,18 +65,11 @@ namespace TicketingSystem.Infrastructure.Repositories
         public async Task<IEnumerable<Event>> GetEventsByOrganizerAsync(Guid organizerId)
         {
             var events = await _dbSet
+                .Include(e => e.Tickets)
                 .Where(e => e.OrganizerId == organizerId)
                 .OrderByDescending(e => e.StartDate)
                 .AsNoTracking()
                 .ToListAsync();
-                
-            foreach (var evt in events)
-            {
-                var ticketCount = await _context.Set<Ticket>()
-                    .CountAsync(t => t.EventId == evt.Id && t.Status != "Cancelled");
-                    
-                evt.Tickets = new List<Ticket>();
-            }
                 
             return events;
         }
@@ -76,6 +80,7 @@ namespace TicketingSystem.Infrastructure.Repositories
                 return await GetUpcomingEventsAsync();
 
             var events = await _dbSet
+                .Include(e => e.Tickets)
                 .Where(e => e.IsActive && 
                            (e.Title.Contains(searchTerm) || 
                             e.Description.Contains(searchTerm) || 
@@ -84,21 +89,13 @@ namespace TicketingSystem.Infrastructure.Repositories
                 .AsNoTracking()
                 .ToListAsync();
                 
-            foreach (var evt in events)
-            {
-                var ticketCount = await _context.Set<Ticket>()
-                    .CountAsync(t => t.EventId == evt.Id && t.Status != "Cancelled");
-                    
-                evt.Tickets = new List<Ticket>();
-            }
-                
             return events;
         }
 
         public async Task<bool> IsTicketAvailableAsync(Guid eventId)
         {
             var ticketCount = await _context.Tickets
-                .CountAsync(t => t.EventId == eventId && t.Status != "Cancelled");
+                .CountAsync(t => t.EventId == eventId && t.Status == "Sold");
 
             var @event = await _dbSet
                 .FirstOrDefaultAsync(e => e.Id == eventId);

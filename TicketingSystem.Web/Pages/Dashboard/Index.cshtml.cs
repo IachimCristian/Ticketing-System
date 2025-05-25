@@ -18,10 +18,13 @@ namespace TicketingSystem.Web.Pages.Dashboard
     {
         private readonly ITicketRepository _ticketRepository;
         private readonly IEventService _eventService;
+        private readonly ICustomerNotificationService _notificationService;
         private readonly ILogger<IndexModel> _logger;
         
         public List<PurchasedEvent> PurchasedEvents { get; set; } = new List<PurchasedEvent>();
         public List<EventViewModel> UpcomingEvents { get; set; } = new List<EventViewModel>();
+        public List<CustomerNotification> RecentNotifications { get; set; } = new List<CustomerNotification>();
+        public int UnreadNotificationCount { get; set; }
         
         public string Username { get; set; }
         public string UserType { get; set; }
@@ -30,10 +33,12 @@ namespace TicketingSystem.Web.Pages.Dashboard
         public IndexModel(
             ITicketRepository ticketRepository, 
             IEventService eventService,
+            ICustomerNotificationService notificationService,
             ILogger<IndexModel> logger)
         {
             _ticketRepository = ticketRepository ?? throw new ArgumentNullException(nameof(ticketRepository));
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+            _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -95,6 +100,14 @@ namespace TicketingSystem.Web.Pages.Dashboard
                             Location = e.Location ?? "TBD",
                             TicketPrice = e.TicketPrice
                         }).ToList();
+                    }
+
+                    // Get notification data for customers
+                    if (UserType == "Customer")
+                    {
+                        UnreadNotificationCount = await _notificationService.GetUnreadCountAsync(customerId);
+                        var recentNotifications = await _notificationService.GetRecentNotificationsAsync(customerId, 5);
+                        RecentNotifications = recentNotifications.ToList();
                     }
                 }
                 else

@@ -12,13 +12,16 @@ namespace TicketingSystem.Core.Services
     {
         private readonly IRepository<SeatMap> _seatMapRepository;
         private readonly IEventService _eventService;
+        private readonly ITicketRepository _ticketRepository;
         
         public SeatMapService(
             IRepository<SeatMap> seatMapRepository,
-            IEventService eventService)
+            IEventService eventService,
+            ITicketRepository ticketRepository)
         {
             _seatMapRepository = seatMapRepository ?? throw new ArgumentNullException(nameof(seatMapRepository));
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+            _ticketRepository = ticketRepository ?? throw new ArgumentNullException(nameof(ticketRepository));
         }
         
         public async Task<SeatMap> GetSeatMapForEventAsync(Guid eventId)
@@ -52,10 +55,10 @@ namespace TicketingSystem.Core.Services
                         Name = "Premium", 
                         PriceMultiplier = 1.5m,
                         Color = "#9b59b6", // Purple
-                        StartRow = 3, 
+                        StartRow = 1, 
                         EndRow = 3, 
-                        StartColumn = 8, 
-                        EndColumn = 12
+                        StartColumn = 15, 
+                        EndColumn = 19
                     },
                     new SeatSection 
                     { 
@@ -74,15 +77,19 @@ namespace TicketingSystem.Core.Services
         
         public async Task<bool> IsSeatAvailableAsync(Guid eventId, int row, int column)
         {
-            var seatMap = await GetSeatMapForEventAsync(eventId);
-            if (seatMap == null)
+            try
             {
+                // Check if there's already a sold ticket for this seat
+                var existingTicket = await _ticketRepository.GetTicketBySeatAsync(eventId, row, column);
+                
+                // Seat is available if no ticket exists or if the existing ticket is cancelled
+                return existingTicket == null || existingTicket.Status == "Cancelled";
+            }
+            catch (Exception)
+            {
+                // If there's an error, assume seat is unavailable for safety
                 return false;
             }
-            
-            // In a real implementation, this would check the actual availability
-            // For now, we'll use the simplified method in SeatMap
-            return seatMap.IsSeatAvailable(row, column);
         }
         
         public async Task<IEnumerable<Seat>> GetAvailableSeatsAsync(Guid eventId)
@@ -95,22 +102,32 @@ namespace TicketingSystem.Core.Services
             
             var availableSeats = new List<Seat>();
             
-            // In a real implementation, this would decode the SeatLayout JSON
-            // to determine which seats are available
-            // For demonstration purposes, we'll create a simple grid
+            // Get all sold tickets for this event to check seat availability
+            var soldTickets = await _ticketRepository.GetTicketsByEventAsync(eventId);
+            var occupiedSeats = soldTickets
+                .Where(t => t.Status == "Sold" && t.SeatRow.HasValue && t.SeatColumn.HasValue)
+                .Select(t => new { Row = t.SeatRow.Value, Column = t.SeatColumn.Value })
+                .ToHashSet();
+            
+            // Get event details once to avoid multiple database calls
+            var @event = await _eventService.GetEventByIdAsync(eventId);
+            decimal basePrice = @event?.TicketPrice ?? 0;
+            
             for (int row = 1; row <= seatMap.Rows; row++)
             {
                 for (int col = 0; col < seatMap.Columns; col++)
                 {
-                    if (seatMap.IsSeatAvailable(row, col))
+                    // Check if this seat is occupied
+                    bool isOccupied = occupiedSeats.Contains(new { Row = row, Column = col });
+                    
+                    if (!isOccupied)
                     {
                         // Find which section this seat belongs to
                         var section = seatMap.Sections.FirstOrDefault(s => 
                             row >= s.StartRow && row <= s.EndRow && 
                             col >= s.StartColumn && col <= s.EndColumn);
                         
-                        var @event = await _eventService.GetEventByIdAsync(eventId);
-                        decimal price = @event?.TicketPrice ?? 0;
+                        decimal price = basePrice;
                         if (section != null)
                         {
                             price *= section.PriceMultiplier;
@@ -135,18 +152,24 @@ namespace TicketingSystem.Core.Services
         
         public async Task<Seat> ReserveSeatAsync(Guid eventId, int row, int column, Guid customerId)
         {
-            var seatMap = await GetSeatMapForEventAsync(eventId);
-            if (seatMap == null || !seatMap.IsSeatAvailable(row, column))
+            // Check if seat is available first
+            if (!await IsSeatAvailableAsync(eventId, row, column))
             {
                 return null;
             }
             
-            // In a real implementation, this would update the seat availability in the database
+            var seatMap = await GetSeatMapForEventAsync(eventId);
+            if (seatMap == null)
+            {
+                return null;
+            }
+            
             // Find which section this seat belongs to
             var section = seatMap.Sections.FirstOrDefault(s => 
                 row >= s.StartRow && row <= s.EndRow && 
                 column >= s.StartColumn && column <= s.EndColumn);
             
+            // Get event details once to avoid multiple database calls
             var @event = await _eventService.GetEventByIdAsync(eventId);
             decimal price = @event?.TicketPrice ?? 0;
             if (section != null)
@@ -168,13 +191,8 @@ namespace TicketingSystem.Core.Services
         
         public async Task<bool> ReleaseSeatReservationAsync(Guid eventId, int row, int column)
         {
-            var seatMap = await GetSeatMapForEventAsync(eventId);
-            if (seatMap == null)
-            {
-                return false;
-            }
-            
             // In a real implementation, this would update the seat availability in the database
+            // For now, we'll just return true since seat availability is determined by ticket status
             return true;
         }
     }

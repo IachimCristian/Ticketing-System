@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TicketingSystem.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TicketingSystem.Infrastructure.Data;
 namespace TicketingSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250525005921_AddRefundColumnsToTickets")]
+    partial class AddRefundColumnsToTickets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -249,7 +252,7 @@ namespace TicketingSystem.Infrastructure.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("SeatMaps");
+                    b.ToTable("SeatMaps", (string)null);
                 });
 
             modelBuilder.Entity("TicketingSystem.Core.Entities.SeatSection", b =>
@@ -293,7 +296,7 @@ namespace TicketingSystem.Infrastructure.Migrations
 
                     b.HasIndex("SeatMapId1");
 
-                    b.ToTable("SeatSections");
+                    b.ToTable("SeatSections", (string)null);
                 });
 
             modelBuilder.Entity("TicketingSystem.Core.Entities.Ticket", b =>
@@ -315,6 +318,7 @@ namespace TicketingSystem.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("PaymentId")
+                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("PaymentId1")
@@ -370,8 +374,7 @@ namespace TicketingSystem.Infrastructure.Migrations
                     b.HasIndex("EventId");
 
                     b.HasIndex("PaymentId")
-                        .IsUnique()
-                        .HasFilter("[PaymentId] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex("PaymentId1");
 
@@ -433,7 +436,7 @@ namespace TicketingSystem.Infrastructure.Migrations
                     b.HasOne("TicketingSystem.Core.Entities.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("TicketingSystem.Core.Entities.Customer", null)
@@ -443,12 +446,14 @@ namespace TicketingSystem.Infrastructure.Migrations
                     b.HasOne("TicketingSystem.Core.Entities.Event", "Event")
                         .WithMany("Tickets")
                         .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("TicketingSystem.Core.Entities.Payment", "Payment")
                         .WithOne()
-                        .HasForeignKey("TicketingSystem.Core.Entities.Ticket", "PaymentId");
+                        .HasForeignKey("TicketingSystem.Core.Entities.Ticket", "PaymentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("TicketingSystem.Core.Entities.Payment", null)
                         .WithMany("Tickets")

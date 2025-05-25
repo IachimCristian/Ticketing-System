@@ -1,0 +1,188 @@
+@page
+@model TicketingSystem.Web.Pages.Customer.NotificationsModel
+@{
+    ViewData["Title"] = "My Notifications";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <img src="~/images/logo-no-background.png" alt="Ticksy" style="height: 40px;" />
+        </div>
+        <div>
+            <a asp-page="/Dashboard/Customer" class="btn btn-outline-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>My Notifications</h2>
+                @if (Model.UnreadCount > 0)
+                {
+                    <form method="post" asp-page-handler="MarkAllRead" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                            Mark All as Read (@Model.UnreadCount)
+                        </button>
+                    </form>
+                }
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @Model.SuccessMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @Model.ErrorMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Filter Tabs -->
+            <ul class="nav nav-tabs mb-3" id="notificationTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
+                        All (@Model.Notifications.Count())
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="unread-tab" data-bs-toggle="tab" data-bs-target="#unread" type="button" role="tab">
+                        Unread (@Model.UnreadCount)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tickets-tab" data-bs-toggle="tab" data-bs-target="#tickets" type="button" role="tab">
+                        Tickets
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">
+                        Events
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="notificationTabContent">
+                <!-- All Notifications -->
+                <div class="tab-pane fade show active" id="all" role="tabpanel">
+                    @await Html.PartialAsync("_NotificationList", Model.Notifications)
+                </div>
+
+                <!-- Unread Notifications -->
+                <div class="tab-pane fade" id="unread" role="tabpanel">
+                    @await Html.PartialAsync("_NotificationList", Model.Notifications.Where(n => !n.IsRead))
+                </div>
+
+                <!-- Ticket Notifications -->
+                <div class="tab-pane fade" id="tickets" role="tabpanel">
+                    @await Html.PartialAsync("_NotificationList", Model.Notifications.Where(n => n.Type.Contains("Ticket") || n.Type.Contains("Refund")))
+                </div>
+
+                <!-- Event Notifications -->
+                <div class="tab-pane fade" id="events" role="tabpanel">
+                    @await Html.PartialAsync("_NotificationList", Model.Notifications.Where(n => n.Type.Contains("Event")))
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-page="/Customer/NotificationPreferences" class="btn btn-outline-primary">
+                            <i class="fas fa-cog"></i> Notification Settings
+                        </a>
+                        <a asp-page="/Events/Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-calendar"></i> Browse Events
+                        </a>
+                        <a asp-page="/Dashboard/Customer" class="btn btn-outline-secondary">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Statistics -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Notification Summary</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="h4 text-primary">@Model.Notifications.Count()</div>
+                            <small class="text-muted">Total</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="h4 text-warning">@Model.UnreadCount</div>
+                            <small class="text-muted">Unread</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="h6 text-success">@Model.Notifications.Count(n => n.Type.Contains("Ticket"))</div>
+                            <small class="text-muted">Tickets</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="h6 text-info">@Model.Notifications.Count(n => n.Type.Contains("Event"))</div>
+                            <small class="text-muted">Events</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-mark notifications as read when viewed
+        function markAsRead(notificationId) {
+            fetch(`/Customer/Notifications?handler=MarkRead&id=${notificationId}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            }).then(response => {
+                if (response.ok) {
+                    const notificationCard = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                    if (notificationCard) {
+                        notificationCard.classList.remove('notification-unread');
+                        notificationCard.classList.add('notification-read');
+                    }
+                    // Update unread count
+                    updateUnreadCount();
+                }
+            });
+        }
+
+        function updateUnreadCount() {
+            fetch('/Customer/Notifications?handler=UnreadCount')
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelectorAll('.unread-count').forEach(el => {
+                        el.textContent = data.count;
+                    });
+                });
+        }
+
+        // Mark notification as read when clicked
+        document.addEventListener('click', function(e) {
+            const notificationCard = e.target.closest('.notification-card');
+            if (notificationCard && notificationCard.classList.contains('notification-unread')) {
+                const notificationId = notificationCard.getAttribute('data-notification-id');
+                markAsRead(notificationId);
+            }
+        });
+    </script>
+} 

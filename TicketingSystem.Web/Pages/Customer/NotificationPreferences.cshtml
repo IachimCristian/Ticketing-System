@@ -1,0 +1,273 @@
+@page
+@model TicketingSystem.Web.Pages.Customer.NotificationPreferencesModel
+@{
+    ViewData["Title"] = "Notification Preferences";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <img src="~/images/logo-no-background.png" alt="Ticksy" style="height: 40px;" />
+        </div>
+        <div>
+            <a asp-page="/Customer/Notifications" class="btn btn-outline-secondary">Back to Notifications</a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Notification Preferences</h4>
+                    <small class="text-muted">Choose how you'd like to receive notifications about your tickets and events.</small>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @Model.SuccessMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @Model.ErrorMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form method="post">
+                        <input type="hidden" asp-for="Preferences.Id" />
+                        <input type="hidden" asp-for="Preferences.CustomerId" />
+                        <input type="hidden" asp-for="Preferences.CreatedAt" />
+
+                        <!-- Email Notifications -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2">
+                                <i class="fas fa-envelope text-primary"></i> Email Notifications
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.EmailTicketPurchase" />
+                                        <label class="form-check-label" asp-for="Preferences.EmailTicketPurchase">
+                                            Ticket Purchase Confirmations
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.EmailEventUpdates" />
+                                        <label class="form-check-label" asp-for="Preferences.EmailEventUpdates">
+                                            Event Updates
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.EmailEventCancellations" />
+                                        <label class="form-check-label" asp-for="Preferences.EmailEventCancellations">
+                                            Event Cancellations
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.EmailEventReminders" />
+                                        <label class="form-check-label" asp-for="Preferences.EmailEventReminders">
+                                            Event Reminders
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.EmailRefundUpdates" />
+                                        <label class="form-check-label" asp-for="Preferences.EmailRefundUpdates">
+                                            Refund Updates
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.EmailPromotions" />
+                                        <label class="form-check-label" asp-for="Preferences.EmailPromotions">
+                                            Promotions & Special Offers
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SMS Notifications -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2">
+                                <i class="fas fa-sms text-success"></i> SMS Notifications
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.SmsTicketPurchase" />
+                                        <label class="form-check-label" asp-for="Preferences.SmsTicketPurchase">
+                                            Ticket Purchase Confirmations
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.SmsEventUpdates" />
+                                        <label class="form-check-label" asp-for="Preferences.SmsEventUpdates">
+                                            Event Updates
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.SmsEventCancellations" />
+                                        <label class="form-check-label" asp-for="Preferences.SmsEventCancellations">
+                                            Event Cancellations
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.SmsEventReminders" />
+                                        <label class="form-check-label" asp-for="Preferences.SmsEventReminders">
+                                            Event Reminders
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.SmsRefundUpdates" />
+                                        <label class="form-check-label" asp-for="Preferences.SmsRefundUpdates">
+                                            Refund Updates
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- In-App Notifications -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2">
+                                <i class="fas fa-bell text-warning"></i> In-App Notifications
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.InAppTicketPurchase" />
+                                        <label class="form-check-label" asp-for="Preferences.InAppTicketPurchase">
+                                            Ticket Purchase Confirmations
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.InAppEventUpdates" />
+                                        <label class="form-check-label" asp-for="Preferences.InAppEventUpdates">
+                                            Event Updates
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.InAppEventCancellations" />
+                                        <label class="form-check-label" asp-for="Preferences.InAppEventCancellations">
+                                            Event Cancellations
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.InAppEventReminders" />
+                                        <label class="form-check-label" asp-for="Preferences.InAppEventReminders">
+                                            Event Reminders
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.InAppRefundUpdates" />
+                                        <label class="form-check-label" asp-for="Preferences.InAppRefundUpdates">
+                                            Refund Updates
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="Preferences.InAppPromotions" />
+                                        <label class="form-check-label" asp-for="Preferences.InAppPromotions">
+                                            Promotions & Special Offers
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reminder Timing -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2">
+                                <i class="fas fa-clock text-info"></i> Reminder Timing
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label" asp-for="Preferences.EventReminderHours">
+                                        Send event reminders (hours before event):
+                                    </label>
+                                    <select class="form-select" asp-for="Preferences.EventReminderHours">
+                                        <option value="1">1 hour before</option>
+                                        <option value="2">2 hours before</option>
+                                        <option value="6">6 hours before</option>
+                                        <option value="12">12 hours before</option>
+                                        <option value="24">24 hours before (1 day)</option>
+                                        <option value="48">48 hours before (2 days)</option>
+                                        <option value="72">72 hours before (3 days)</option>
+                                        <option value="168">1 week before</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetToDefaults()">
+                                Reset to Defaults
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Preferences
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Information Card -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-info-circle text-info"></i> About Notifications
+                    </h6>
+                    <ul class="mb-0">
+                        <li><strong>Email:</strong> Detailed notifications sent to your registered email address</li>
+                        <li><strong>SMS:</strong> Quick alerts sent to your phone number (if provided)</li>
+                        <li><strong>In-App:</strong> Notifications you'll see when logged into your account</li>
+                        <li><strong>Important:</strong> Critical notifications (like event cancellations) may still be sent regardless of your preferences</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function resetToDefaults() {
+            if (confirm('Are you sure you want to reset all preferences to their default values?')) {
+                // Reset email preferences
+                document.getElementById('Preferences_EmailTicketPurchase').checked = true;
+                document.getElementById('Preferences_EmailEventUpdates').checked = true;
+                document.getElementById('Preferences_EmailEventCancellations').checked = true;
+                document.getElementById('Preferences_EmailEventReminders').checked = true;
+                document.getElementById('Preferences_EmailRefundUpdates').checked = true;
+                document.getElementById('Preferences_EmailPromotions').checked = false;
+
+                // Reset SMS preferences
+                document.getElementById('Preferences_SmsTicketPurchase').checked = false;
+                document.getElementById('Preferences_SmsEventUpdates').checked = false;
+                document.getElementById('Preferences_SmsEventCancellations').checked = true;
+                document.getElementById('Preferences_SmsEventReminders').checked = false;
+                document.getElementById('Preferences_SmsRefundUpdates').checked = false;
+
+                // Reset in-app preferences
+                document.getElementById('Preferences_InAppTicketPurchase').checked = true;
+                document.getElementById('Preferences_InAppEventUpdates').checked = true;
+                document.getElementById('Preferences_InAppEventCancellations').checked = true;
+                document.getElementById('Preferences_InAppEventReminders').checked = true;
+                document.getElementById('Preferences_InAppRefundUpdates').checked = true;
+                document.getElementById('Preferences_InAppPromotions').checked = true;
+
+                // Reset reminder timing
+                document.getElementById('Preferences_EventReminderHours').value = '24';
+            }
+        }
+    </script>
+} 

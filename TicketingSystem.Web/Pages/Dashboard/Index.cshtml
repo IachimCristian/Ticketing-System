@@ -26,7 +26,22 @@
              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
         <span class="logo-text hover-scale" style="display: none;">Ticksy</span>
     </a>
-    <a asp-page="/Account/Logout" class="btn btn-outline-dark btn-sm btn-animated hover-glow">Logout</a>
+    <div class="d-flex align-items-center gap-3">
+        @if (Model.UserType == "Customer")
+        {
+            <a asp-page="/Customer/Notifications" class="btn btn-outline-primary btn-sm position-relative">
+                <i class="fas fa-bell"></i>
+                @if (Model.UnreadNotificationCount > 0)
+                {
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        @Model.UnreadNotificationCount
+                        <span class="visually-hidden">unread notifications</span>
+                    </span>
+                }
+            </a>
+        }
+        <a asp-page="/Account/Logout" class="btn btn-outline-dark btn-sm btn-animated hover-glow">Logout</a>
+    </div>
 </div>
 
 <h2 class="fs-5 mb-4 animate-fade-in-up animate-delay-1">Welcome, @Model.Username!</h2>
@@ -38,7 +53,55 @@
     </div>
 }
 
-<div class="card mb-4 card-animated hover-lift animate-fade-in-up animate-delay-2">
+@* Notification Widget for Customers *@
+@if (Model.UserType == "Customer" && Model.RecentNotifications.Any())
+{
+    <div class="card mb-4 card-animated hover-lift animate-fade-in-up animate-delay-2">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-bell text-primary me-2"></i>Recent Notifications
+            </h5>
+            <a asp-page="/Customer/Notifications" class="btn btn-sm btn-outline-primary">
+                View All (@Model.UnreadNotificationCount unread)
+            </a>
+        </div>
+        <div class="card-body p-0">
+            @foreach (var notification in Model.RecentNotifications.Take(3))
+            {
+                <div class="notification-item p-3 border-bottom @(notification.IsRead ? "" : "notification-unread")">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-1">
+                                <h6 class="mb-0 me-2 @(notification.IsRead ? "text-muted" : "fw-bold")">
+                                    @notification.Title
+                                </h6>
+                                @if (!notification.IsRead)
+                                {
+                                    <span class="badge bg-primary">New</span>
+                                }
+                                <span class="badge bg-secondary ms-2">@GetNotificationTypeDisplay(notification.Type)</span>
+                            </div>
+                            <p class="mb-1 small @(notification.IsRead ? "text-muted" : "")">
+                                @(notification.Message.Length > 100 ? notification.Message.Substring(0, 100) + "..." : notification.Message)
+                            </p>
+                            @if (!string.IsNullOrEmpty(notification.ActionUrl))
+                            {
+                                <a href="@notification.ActionUrl" class="btn btn-sm btn-outline-primary">
+                                    @(notification.ActionText ?? "View Details")
+                                </a>
+                            }
+                        </div>
+                        <small class="text-muted">
+                            @notification.CreatedAt.ToString("MMM d")
+                        </small>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<div class="card mb-4 card-animated hover-lift animate-fade-in-up animate-delay-3">
     <div class="card-header d-flex justify-content-between">
         <h5 class="mb-0 animate-fade-in-left">My Tickets</h5>
     </div>
@@ -91,7 +154,7 @@
     </div>
 </div>
 
-<h3 class="fs-5 mb-3 animate-fade-in-up animate-delay-3">Upcoming Events</h3>
+<h3 class="fs-5 mb-3 animate-fade-in-up animate-delay-4">Upcoming Events</h3>
 
 <div class="row g-2 mb-4 stagger-animation">
     @foreach (var item in Model.UpcomingEvents.Take(3))
@@ -125,11 +188,44 @@
     }
 </div>
 
-<div class="text-center animate-fade-in-up animate-delay-4">
+<div class="text-center animate-fade-in-up animate-delay-5">
     <a asp-page="/Events/Index" class="btn btn-dark btn-animated hover-glow animate-pulse">Browse All Events</a>
 </div>
 
+@functions {
+    private string GetNotificationTypeDisplay(string type)
+    {
+        return type switch
+        {
+            "TicketPurchase" => "Ticket",
+            "EventUpdate" => "Event",
+            "EventCancellation" => "Cancelled",
+            "EventReminder" => "Reminder",
+            "Refund" => "Refund",
+            "TicketCancellation" => "Cancelled",
+            _ => type
+        };
+    }
+}
+
 <style>
+    .notification-item {
+        transition: all 0.2s ease;
+    }
+    
+    .notification-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .notification-unread {
+        background-color: #f0f8ff;
+        border-left: 4px solid #007bff;
+    }
+    
+    .notification-item:last-child {
+        border-bottom: none !important;
+    }
+
     .event-card {
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         transform: translateZ(0);

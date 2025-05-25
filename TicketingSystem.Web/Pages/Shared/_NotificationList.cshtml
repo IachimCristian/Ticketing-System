@@ -1,0 +1,140 @@
+@model IEnumerable<TicketingSystem.Core.Entities.CustomerNotification>
+
+@if (Model.Any())
+{
+    <div class="notification-list">
+        @foreach (var notification in Model)
+        {
+            <div class="card mb-3 notification-card @(notification.IsRead ? "notification-read" : "notification-unread")" 
+                 data-notification-id="@notification.Id">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-2">
+                                <h6 class="card-title mb-0 me-2">@notification.Title</h6>
+                                @if (!notification.IsRead)
+                                {
+                                    <span class="badge bg-primary">New</span>
+                                }
+                                <span class="badge ms-2 @GetPriorityBadgeClass(notification.Priority)">
+                                    @notification.Priority
+                                </span>
+                                <span class="badge bg-secondary ms-2">@GetTypeDisplayName(notification.Type)</span>
+                            </div>
+                            <p class="card-text">@notification.Message</p>
+                            
+                            @if (!string.IsNullOrEmpty(notification.ActionUrl) && !string.IsNullOrEmpty(notification.ActionText))
+                            {
+                                <a href="@notification.ActionUrl" class="btn btn-sm btn-outline-primary">
+                                    @notification.ActionText
+                                </a>
+                            }
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">
+                                @notification.CreatedAt.ToString("MMM d, yyyy")
+                                <br>
+                                @notification.CreatedAt.ToString("h:mm tt")
+                            </small>
+                            @if (notification.IsRead && notification.ReadAt.HasValue)
+                            {
+                                <br>
+                                <small class="text-success">
+                                    <i class="fas fa-check"></i> Read @notification.ReadAt.Value.ToString("MMM d")
+                                </small>
+                            }
+                        </div>
+                    </div>
+                    
+                    @if (notification.Event != null || notification.Ticket != null)
+                    {
+                        <hr class="my-2">
+                        <div class="row">
+                            @if (notification.Event != null)
+                            {
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <strong>Event:</strong> @notification.Event.Title
+                                        <br>
+                                        <strong>Date:</strong> @notification.Event.StartDate.ToString("MMMM d, yyyy")
+                                    </small>
+                                </div>
+                            }
+                            @if (notification.Ticket != null)
+                            {
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <strong>Ticket:</strong> @notification.Ticket.TicketNumber
+                                        <br>
+                                        <strong>Status:</strong> @notification.Ticket.Status
+                                    </small>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">No notifications found</h5>
+        <p class="text-muted">You're all caught up! Check back later for updates.</p>
+    </div>
+}
+
+@functions {
+    private string GetPriorityBadgeClass(string priority)
+    {
+        return priority?.ToLower() switch
+        {
+            "urgent" => "bg-danger",
+            "high" => "bg-warning",
+            "medium" => "bg-info",
+            "low" => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetTypeDisplayName(string type)
+    {
+        return type switch
+        {
+            "TicketPurchase" => "Ticket",
+            "EventUpdate" => "Event",
+            "EventCancellation" => "Cancelled",
+            "EventReminder" => "Reminder",
+            "Refund" => "Refund",
+            "TicketCancellation" => "Cancelled",
+            _ => type
+        };
+    }
+}
+
+<style>
+    .notification-unread {
+        border-left: 4px solid #007bff;
+        background-color: #f8f9fa;
+    }
+
+    .notification-read {
+        border-left: 4px solid #e9ecef;
+    }
+
+    .notification-card {
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .notification-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transform: translateY(-1px);
+    }
+
+    .notification-unread .card-title {
+        font-weight: 600;
+    }
+</style> 

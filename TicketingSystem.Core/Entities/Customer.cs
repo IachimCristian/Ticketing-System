@@ -9,9 +9,14 @@ namespace TicketingSystem.Core.Entities
         public string Address { get; set; }
         public virtual ICollection<Ticket> Tickets { get; set; }
         
+        // Notification-related navigation properties
+        public virtual ICollection<CustomerNotification> Notifications { get; set; }
+        public virtual NotificationPreferences NotificationPreferences { get; set; }
+        
         public Customer()
         {
             Tickets = new List<Ticket>();
+            Notifications = new List<CustomerNotification>();
         }
     }
 } 

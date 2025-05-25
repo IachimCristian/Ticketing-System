@@ -67,7 +67,6 @@ namespace TicketingSystem.Core.Services
             var ticket = new Ticket
             {
                 EventId = eventId,
-                Event = @event,
                 CustomerId = customerId,
                 Price = price,
                 Status = "Available",

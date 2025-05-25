@@ -22,20 +22,25 @@ builder.Services.AddScoped<IUserRepository<Administrator>, UserRepository<Admini
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<ICustomerNotificationRepository, CustomerNotificationRepository>();
+builder.Services.AddScoped<INotificationPreferencesRepository, NotificationPreferencesRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Register services
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<ICustomerNotificationService, CustomerNotificationService>();
 builder.Services.AddScoped<TicketViewService>();
 builder.Services.AddScoped<TicketCancellationService>();
 builder.Services.AddScoped<TicketPurchaseService>();
 builder.Services.AddSingleton<INotificationSubject, NotificationService>();
 builder.Services.AddSingleton<EmailNotificationObserver>();
 builder.Services.AddSingleton<SMSNotificationObserver>();
+builder.Services.AddSingleton<CustomerNotificationObserver>();
 builder.Services.AddSingleton<INotificationObserver>(sp => sp.GetRequiredService<EmailNotificationObserver>());
 builder.Services.AddSingleton<INotificationObserver>(sp => sp.GetRequiredService<SMSNotificationObserver>());
+builder.Services.AddSingleton<INotificationObserver>(sp => sp.GetRequiredService<CustomerNotificationObserver>());
 builder.Services.AddScoped<ISeatMapService, SeatMapService>();
 builder.Services.AddScoped<ITicketValidationService, TicketValidationService>();
 builder.Services.AddSingleton<PaymentStrategyFactory>();
@@ -94,8 +99,10 @@ if (!app.Environment.IsDevelopment())
 var notificationService = app.Services.GetRequiredService<INotificationSubject>();
 var emailObserver = app.Services.GetRequiredService<EmailNotificationObserver>();
 var smsObserver = app.Services.GetRequiredService<SMSNotificationObserver>();
+var customerNotificationObserver = app.Services.GetRequiredService<CustomerNotificationObserver>();
 await notificationService.RegisterObserverAsync(emailObserver);
 await notificationService.RegisterObserverAsync(smsObserver);
+await notificationService.RegisterObserverAsync(customerNotificationObserver);
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

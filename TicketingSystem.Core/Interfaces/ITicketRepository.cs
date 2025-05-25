@@ -9,7 +9,11 @@ namespace TicketingSystem.Core.Interfaces
     {
         Task<IEnumerable<Ticket>> GetTicketsByCustomerAsync(Guid customerId);
         Task<IEnumerable<Ticket>> GetTicketsByEventAsync(Guid eventId);
+        Task<IEnumerable<Ticket>> GetTicketsByStatusAsync(string status);
+        Task<bool> IsTicketAvailableAsync(Guid eventId);
+        Task<Ticket> GetTicketByNumberAsync(string ticketNumber);
         Task<Ticket> GetTicketByQRCodeAsync(string qrCode);
         Task<bool> ValidateTicketAsync(string qrCode);
+        Task<Ticket> GetTicketBySeatAsync(Guid eventId, int seatRow, int seatColumn);
     }
 } 

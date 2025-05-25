@@ -21,28 +21,6 @@ namespace TicketingSystem.Core.Entities
             Sections = new List<SeatSection>();
         }
         
-        public bool IsSeatAvailable(int row, int column)
-        {
-            // In a real implementation, this would check the SeatLayout
-            // to determine if a seat is available
-            
-            // Create a pattern of unavailable seats similar to the image
-            // Diagonal pattern of unavailable seats
-            if ((row + column) % 3 == 0)
-                return false;
-                
-            // First two rows have more unavailable seats
-            if (row <= 2 && column % 2 == 1)
-                return false;
-                
-            // Some specific seats unavailable
-            if (row == 3 && (column == 2 || column == 4))
-                return false;
-                
-            // All other seats are available
-            return true;
-        }
-        
         public string GetSeatLabel(int row, int column)
         {
             // Returns a human-readable seat label (e.g., "A12")
