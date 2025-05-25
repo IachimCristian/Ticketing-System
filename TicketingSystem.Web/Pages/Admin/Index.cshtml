@@ -159,6 +159,16 @@
     <h3 class="mb-4">Events Management</h3>
     <div class="card">
         <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="mb-0">All Events</h5>
+                    <small class="text-muted">Manage all events in the system</small>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="showCreateEventModal()">
+                    <i class="fas fa-plus me-2"></i>Create New Event
+                </button>
+            </div>
+            
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -166,18 +176,67 @@
                             <th>Title</th>
                             <th>Date</th>
                             <th>Location</th>
+                            <th>Organizer</th>
+                            <th>Price</th>
+                            <th>Capacity</th>
+                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var evt in Model.Events)
                         {
-                            <tr>
-                                <td>@evt.Title</td>
-                                <td>@evt.Date.ToString("MMM dd, yyyy")</td>
+                            <tr id="event-row-@evt.Id">
+                                <td>
+                                    <strong>@evt.Title</strong>
+                                    @if (!string.IsNullOrEmpty(evt.Description))
+                                    {
+                                        <br><small class="text-muted">@evt.Description.Substring(0, Math.Min(50, evt.Description.Length))@(evt.Description.Length > 50 ? "..." : "")</small>
+                                    }
+                                </td>
+                                <td>
+                                    <div>@evt.StartDate.ToString("MMM dd, yyyy")</div>
+                                    <small class="text-muted">@evt.StartDate.ToString("HH:mm") - @evt.EndDate.ToString("HH:mm")</small>
+                                </td>
                                 <td>@evt.Location</td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-dark">Edit</button>
+                                    <span class="badge bg-info">@evt.OrganizerName</span>
+                                </td>
+                                <td>
+                                    <strong>$@evt.Price.ToString("0.00")</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">@evt.Capacity</span>
+                                </td>
+                                <td>
+                                    @if (evt.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                onclick="viewEventDetails('@evt.Id')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                onclick="editEvent('@evt.Id')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-warning" 
+                                                onclick="toggleEventStatus('@evt.Id', @evt.IsActive.ToString().ToLower())">
+                                            <i class="fas fa-@(evt.IsActive ? "pause" : "play")"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                onclick="deleteEvent('@evt.Id', '@evt.Title')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -257,6 +316,127 @@
         </div>
         <div class="toast-body" id="toastMessage">
             Action completed successfully.
+        </div>
+    </div>
+</div>
+
+<!-- Event Details Modal -->
+<div class="modal fade" id="eventDetailsModal" tabindex="-1" aria-labelledby="eventDetailsModalLabel" aria-hidden="true" data-bs-backdrop="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="eventDetailsModalLabel">Event Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2" id="eventDetailsContent">
+                <!-- Event details will be loaded here -->
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Event Modal -->
+<div class="modal fade" id="eventFormModal" tabindex="-1" aria-labelledby="eventFormModalLabel" aria-hidden="true" data-bs-backdrop="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="eventFormModalLabel">Create New Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="eventForm">
+                <div class="modal-body pt-2">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="eventTitle" class="form-label">Event Title *</label>
+                                <input type="text" class="form-control" id="eventTitle" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="eventLocation" class="form-label">Location *</label>
+                                <input type="text" class="form-control" id="eventLocation" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="eventDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="eventDescription" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="eventStartDate" class="form-label">Start Date & Time *</label>
+                                <input type="datetime-local" class="form-control" id="eventStartDate" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="eventEndDate" class="form-label">End Date & Time *</label>
+                                <input type="datetime-local" class="form-control" id="eventEndDate" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="eventPrice" class="form-label">Ticket Price *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="eventPrice" step="0.01" min="0" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="eventCapacity" class="form-label">Capacity *</label>
+                                <input type="number" class="form-control" id="eventCapacity" min="1" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="eventOrganizer" class="form-label">Organizer *</label>
+                                <select class="form-select" id="eventOrganizer" required>
+                                    <option value="">Select Organizer</option>
+                                    @foreach (var organizer in Model.Organizers)
+                                    {
+                                        <option value="@organizer.Id">@organizer.Username (@organizer.OrganizationName)</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="eventImageUrl" class="form-label">Image URL</label>
+                                <input type="url" class="form-control" id="eventImageUrl" placeholder="https://example.com/image.jpg">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" id="eventIsActive" checked>
+                                    <label class="form-check-label" for="eventIsActive">
+                                        Event is Active
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveEventBtn">Create Event</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -426,5 +606,261 @@
             showSection(section);
         });
 
+        // Event Management Functions
+        let currentEventId = null;
+
+        function showCreateEventModal() {
+            currentEventId = null;
+            document.getElementById('eventFormModalLabel').textContent = 'Create New Event';
+            document.getElementById('saveEventBtn').textContent = 'Create Event';
+            document.getElementById('eventForm').reset();
+            
+            const modal = new bootstrap.Modal(document.getElementById('eventFormModal'));
+            modal.show();
+        }
+
+        async function editEvent(eventId) {
+            currentEventId = eventId;
+            document.getElementById('eventFormModalLabel').textContent = 'Edit Event';
+            document.getElementById('saveEventBtn').textContent = 'Update Event';
+            
+            try {
+                const response = await fetch(`/Admin/Index?handler=EventDetails&id=${eventId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const event = result.data;
+                    
+                    // Populate form with actual event data
+                    document.getElementById('eventTitle').value = event.title || '';
+                    document.getElementById('eventDescription').value = event.description || '';
+                    document.getElementById('eventLocation').value = event.location || '';
+                    document.getElementById('eventStartDate').value = event.startDate || '';
+                    document.getElementById('eventEndDate').value = event.endDate || '';
+                    document.getElementById('eventPrice').value = event.ticketPrice || '';
+                    document.getElementById('eventCapacity').value = event.capacity || '';
+                    document.getElementById('eventOrganizer').value = event.organizerId || '';
+                    document.getElementById('eventImageUrl').value = event.imageUrl || '';
+                    document.getElementById('eventIsActive').checked = event.isActive || false;
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('eventFormModal'));
+                    modal.show();
+                } else {
+                    showToast('Error', result.message || 'Failed to load event details.', 'error');
+                }
+            } catch (error) {
+                showToast('Error', 'Failed to load event details.', 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        async function viewEventDetails(eventId) {
+            document.getElementById('eventDetailsContent').innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading event details...</p>
+                </div>
+            `;
+            
+            const modal = new bootstrap.Modal(document.getElementById('eventDetailsModal'));
+            modal.show();
+            
+            try {
+                const response = await fetch(`/Admin/Index?handler=EventDetails&id=${eventId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const event = result.data;
+                    
+                    // Get ticket statistics
+                    const ticketsResponse = await fetch(`/Admin/Index?handler=EventTickets&id=${eventId}`);
+                    let ticketStats = { sold: 0, revenue: 0 };
+                    
+                    document.getElementById('eventDetailsContent').innerHTML = `
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5>${event.title}</h5>
+                                <p><strong>Description:</strong> ${event.description || 'No description provided'}</p>
+                                <p><strong>Location:</strong> ${event.location}</p>
+                                <p><strong>Start Date:</strong> ${new Date(event.startDate).toLocaleString()}</p>
+                                <p><strong>End Date:</strong> ${new Date(event.endDate).toLocaleString()}</p>
+                                <p><strong>Organizer:</strong> ${event.organizerName}</p>
+                                <p><strong>Status:</strong> 
+                                    <span class="badge bg-${event.isActive ? 'success' : 'danger'}">
+                                        ${event.isActive ? 'Active' : 'Inactive'}
+                                    </span>
+                                </p>
+                                ${event.imageUrl ? `<p><strong>Image:</strong> <a href="${event.imageUrl}" target="_blank">View Image</a></p>` : ''}
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Event Statistics</h6>
+                                <p><strong>Ticket Price:</strong> $${event.ticketPrice.toFixed(2)}</p>
+                                <p><strong>Capacity:</strong> ${event.capacity}</p>
+                                <p><strong>Tickets Sold:</strong> ${ticketStats.sold}</p>
+                                <p><strong>Revenue:</strong> $${ticketStats.revenue.toFixed(2)}</p>
+                                <p><strong>Available:</strong> ${event.capacity - ticketStats.sold}</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('eventDetailsContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            ${result.message || 'Failed to load event details.'}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('eventDetailsContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Failed to load event details.
+                    </div>
+                `;
+                console.error('Error:', error);
+            }
+        }
+
+        async function toggleEventStatus(eventId, currentStatus) {
+            const action = currentStatus ? 'deactivate' : 'activate';
+            
+            showCustomModal(
+                `${action.charAt(0).toUpperCase() + action.slice(1)} Event`,
+                `Are you sure you want to ${action} this event?`,
+                'fas fa-exclamation-triangle text-warning fs-2',
+                async function() {
+                    try {
+                        const formData = new FormData();
+                        formData.append('id', eventId);
+                        
+                        const response = await fetch('/Admin/Index?handler=ToggleEventStatus', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                            }
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            showToast('Success', result.message, 'success');
+                            
+                            // Update the UI
+                            const row = document.getElementById(`event-row-${eventId}`);
+                            const statusBadge = row.querySelector('td:nth-child(7) span');
+                            const toggleBtn = row.querySelector(`button[onclick*="toggleEventStatus"]`);
+                            
+                            if (result.isActive) {
+                                statusBadge.className = 'badge bg-success';
+                                statusBadge.textContent = 'Active';
+                                toggleBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                                toggleBtn.setAttribute('onclick', `toggleEventStatus('${eventId}', true)`);
+                            } else {
+                                statusBadge.className = 'badge bg-danger';
+                                statusBadge.textContent = 'Inactive';
+                                toggleBtn.innerHTML = '<i class="fas fa-play"></i>';
+                                toggleBtn.setAttribute('onclick', `toggleEventStatus('${eventId}', false)`);
+                            }
+                        } else {
+                            showToast('Error', result.message || 'Failed to update event status.', 'error');
+                        }
+                    } catch (error) {
+                        showToast('Error', 'Failed to update event status.', 'error');
+                        console.error('Error:', error);
+                    }
+                }
+            );
+        }
+
+        async function deleteEvent(eventId, eventTitle) {
+            showCustomModal(
+                'Delete Event',
+                `Are you sure you want to delete the event "${eventTitle}"? This action cannot be undone.`,
+                'fas fa-exclamation-triangle text-danger fs-2',
+                async function() {
+                    try {
+                        const formData = new FormData();
+                        formData.append('id', eventId);
+                        
+                        const response = await fetch('/Admin/Index?handler=DeleteEvent', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                            }
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            showToast('Success', result.message, 'success');
+                            document.getElementById(`event-row-${eventId}`).remove();
+                        } else {
+                            showToast('Error', result.message || 'Failed to delete event.', 'error');
+                        }
+                    } catch (error) {
+                        showToast('Error', 'Failed to delete event.', 'error');
+                        console.error('Error:', error);
+                    }
+                }
+            );
+        }
+
+        // Event form submission
+        document.getElementById('eventForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            
+            if (currentEventId) {
+                formData.append('id', currentEventId);
+            }
+            
+            formData.append('title', document.getElementById('eventTitle').value);
+            formData.append('description', document.getElementById('eventDescription').value);
+            formData.append('location', document.getElementById('eventLocation').value);
+            formData.append('startDate', document.getElementById('eventStartDate').value);
+            formData.append('endDate', document.getElementById('eventEndDate').value);
+            formData.append('ticketPrice', document.getElementById('eventPrice').value);
+            formData.append('capacity', document.getElementById('eventCapacity').value);
+            formData.append('organizerId', document.getElementById('eventOrganizer').value);
+            formData.append('imageUrl', document.getElementById('eventImageUrl').value);
+            formData.append('isActive', document.getElementById('eventIsActive').checked);
+            
+            try {
+                const isEdit = currentEventId !== null;
+                const handler = isEdit ? 'UpdateEvent' : 'CreateEvent';
+                
+                const response = await fetch(`/Admin/Index?handler=${handler}`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('Success', result.message, 'success');
+                    
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('eventFormModal'));
+                    modal.hide();
+                    
+                    // Reload the page to show updated data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showToast('Error', result.message || 'Failed to save event.', 'error');
+                }
+            } catch (error) {
+                showToast('Error', 'Failed to save event.', 'error');
+                console.error('Error:', error);
+            }
+        });
     </script>
 }

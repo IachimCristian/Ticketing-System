@@ -30,6 +30,7 @@ namespace TicketingSystem.Web.Pages.Admin
 
         public List<EventViewModel> Events { get; set; }
         public List<TransactionViewModel> Transactions { get; set; }
+        public List<OrganizerViewModel> Organizers { get; set; }
 
         public IndexModel(
             IRepository<TicketingSystem.Core.Entities.Customer> customerRepository,
@@ -107,12 +108,28 @@ namespace TicketingSystem.Web.Pages.Admin
                 });
             }
 
-            Events = events.Select(e => new EventViewModel
+            Events = new List<EventViewModel>();
+            foreach (var evt in events)
             {
-                Title = e.Title,
-                Date = e.StartDate,
-                Location = e.Location
-            }).ToList();
+                // Find the organizer for this event
+                var eventOrganizer = organizers.FirstOrDefault(o => o.Id == evt.OrganizerId);
+                
+                Events.Add(new EventViewModel
+                {
+                    Id = evt.Id,
+                    Title = evt.Title,
+                    Description = evt.Description,
+                    StartDate = evt.StartDate,
+                    EndDate = evt.EndDate,
+                    Location = evt.Location,
+                    Price = evt.TicketPrice,
+                    Capacity = evt.Capacity,
+                    IsActive = evt.IsActive,
+                    OrganizerName = eventOrganizer?.OrganizationName ?? "Unknown",
+                    OrganizerId = evt.OrganizerId,
+                    ImageUrl = evt.ImageUrl
+                });
+            }
 
             Transactions = new List<TransactionViewModel>();
 
@@ -140,6 +157,14 @@ namespace TicketingSystem.Web.Pages.Admin
                     EventTitle = eventTitle
                 });
             }
+
+            // Load organizers for the dropdown
+            Organizers = organizers.Select(o => new OrganizerViewModel
+            {
+                Id = o.Id,
+                Username = o.Username,
+                OrganizationName = o.OrganizationName
+            }).ToList();
 
             return Page();
         }
@@ -669,9 +694,21 @@ namespace TicketingSystem.Web.Pages.Admin
 
         public class EventViewModel
         {
+            public Guid Id { get; set; }
             public string Title { get; set; }
-            public DateTime Date { get; set; }
+            public string Description { get; set; }
+            public DateTime StartDate { get; set; }
+            public DateTime EndDate { get; set; }
             public string Location { get; set; }
+            public decimal Price { get; set; }
+            public int Capacity { get; set; }
+            public bool IsActive { get; set; }
+            public string OrganizerName { get; set; }
+            public Guid OrganizerId { get; set; }
+            public string ImageUrl { get; set; }
+            
+            // For backward compatibility
+            public DateTime Date => StartDate;
         }
 
         public class TransactionViewModel
@@ -681,6 +718,166 @@ namespace TicketingSystem.Web.Pages.Admin
             public string EventTitle { get; set; }
             public decimal Amount { get; set; }
             public DateTime Date { get; set; }
+        }
+
+        public class OrganizerViewModel
+        {
+            public Guid Id { get; set; }
+            public string Username { get; set; }
+            public string OrganizationName { get; set; }
+        }
+
+        public async Task<IActionResult> OnGetEventDetailsAsync(Guid id)
+        {
+            try
+            {
+                var eventItem = await _eventRepository.GetByIdAsync(id);
+                if (eventItem == null)
+                {
+                    return new JsonResult(new { success = false, message = "Event not found" });
+                }
+
+                // Get the organizer separately
+                var organizer = await _organizerRepository.GetByIdAsync(eventItem.OrganizerId);
+
+                var eventDetails = new
+                {
+                    id = eventItem.Id,
+                    title = eventItem.Title,
+                    description = eventItem.Description,
+                    location = eventItem.Location,
+                    startDate = eventItem.StartDate.ToString("yyyy-MM-ddTHH:mm"),
+                    endDate = eventItem.EndDate.ToString("yyyy-MM-ddTHH:mm"),
+                    ticketPrice = eventItem.TicketPrice,
+                    capacity = eventItem.Capacity,
+                    organizerId = eventItem.OrganizerId,
+                    imageUrl = eventItem.ImageUrl,
+                    isActive = eventItem.IsActive,
+                    organizerName = organizer?.OrganizationName ?? "Unknown"
+                };
+
+                return new JsonResult(new { success = true, data = eventDetails });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = ex.Message });
+            }
+        }
+
+        public async Task<IActionResult> OnPostUpdateEventAsync(Guid id, string title, string description, string location, 
+            DateTime startDate, DateTime endDate, decimal ticketPrice, int capacity, Guid organizerId, string imageUrl, bool isActive)
+        {
+            try
+            {
+                var eventItem = await _eventRepository.GetByIdAsync(id);
+                if (eventItem == null)
+                {
+                    return new JsonResult(new { success = false, message = "Event not found" });
+                }
+
+                eventItem.Title = title;
+                eventItem.Description = description;
+                eventItem.Location = location;
+                eventItem.StartDate = startDate;
+                eventItem.EndDate = endDate;
+                eventItem.TicketPrice = ticketPrice;
+                eventItem.Capacity = capacity;
+                eventItem.OrganizerId = organizerId;
+                eventItem.ImageUrl = imageUrl;
+                eventItem.IsActive = isActive;
+
+                await _eventRepository.UpdateAsync(eventItem);
+                await _eventRepository.SaveChangesAsync();
+
+                return new JsonResult(new { success = true, message = "Event updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = ex.Message });
+            }
+        }
+
+        public async Task<IActionResult> OnPostCreateEventAsync(string title, string description, string location, 
+            DateTime startDate, DateTime endDate, decimal ticketPrice, int capacity, Guid organizerId, string imageUrl, bool isActive)
+        {
+            try
+            {
+                var newEvent = new Event
+                {
+                    Id = Guid.NewGuid(),
+                    Title = title,
+                    Description = description,
+                    Location = location,
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    TicketPrice = ticketPrice,
+                    Capacity = capacity,
+                    OrganizerId = organizerId,
+                    ImageUrl = imageUrl,
+                    IsActive = isActive
+                };
+
+                await _eventRepository.AddAsync(newEvent);
+                await _eventRepository.SaveChangesAsync();
+
+                return new JsonResult(new { success = true, message = "Event created successfully" });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = ex.Message });
+            }
+        }
+
+        public async Task<IActionResult> OnPostDeleteEventAsync(Guid id)
+        {
+            try
+            {
+                var eventItem = await _eventRepository.GetByIdAsync(id);
+                if (eventItem == null)
+                {
+                    return new JsonResult(new { success = false, message = "Event not found" });
+                }
+
+                // Check if event has tickets sold
+                var tickets = await _ticketRepository.GetAllAsync();
+                var eventTickets = tickets.Where(t => t.EventId == id).ToList();
+                
+                if (eventTickets.Any())
+                {
+                    return new JsonResult(new { success = false, message = $"Cannot delete event: {eventTickets.Count} tickets have been sold for this event." });
+                }
+
+                await _eventRepository.DeleteAsync(eventItem);
+                await _eventRepository.SaveChangesAsync();
+
+                return new JsonResult(new { success = true, message = "Event deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = ex.Message });
+            }
+        }
+
+        public async Task<IActionResult> OnPostToggleEventStatusAsync(Guid id)
+        {
+            try
+            {
+                var eventItem = await _eventRepository.GetByIdAsync(id);
+                if (eventItem == null)
+                {
+                    return new JsonResult(new { success = false, message = "Event not found" });
+                }
+
+                eventItem.IsActive = !eventItem.IsActive;
+                await _eventRepository.UpdateAsync(eventItem);
+                await _eventRepository.SaveChangesAsync();
+
+                return new JsonResult(new { success = true, message = $"Event {(eventItem.IsActive ? "activated" : "deactivated")} successfully", isActive = eventItem.IsActive });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = ex.Message });
+            }
         }
     }
 }
