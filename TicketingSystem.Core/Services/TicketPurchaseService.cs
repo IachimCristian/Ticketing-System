@@ -13,6 +13,7 @@ namespace TicketingSystem.Core.Services
         private readonly PaymentStrategyFactory _paymentStrategyFactory;
         private readonly IRepository<Payment> _paymentRepository;
         private readonly ISeatMapService _seatMapService;
+        private readonly ICustomerNotificationService _customerNotificationService;
 
         public TicketPurchaseService(
             ITicketRepository ticketRepository,
@@ -22,7 +23,8 @@ namespace TicketingSystem.Core.Services
             IUserRepository<Customer> customerRepository,
             PaymentStrategyFactory paymentStrategyFactory,
             IRepository<Payment> paymentRepository,
-            ISeatMapService seatMapService)
+            ISeatMapService seatMapService,
+            ICustomerNotificationService customerNotificationService)
             : base(ticketRepository, eventRepository, notificationService)
         {
             _paymentService = paymentService;
@@ -30,6 +32,7 @@ namespace TicketingSystem.Core.Services
             _paymentStrategyFactory = paymentStrategyFactory;
             _paymentRepository = paymentRepository;
             _seatMapService = seatMapService;
+            _customerNotificationService = customerNotificationService;
         }
 
         public async Task<Ticket> PurchaseTicketAsync(
@@ -109,7 +112,11 @@ namespace TicketingSystem.Core.Services
             await _ticketRepository.AddAsync(ticket);
             await _ticketRepository.SaveChangesAsync();
 
-            // Send comprehensive notification using the new notification system
+            // Send notifications using the new customer notification service
+            // This will check preferences and send appropriate notifications
+            await _customerNotificationService.SendTicketPurchaseNotificationAsync(customerId, ticket, @event);
+
+            // Also send through the old observer pattern for email/SMS (for backward compatibility)
             await _notificationService.NotifyObserversAsync("TicketPurchased", new
             {
                 TicketId = ticket.Id,
@@ -117,6 +124,7 @@ namespace TicketingSystem.Core.Services
                 EventTitle = @event.Title,
                 EventDate = @event.StartDate,
                 CustomerEmail = customer.Email,
+                CustomerPhone = customer.Phone,
                 CustomerId = customerId,
                 Amount = price,
                 PaymentMethod = paymentMethod

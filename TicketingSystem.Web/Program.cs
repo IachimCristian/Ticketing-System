@@ -34,13 +34,10 @@ builder.Services.AddScoped<ICustomerNotificationService, CustomerNotificationSer
 builder.Services.AddScoped<TicketViewService>();
 builder.Services.AddScoped<TicketCancellationService>();
 builder.Services.AddScoped<TicketPurchaseService>();
+builder.Services.AddScoped<EventReminderService>();
 builder.Services.AddSingleton<INotificationSubject, NotificationService>();
 builder.Services.AddSingleton<EmailNotificationObserver>();
 builder.Services.AddSingleton<SMSNotificationObserver>();
-builder.Services.AddSingleton<CustomerNotificationObserver>();
-builder.Services.AddSingleton<INotificationObserver>(sp => sp.GetRequiredService<EmailNotificationObserver>());
-builder.Services.AddSingleton<INotificationObserver>(sp => sp.GetRequiredService<SMSNotificationObserver>());
-builder.Services.AddSingleton<INotificationObserver>(sp => sp.GetRequiredService<CustomerNotificationObserver>());
 builder.Services.AddScoped<ISeatMapService, SeatMapService>();
 builder.Services.AddScoped<ITicketValidationService, TicketValidationService>();
 builder.Services.AddSingleton<PaymentStrategyFactory>();
@@ -95,14 +92,12 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// Register notification observers
+// Register notification observers (only singleton observers)
 var notificationService = app.Services.GetRequiredService<INotificationSubject>();
 var emailObserver = app.Services.GetRequiredService<EmailNotificationObserver>();
 var smsObserver = app.Services.GetRequiredService<SMSNotificationObserver>();
-var customerNotificationObserver = app.Services.GetRequiredService<CustomerNotificationObserver>();
 await notificationService.RegisterObserverAsync(emailObserver);
 await notificationService.RegisterObserverAsync(smsObserver);
-await notificationService.RegisterObserverAsync(customerNotificationObserver);
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

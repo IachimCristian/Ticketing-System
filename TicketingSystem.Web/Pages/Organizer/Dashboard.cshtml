@@ -8,7 +8,12 @@
     <div>
         <img src="~/images/logo-no-background.png" alt="Ticksy" style="height: 40px;" />
     </div>
-    <a asp-page="/Account/Logout" class="btn btn-outline-dark btn-sm">Logout</a>
+    <div class="d-flex align-items-center gap-2">
+        <a asp-page="/Organizer/Profile" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a asp-page="/Account/Logout" class="btn btn-outline-dark btn-sm">Logout</a>
+    </div>
 </div>
 
 <h2 class="fs-4 mb-4">Welcome, @Model.Username!</h2>

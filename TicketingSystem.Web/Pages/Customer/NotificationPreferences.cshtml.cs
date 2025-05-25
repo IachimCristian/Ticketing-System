@@ -1,14 +1,13 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using TicketingSystem.Core.Entities;
 using TicketingSystem.Core.Interfaces;
 
 namespace TicketingSystem.Web.Pages.Customer
 {
-    [Authorize(Policy = "CustomerOnly")]
     public class NotificationPreferencesModel : PageModel
     {
         private readonly ICustomerNotificationService _notificationService;
@@ -32,8 +31,11 @@ namespace TicketingSystem.Web.Pages.Customer
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
+                // Check if user is logged in and is a customer
+                var userId = HttpContext.Session.GetString("UserId");
+                var userType = HttpContext.Session.GetString("UserType");
+                
+                if (string.IsNullOrEmpty(userId) || userType != "Customer")
                 {
                     return RedirectToPage("/Account/Login");
                 }
@@ -55,28 +57,48 @@ namespace TicketingSystem.Web.Pages.Customer
         {
             try
             {
-                if (!ModelState.IsValid)
+                _logger.LogInformation("OnPostAsync called");
+                
+                // Check if user is logged in and is a customer
+                var userId = HttpContext.Session.GetString("UserId");
+                var userType = HttpContext.Session.GetString("UserType");
+                
+                _logger.LogInformation("UserId: {UserId}, UserType: {UserType}", userId, userType);
+                
+                if (string.IsNullOrEmpty(userId) || userType != "Customer")
                 {
-                    return Page();
+                    _logger.LogWarning("User not authorized - redirecting to login");
+                    return RedirectToPage("/Account/Login");
                 }
 
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
+                if (!ModelState.IsValid)
                 {
-                    return RedirectToPage("/Account/Login");
+                    // Remove Customer validation error since we don't need the navigation property
+                    ModelState.Remove("Preferences.Customer");
+                    
+                    if (!ModelState.IsValid)
+                    {
+                        _logger.LogWarning("ModelState is invalid");
+                        foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            _logger.LogWarning("ModelState error: {Error}", error.ErrorMessage);
+                        }
+                        return Page();
+                    }
                 }
 
                 var customerId = Guid.Parse(userId);
                 
+                _logger.LogInformation("Updating preferences for customer {CustomerId}", customerId);
+                _logger.LogInformation("Preferences ID: {PreferencesId}", Preferences?.Id);
+                _logger.LogInformation("EmailTicketPurchase: {EmailTicketPurchase}", Preferences?.EmailTicketPurchase);
+                
                 // Ensure the preferences belong to the current user
-                if (Preferences.CustomerId != customerId)
-                {
-                    ErrorMessage = "Invalid request.";
-                    return Page();
-                }
+                Preferences.CustomerId = customerId;
 
                 await _notificationService.UpdateNotificationPreferencesAsync(Preferences);
                 
+                _logger.LogInformation("Preferences updated successfully");
                 SuccessMessage = "Your notification preferences have been updated successfully.";
                 return Page();
             }

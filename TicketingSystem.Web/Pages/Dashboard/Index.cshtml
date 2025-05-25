@@ -39,6 +39,15 @@
                     </span>
                 }
             </a>
+            <a asp-page="/Customer/Profile" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-user"></i> Profile
+            </a>
+        }
+        @if (Model.UserType == "Organizer")
+        {
+            <a asp-page="/Organizer/Profile" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-user"></i> Profile
+            </a>
         }
         <a asp-page="/Account/Logout" class="btn btn-outline-dark btn-sm btn-animated hover-glow">Logout</a>
     </div>
@@ -161,10 +170,16 @@
     {
         <div class="col-md-4 col-sm-6 mb-2">
             <div class="card h-100 event-card card-animated hover-lift">
-                @* Event images have been removed from the model *@
-                <div class="event-image-placeholder hover-scale">
-                    <span>X</span>
-                </div>
+                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                {
+                    <img src="@item.ImageUrl" alt="@item.Title" class="event-image hover-scale" />
+                }
+                else
+                {
+                    <div class="event-image-placeholder hover-scale">
+                        <span>X</span>
+                    </div>
+                }
                 <div class="card-body p-3">
                     <h5 class="card-title fs-6 mb-1">@item.Title</h5>
                     <p class="card-text mb-2">

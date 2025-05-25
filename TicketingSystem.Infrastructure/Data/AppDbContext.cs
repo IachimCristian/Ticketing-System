@@ -77,8 +77,15 @@ namespace TicketingSystem.Infrastructure.Data
             // Configure SeatMap relationships
             modelBuilder.Entity<SeatMap>()
                 .HasMany(sm => sm.Sections)
-                .WithOne()
-                .HasForeignKey(s => s.SeatMapId);
+                .WithOne(s => s.SeatMap)
+                .HasForeignKey(s => s.SeatMapId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SeatMap>()
+                .HasOne(sm => sm.Event)
+                .WithMany()
+                .HasForeignKey(sm => sm.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Configure CustomerNotification relationships
             modelBuilder.Entity<CustomerNotification>()

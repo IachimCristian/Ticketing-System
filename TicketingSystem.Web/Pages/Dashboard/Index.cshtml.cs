@@ -7,13 +7,10 @@ using System.Linq;
 using TicketingSystem.Core.Interfaces;
 using TicketingSystem.Core.Entities;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 using Microsoft.Extensions.Logging;
 
 namespace TicketingSystem.Web.Pages.Dashboard
 {
-    [Authorize]
     public class IndexModel : PageModel
     {
         private readonly ITicketRepository _ticketRepository;
@@ -46,16 +43,19 @@ namespace TicketingSystem.Web.Pages.Dashboard
         {
             try
             {
-                // Get user info from claims
-                var userIdentity = User?.Identity;
-                if (userIdentity == null || !userIdentity.IsAuthenticated)
+                // Get user info from session (consistent with rest of application)
+                var userId = HttpContext.Session.GetString("UserId");
+                var userType = HttpContext.Session.GetString("UserType");
+                var username = HttpContext.Session.GetString("Username");
+
+                if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(userType))
                 {
-                    _logger.LogWarning("User identity is null or not authenticated");
+                    _logger.LogWarning("User session is invalid - redirecting to login");
                     return RedirectToPage("/Account/Login");
                 }
 
-                Username = userIdentity.Name ?? "Guest";
-                UserType = User.FindFirst("UserType")?.Value;
+                Username = username ?? "Guest";
+                UserType = userType;
                 
                 // Redirect organizers to organizer dashboard
                 if (UserType == "Organizer")
@@ -63,11 +63,10 @@ namespace TicketingSystem.Web.Pages.Dashboard
                     return RedirectToPage("/Organizer/Dashboard");
                 }
                 
-                // Get user's purchased tickets and upcoming events
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
+                // Redirect admins to admin dashboard
+                if (UserType == "Admin")
                 {
-                    throw new InvalidOperationException("User ID not found in claims");
+                    return RedirectToPage("/Admin/Index");
                 }
 
                 if (Guid.TryParse(userId, out Guid customerId))
@@ -98,7 +97,8 @@ namespace TicketingSystem.Web.Pages.Dashboard
                             Title = e.Title ?? "Untitled Event",
                             Date = e.StartDate,
                             Location = e.Location ?? "TBD",
-                            TicketPrice = e.TicketPrice
+                            TicketPrice = e.TicketPrice,
+                            ImageUrl = e.ImageUrl
                         }).ToList();
                     }
 
@@ -113,7 +113,8 @@ namespace TicketingSystem.Web.Pages.Dashboard
                 else
                 {
                     _logger.LogError("Failed to parse user ID: {UserId}", userId);
-                    throw new InvalidOperationException("Invalid user ID format");
+                    ErrorMessage = "Invalid user session. Please log in again.";
+                    return RedirectToPage("/Account/Login");
                 }
             }
             catch (Exception ex)
@@ -144,5 +145,6 @@ namespace TicketingSystem.Web.Pages.Dashboard
         public DateTime Date { get; set; }
         public string Location { get; set; }
         public decimal TicketPrice { get; set; }
+        public string ImageUrl { get; set; }
     }
 } 

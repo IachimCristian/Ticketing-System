@@ -42,6 +42,7 @@
                         <input type="hidden" asp-for="Preferences.Id" />
                         <input type="hidden" asp-for="Preferences.CustomerId" />
                         <input type="hidden" asp-for="Preferences.CreatedAt" />
+                        <input type="hidden" asp-for="Preferences.UpdatedAt" />
 
                         <!-- Email Notifications -->
                         <div class="mb-4">
@@ -209,7 +210,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <button type="button" class="btn btn-outline-secondary" onclick="resetToDefaults()">
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetToDefaults(); console.log('Button clicked!');">
                                 Reset to Defaults
                             </button>
                             <button type="submit" class="btn btn-primary">
@@ -238,36 +239,101 @@
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        function resetToDefaults() {
-            if (confirm('Are you sure you want to reset all preferences to their default values?')) {
-                // Reset email preferences
-                document.getElementById('Preferences_EmailTicketPurchase').checked = true;
-                document.getElementById('Preferences_EmailEventUpdates').checked = true;
-                document.getElementById('Preferences_EmailEventCancellations').checked = true;
-                document.getElementById('Preferences_EmailEventReminders').checked = true;
-                document.getElementById('Preferences_EmailRefundUpdates').checked = true;
-                document.getElementById('Preferences_EmailPromotions').checked = false;
+<!-- Reset Confirmation Modal -->
+<div class="modal fade" id="resetConfirmModal" tabindex="-1" aria-labelledby="resetConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="resetConfirmModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Reset to Defaults
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-undo-alt fa-3x text-warning mb-3"></i>
+                </div>
+                <p class="text-center mb-3">
+                    <strong>Are you sure you want to reset all notification preferences to their default values?</strong>
+                </p>
+                <div class="alert alert-info">
+                    <small>
+                        <i class="fas fa-info-circle me-1"></i>
+                        This will restore the original settings and automatically save the changes.
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-warning" onclick="confirmReset()">
+                    <i class="fas fa-undo-alt me-1"></i>Reset to Defaults
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
-                // Reset SMS preferences
-                document.getElementById('Preferences_SmsTicketPurchase').checked = false;
-                document.getElementById('Preferences_SmsEventUpdates').checked = false;
-                document.getElementById('Preferences_SmsEventCancellations').checked = true;
-                document.getElementById('Preferences_SmsEventReminders').checked = false;
-                document.getElementById('Preferences_SmsRefundUpdates').checked = false;
+<style>
+    .modal-backdrop {
+        width: auto !important;
+    }
+</style>
 
-                // Reset in-app preferences
-                document.getElementById('Preferences_InAppTicketPurchase').checked = true;
-                document.getElementById('Preferences_InAppEventUpdates').checked = true;
-                document.getElementById('Preferences_InAppEventCancellations').checked = true;
-                document.getElementById('Preferences_InAppEventReminders').checked = true;
-                document.getElementById('Preferences_InAppRefundUpdates').checked = true;
-                document.getElementById('Preferences_InAppPromotions').checked = true;
+<script>
+    function resetToDefaults() {
+        console.log('resetToDefaults function called');
+        
+        // Show the custom modal instead of browser confirm
+        var modal = new bootstrap.Modal(document.getElementById('resetConfirmModal'));
+        modal.show();
+    }
+    
+    function confirmReset() {
+        console.log('User confirmed reset');
+        
+        // Hide the modal
+        var modal = bootstrap.Modal.getInstance(document.getElementById('resetConfirmModal'));
+        modal.hide();
+        
+        try {
+            // Reset email preferences
+            console.log('Setting email preferences...');
+            document.querySelector('input[name="Preferences.EmailTicketPurchase"]').checked = true;
+            document.querySelector('input[name="Preferences.EmailEventUpdates"]').checked = true;
+            document.querySelector('input[name="Preferences.EmailEventCancellations"]').checked = true;
+            document.querySelector('input[name="Preferences.EmailEventReminders"]').checked = true;
+            document.querySelector('input[name="Preferences.EmailRefundUpdates"]').checked = true;
+            document.querySelector('input[name="Preferences.EmailPromotions"]').checked = false;
 
-                // Reset reminder timing
-                document.getElementById('Preferences_EventReminderHours').value = '24';
-            }
+            // Reset SMS preferences
+            console.log('Setting SMS preferences...');
+            document.querySelector('input[name="Preferences.SmsTicketPurchase"]').checked = false;
+            document.querySelector('input[name="Preferences.SmsEventUpdates"]').checked = false;
+            document.querySelector('input[name="Preferences.SmsEventCancellations"]').checked = true;
+            document.querySelector('input[name="Preferences.SmsEventReminders"]').checked = false;
+            document.querySelector('input[name="Preferences.SmsRefundUpdates"]').checked = false;
+
+            // Reset in-app preferences
+            console.log('Setting in-app preferences...');
+            document.querySelector('input[name="Preferences.InAppTicketPurchase"]').checked = true;
+            document.querySelector('input[name="Preferences.InAppEventUpdates"]').checked = true;
+            document.querySelector('input[name="Preferences.InAppEventCancellations"]').checked = true;
+            document.querySelector('input[name="Preferences.InAppEventReminders"]').checked = true;
+            document.querySelector('input[name="Preferences.InAppRefundUpdates"]').checked = true;
+            document.querySelector('input[name="Preferences.InAppPromotions"]').checked = true;
+
+            // Reset reminder timing
+            console.log('Setting reminder timing...');
+            document.querySelector('select[name="Preferences.EventReminderHours"]').value = '24';
+            
+            console.log('Submitting form...');
+            // Submit the form to save the changes
+            document.querySelector('form').submit();
+        } catch (error) {
+            console.error('Error in resetToDefaults:', error);
+            alert('Error resetting preferences: ' + error.message);
         }
-    </script>
-} 
+    }
+</script> 

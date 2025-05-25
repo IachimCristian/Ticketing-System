@@ -95,6 +95,83 @@ namespace TicketingSystem.Infrastructure.Migrations
                     b.ToTable("Customers", (string)null);
                 });
 
+            modelBuilder.Entity("TicketingSystem.Core.Entities.CustomerNotification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ActionText")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ActionUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("EmailSent")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("EmailSentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("EventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("SmsSent")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("SmsSentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("TicketId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("CustomerNotifications");
+                });
+
             modelBuilder.Entity("TicketingSystem.Core.Entities.Event", b =>
                 {
                     b.Property<Guid>("Id")
@@ -143,6 +220,83 @@ namespace TicketingSystem.Infrastructure.Migrations
                     b.HasIndex("OrganizerId");
 
                     b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("TicketingSystem.Core.Entities.NotificationPreferences", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("EmailEventCancellations")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("EmailEventReminders")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("EmailEventUpdates")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("EmailPromotions")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("EmailRefundUpdates")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("EmailTicketPurchase")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("EventReminderHours")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("InAppEventCancellations")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("InAppEventReminders")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("InAppEventUpdates")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("InAppPromotions")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("InAppRefundUpdates")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("InAppTicketPurchase")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("SmsEventCancellations")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("SmsEventReminders")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("SmsEventUpdates")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("SmsRefundUpdates")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("SmsTicketPurchase")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId")
+                        .IsUnique();
+
+                    b.ToTable("NotificationPreferences");
                 });
 
             modelBuilder.Entity("TicketingSystem.Core.Entities.Organizer", b =>
@@ -278,9 +432,6 @@ namespace TicketingSystem.Infrastructure.Migrations
                     b.Property<Guid>("SeatMapId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("SeatMapId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("StartColumn")
                         .HasColumnType("int");
 
@@ -290,8 +441,6 @@ namespace TicketingSystem.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("SeatMapId");
-
-                    b.HasIndex("SeatMapId1");
 
                     b.ToTable("SeatSections");
                 });
@@ -308,16 +457,10 @@ namespace TicketingSystem.Infrastructure.Migrations
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CustomerId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("EventId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("PaymentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("PaymentId1")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Price")
@@ -327,7 +470,6 @@ namespace TicketingSystem.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("QRCode")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -338,7 +480,6 @@ namespace TicketingSystem.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("RefundStatus")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -365,17 +506,36 @@ namespace TicketingSystem.Infrastructure.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("CustomerId1");
-
                     b.HasIndex("EventId");
 
-                    b.HasIndex("PaymentId")
-                        .IsUnique()
-                        .HasFilter("[PaymentId] IS NOT NULL");
-
-                    b.HasIndex("PaymentId1");
+                    b.HasIndex("PaymentId");
 
                     b.ToTable("Tickets");
+                });
+
+            modelBuilder.Entity("TicketingSystem.Core.Entities.CustomerNotification", b =>
+                {
+                    b.HasOne("TicketingSystem.Core.Entities.Customer", "Customer")
+                        .WithMany("Notifications")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TicketingSystem.Core.Entities.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TicketingSystem.Core.Entities.Ticket", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Event");
+
+                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("TicketingSystem.Core.Entities.Event", b =>
@@ -389,12 +549,23 @@ namespace TicketingSystem.Infrastructure.Migrations
                     b.Navigation("Organizer");
                 });
 
+            modelBuilder.Entity("TicketingSystem.Core.Entities.NotificationPreferences", b =>
+                {
+                    b.HasOne("TicketingSystem.Core.Entities.Customer", "Customer")
+                        .WithOne("NotificationPreferences")
+                        .HasForeignKey("TicketingSystem.Core.Entities.NotificationPreferences", "CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
             modelBuilder.Entity("TicketingSystem.Core.Entities.Payment", b =>
                 {
                     b.HasOne("TicketingSystem.Core.Entities.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Customer");
@@ -413,15 +584,9 @@ namespace TicketingSystem.Infrastructure.Migrations
 
             modelBuilder.Entity("TicketingSystem.Core.Entities.SeatSection", b =>
                 {
-                    b.HasOne("TicketingSystem.Core.Entities.SeatMap", null)
+                    b.HasOne("TicketingSystem.Core.Entities.SeatMap", "SeatMap")
                         .WithMany("Sections")
                         .HasForeignKey("SeatMapId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TicketingSystem.Core.Entities.SeatMap", "SeatMap")
-                        .WithMany()
-                        .HasForeignKey("SeatMapId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -431,28 +596,21 @@ namespace TicketingSystem.Infrastructure.Migrations
             modelBuilder.Entity("TicketingSystem.Core.Entities.Ticket", b =>
                 {
                     b.HasOne("TicketingSystem.Core.Entities.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TicketingSystem.Core.Entities.Customer", null)
                         .WithMany("Tickets")
-                        .HasForeignKey("CustomerId1");
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("TicketingSystem.Core.Entities.Event", "Event")
                         .WithMany("Tickets")
                         .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("TicketingSystem.Core.Entities.Payment", "Payment")
-                        .WithOne()
-                        .HasForeignKey("TicketingSystem.Core.Entities.Ticket", "PaymentId");
-
-                    b.HasOne("TicketingSystem.Core.Entities.Payment", null)
                         .WithMany("Tickets")
-                        .HasForeignKey("PaymentId1");
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Customer");
 
@@ -463,6 +621,11 @@ namespace TicketingSystem.Infrastructure.Migrations
 
             modelBuilder.Entity("TicketingSystem.Core.Entities.Customer", b =>
                 {
+                    b.Navigation("NotificationPreferences")
+                        .IsRequired();
+
+                    b.Navigation("Notifications");
+
                     b.Navigation("Tickets");
                 });
 

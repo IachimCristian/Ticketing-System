@@ -32,7 +32,7 @@ namespace TicketingSystem.Web.Pages.Organizer
         
         public Ticket ValidatedTicket { get; set; }
         public Event TicketEvent { get; set; }
-        public Customer TicketCustomer { get; set; }
+        public TicketingSystem.Core.Entities.Customer TicketCustomer { get; set; }
         
         public IActionResult OnGet()
         {

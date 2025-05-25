@@ -1,0 +1,152 @@
+@page
+@model TicketingSystem.Web.Pages.Admin.TestNotificationsModel
+@{
+    ViewData["Title"] = "Test Notifications";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <img src="~/images/logo-no-background.png" alt="Ticksy" style="height: 40px;" />
+        </div>
+        <div>
+            <a asp-page="/Admin/Index" class="btn btn-outline-secondary">Back to Admin Dashboard</a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Test Notification System</h4>
+                    <small class="text-muted">Test the notification system functionality</small>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @Model.SuccessMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @Model.ErrorMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <!-- Test Event Reminders -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">
+                            <i class="fas fa-bell text-warning"></i> Test Event Reminders
+                        </h5>
+                        <p class="text-muted">Send test event reminders to all customers with upcoming events.</p>
+                        <form method="post" asp-page-handler="SendEventReminders">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-bell"></i> Send Event Reminders
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Test Customer Notification -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">
+                            <i class="fas fa-user text-primary"></i> Test Customer Notification
+                        </h5>
+                        <p class="text-muted">Send a test notification to a specific customer.</p>
+                        <form method="post" asp-page-handler="SendTestNotification">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Customer Email:</label>
+                                        <input type="email" class="form-control" name="customerEmail" placeholder="customer@example.com" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Notification Type:</label>
+                                        <select class="form-select" name="notificationType" required>
+                                            <option value="">Select type...</option>
+                                            <option value="test">Test Notification</option>
+                                            <option value="welcome">Welcome Message</option>
+                                            <option value="promotion">Promotion Alert</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Send Test Notification
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- System Status -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">
+                            <i class="fas fa-info-circle text-info"></i> System Status
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Email Notifications</h6>
+                                        <p class="card-text text-success">
+                                            <i class="fas fa-check-circle"></i> Active (Simulated)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">SMS Notifications</h6>
+                                        <p class="card-text text-success">
+                                            <i class="fas fa-check-circle"></i> Active (Simulated)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">In-App Notifications</h6>
+                                        <p class="card-text text-success">
+                                            <i class="fas fa-check-circle"></i> Active
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Database</h6>
+                                        <p class="card-text text-success">
+                                            <i class="fas fa-check-circle"></i> Connected
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instructions -->
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> How to Test:</h6>
+                        <ol class="mb-0">
+                            <li><strong>Purchase a ticket</strong> as a customer to see purchase notifications</li>
+                            <li><strong>Check notification preferences</strong> in the customer dashboard</li>
+                            <li><strong>Use the test buttons above</strong> to trigger specific notifications</li>
+                            <li><strong>Check the terminal/logs</strong> to see email and SMS simulation output</li>
+                            <li><strong>View in-app notifications</strong> in the customer notifications page</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

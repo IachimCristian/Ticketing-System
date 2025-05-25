@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -10,7 +9,6 @@ using TicketingSystem.Core.Interfaces;
 
 namespace TicketingSystem.Web.Pages.Customer
 {
-    [Authorize(Policy = "CustomerOnly")]
     public class NotificationsModel : PageModel
     {
         private readonly ICustomerNotificationService _notificationService;
@@ -33,8 +31,11 @@ namespace TicketingSystem.Web.Pages.Customer
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
+                // Check if user is logged in and is a customer
+                var userId = HttpContext.Session.GetString("UserId");
+                var userType = HttpContext.Session.GetString("UserType");
+                
+                if (string.IsNullOrEmpty(userId) || userType != "Customer")
                 {
                     return RedirectToPage("/Account/Login");
                 }
@@ -58,6 +59,13 @@ namespace TicketingSystem.Web.Pages.Customer
         {
             try
             {
+                // Check if user is logged in and is a customer
+                var userType = HttpContext.Session.GetString("UserType");
+                if (userType != "Customer")
+                {
+                    return new JsonResult(new { success = false });
+                }
+
                 await _notificationService.MarkAsReadAsync(id);
                 return new JsonResult(new { success = true });
             }
@@ -72,8 +80,11 @@ namespace TicketingSystem.Web.Pages.Customer
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
+                // Check if user is logged in and is a customer
+                var userId = HttpContext.Session.GetString("UserId");
+                var userType = HttpContext.Session.GetString("UserType");
+                
+                if (string.IsNullOrEmpty(userId) || userType != "Customer")
                 {
                     return RedirectToPage("/Account/Login");
                 }
@@ -96,8 +107,11 @@ namespace TicketingSystem.Web.Pages.Customer
         {
             try
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
+                // Check if user is logged in and is a customer
+                var userId = HttpContext.Session.GetString("UserId");
+                var userType = HttpContext.Session.GetString("UserType");
+                
+                if (string.IsNullOrEmpty(userId) || userType != "Customer")
                 {
                     return new JsonResult(new { count = 0 });
                 }

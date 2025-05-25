@@ -1,0 +1,207 @@
+@page
+@model TicketingSystem.Web.Pages.Organizer.ProfileModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <img src="~/images/logo-no-background.png" alt="Ticksy" style="height: 40px;" />
+        </div>
+        <div>
+            <a asp-page="/Organizer/Dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">My Profile</h4>
+                    <small class="text-muted">Update your organization information and account settings.</small>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @Model.SuccessMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @Model.ErrorMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form method="post">
+                        <input type="hidden" asp-for="Organizer.Id" />
+                        <input type="hidden" asp-for="Organizer.CreatedAt" />
+                        <input type="hidden" asp-for="Organizer.LastLogin" />
+
+                        <!-- Organization Information -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2">
+                                <i class="fas fa-building text-primary"></i> Organization Information
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" asp-for="Organizer.OrganizationName">Organization Name</label>
+                                        <input type="text" class="form-control" asp-for="Organizer.OrganizationName" required />
+                                        <span asp-validation-for="Organizer.OrganizationName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" asp-for="Organizer.ContactPhone">Contact Phone</label>
+                                        <input type="tel" class="form-control" asp-for="Organizer.ContactPhone" />
+                                        <span asp-validation-for="Organizer.ContactPhone" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label class="form-label" asp-for="Organizer.Description">Organization Description</label>
+                                        <textarea class="form-control" asp-for="Organizer.Description" rows="4" placeholder="Tell us about your organization..."></textarea>
+                                        <span asp-validation-for="Organizer.Description" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Information -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2">
+                                <i class="fas fa-user text-success"></i> Account Information
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" asp-for="Organizer.Username">Username</label>
+                                        <input type="text" class="form-control" asp-for="Organizer.Username" required />
+                                        <span asp-validation-for="Organizer.Username" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" asp-for="Organizer.Email">Email Address</label>
+                                        <input type="email" class="form-control" asp-for="Organizer.Email" required />
+                                        <span asp-validation-for="Organizer.Email" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Password Change -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2">
+                                <i class="fas fa-lock text-warning"></i> Change Password
+                            </h5>
+                            <div class="alert alert-info">
+                                <small><i class="fas fa-info-circle"></i> Leave password fields empty if you don't want to change your password.</small>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="CurrentPassword">Current Password</label>
+                                        <input type="password" class="form-control" name="CurrentPassword" id="CurrentPassword" />
+                                        <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="NewPassword">New Password</label>
+                                        <input type="password" class="form-control" name="NewPassword" id="NewPassword" />
+                                        <span asp-validation-for="NewPassword" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="ConfirmPassword">Confirm New Password</label>
+                                        <input type="password" class="form-control" name="ConfirmPassword" id="ConfirmPassword" />
+                                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Information (Read-only) -->
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2">
+                                <i class="fas fa-info-circle text-info"></i> Account Details
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Account Created</label>
+                                        <input type="text" class="form-control" value="@Model.Organizer.CreatedAt.ToString("MMMM d, yyyy 'at' h:mm tt")" readonly />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Last Login</label>
+                                        <input type="text" class="form-control" value="@(Model.Organizer.LastLogin?.ToString("MMMM d, yyyy 'at' h:mm tt") ?? "Never")" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Organizer ID</label>
+                                        <input type="text" class="form-control" value="@Model.Organizer.Id" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-page="/Organizer/Dashboard" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Password validation
+        document.getElementById('ConfirmPassword').addEventListener('input', function() {
+            const newPassword = document.getElementById('NewPassword').value;
+            const confirmPassword = this.value;
+            
+            if (newPassword !== confirmPassword) {
+                this.setCustomValidity('Passwords do not match');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Show/hide password requirements
+        document.getElementById('NewPassword').addEventListener('focus', function() {
+            if (!document.getElementById('passwordHelp')) {
+                const helpText = document.createElement('small');
+                helpText.id = 'passwordHelp';
+                helpText.className = 'form-text text-muted';
+                helpText.innerHTML = 'Password must be at least 6 characters long.';
+                this.parentNode.appendChild(helpText);
+            }
+        });
+    </script>
+} 

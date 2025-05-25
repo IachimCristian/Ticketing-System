@@ -8,7 +8,7 @@ namespace TicketingSystem.Core.Entities
         public Guid Id { get; set; }
 
         public Guid CustomerId { get; set; }
-        public virtual Customer Customer { get; set; }
+        public virtual Customer? Customer { get; set; }
 
         // Email notification preferences
         public bool EmailTicketPurchase { get; set; } = true;
