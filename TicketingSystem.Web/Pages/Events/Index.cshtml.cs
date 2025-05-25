@@ -22,49 +22,59 @@ namespace TicketingSystem.Web.Pages.Events
         }
 
         public List<EventViewModel> Events { get; set; } = new List<EventViewModel>();
+        
+        // Filter properties
         public string SearchTerm { get; set; }
-        public string DebugInfo { get; set; } // Added for debugging
+        public string LocationFilter { get; set; }
+        public string PriceRange { get; set; }
+        public string DateFilter { get; set; }
+        public string SortBy { get; set; } = "date-asc"; // Default sort
+        
+        // Available filter options
+        public List<string> AvailableLocations { get; set; } = new List<string>();
+        
+        // Helper property to check if any filters are active
+        public bool HasActiveFilters => !string.IsNullOrEmpty(SearchTerm) || 
+                                       !string.IsNullOrEmpty(LocationFilter) || 
+                                       !string.IsNullOrEmpty(PriceRange) || 
+                                       !string.IsNullOrEmpty(DateFilter);
 
-        public async Task OnGetAsync(string searchTerm = null)
+        public async Task OnGetAsync(string searchTerm = null, string location = null, 
+                                   string priceRange = null, string dateFilter = null, 
+                                   string sortBy = "date-asc")
         {
             try
             {
+                // Set filter values
                 SearchTerm = searchTerm;
-                IEnumerable<Event> events = new List<Event>();
-
-                try
+                LocationFilter = location;
+                PriceRange = priceRange;
+                DateFilter = dateFilter;
+                SortBy = sortBy;
+                
+                // Get all events first
+                IEnumerable<Event> events;
+                
+                if (!string.IsNullOrWhiteSpace(SearchTerm))
                 {
-                    _logger.LogInformation($"Current DateTime: {DateTime.Now}, UTC: {DateTime.UtcNow}");
-                    
-                    if (!string.IsNullOrWhiteSpace(SearchTerm))
-                    {
-                        // If there's a search term, use search functionality
-                        events = await _eventService.SearchEventsAsync(SearchTerm);
-                    }
-                    else
-                    {
-                        // Otherwise get all upcoming events
-                        events = await _eventService.GetUpcomingEventsAsync();
-                        _logger.LogInformation($"Retrieved {events.Count()} events from service");
-                        foreach (var evt in events)
-                        {
-                            _logger.LogInformation($"Event: {evt.Id}, Title: {evt.Title}, StartDate: {evt.StartDate}, IsActive: {evt.IsActive}");
-                        }
-                    }
-                    
-                    // Store debug info
-                    DebugInfo = $"Found {events.Count()} events. Current time: {DateTime.Now.ToString()}";
+                    events = await _eventService.SearchEventsAsync(SearchTerm);
                 }
-                catch (Exception ex)
+                else
                 {
-                    _logger.LogError(ex, "Database error fetching events: {Message}", ex.Message);
-                    // Continue with empty events collection
-                    ModelState.AddModelError(string.Empty, "Could not retrieve events from the database. The database schema may need to be updated.");
-                    DebugInfo = $"Error: {ex.Message}";
+                    events = await _eventService.GetUpcomingEventsAsync();
                 }
-
-                // Map database events to view models
-                Events = events.Select(e => new EventViewModel
+                
+                // Get unique locations for filter dropdown
+                AvailableLocations = events.Select(e => e.Location)
+                                          .Distinct()
+                                          .OrderBy(l => l)
+                                          .ToList();
+                
+                // Apply filters
+                var filteredEvents = ApplyFilters(events);
+                
+                // Map to view models
+                var eventViewModels = filteredEvents.Select(e => new EventViewModel
                 {
                     Id = e.Id,
                     Title = e.Title,
@@ -74,23 +84,75 @@ namespace TicketingSystem.Web.Pages.Events
                     TicketPrice = e.TicketPrice,
                     Capacity = e.Capacity,
                     ImageUrl = e.ImageUrl,
-                    // Calculate actual available seats
-                    AvailableSeatCount = CalculateAvailableSeats(e), 
-                    // Determine status based on availability and dates
+                    AvailableSeatCount = CalculateAvailableSeats(e),
                     Status = DetermineEventStatus(e)
                 }).ToList();
+                
+                // Apply sorting
+                Events = ApplySorting(eventViewModels);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in page processing: {Message}", ex.Message);
-                ModelState.AddModelError(string.Empty, "An error occurred while processing the page.");
-                DebugInfo = $"Fatal error: {ex.Message}";
+                _logger.LogError(ex, "Error loading events");
+                ModelState.AddModelError(string.Empty, "An error occurred while loading events.");
             }
+        }
+        
+        private IEnumerable<Event> ApplyFilters(IEnumerable<Event> events)
+        {
+            // Location filter
+            if (!string.IsNullOrEmpty(LocationFilter))
+            {
+                events = events.Where(e => e.Location.Equals(LocationFilter, StringComparison.OrdinalIgnoreCase));
+            }
+            
+            // Price range filter
+            if (!string.IsNullOrEmpty(PriceRange))
+            {
+                events = PriceRange switch
+                {
+                    "free" => events.Where(e => e.TicketPrice == 0),
+                    "0-25" => events.Where(e => e.TicketPrice > 0 && e.TicketPrice <= 25),
+                    "25-50" => events.Where(e => e.TicketPrice > 25 && e.TicketPrice <= 50),
+                    "50-100" => events.Where(e => e.TicketPrice > 50 && e.TicketPrice <= 100),
+                    "100+" => events.Where(e => e.TicketPrice > 100),
+                    _ => events
+                };
+            }
+            
+            // Date filter
+            if (!string.IsNullOrEmpty(DateFilter))
+            {
+                var now = DateTime.Now.Date;
+                events = DateFilter switch
+                {
+                    "today" => events.Where(e => e.StartDate.Date == now),
+                    "tomorrow" => events.Where(e => e.StartDate.Date == now.AddDays(1)),
+                    "this-week" => events.Where(e => e.StartDate.Date >= now && e.StartDate.Date <= now.AddDays(7)),
+                    "this-month" => events.Where(e => e.StartDate.Month == now.Month && e.StartDate.Year == now.Year),
+                    "next-month" => events.Where(e => e.StartDate.Month == now.AddMonths(1).Month && e.StartDate.Year == now.AddMonths(1).Year),
+                    _ => events
+                };
+            }
+            
+            return events;
+        }
+        
+        private List<EventViewModel> ApplySorting(List<EventViewModel> events)
+        {
+            return SortBy switch
+            {
+                "date-desc" => events.OrderByDescending(e => e.Date).ToList(),
+                "price-asc" => events.OrderBy(e => e.TicketPrice).ToList(),
+                "price-desc" => events.OrderByDescending(e => e.TicketPrice).ToList(),
+                "name-asc" => events.OrderBy(e => e.Title).ToList(),
+                "name-desc" => events.OrderByDescending(e => e.Title).ToList(),
+                _ => events.OrderBy(e => e.Date).ToList() // Default: date-asc
+            };
         }
 
         private int CalculateAvailableSeats(Event e)
         {
-            // If Tickets is null, we assume all seats are available
             if (e.Tickets == null)
                 return e.Capacity;
                 
@@ -103,11 +165,9 @@ namespace TicketingSystem.Web.Pages.Events
             if (!e.IsActive)
                 return "Cancelled";
 
-            // Check if event has already passed
             if (e.StartDate < DateTime.Now)
                 return "Completed";
             
-            // For events with no ticket data, just show as Available
             if (e.Tickets == null || !e.Tickets.Any())
                 return "Available";
                 

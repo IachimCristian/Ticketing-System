@@ -6,10 +6,112 @@
 
 <div class="page-header">
     <h1>Browse Events</h1>
-    <form method="get" class="filters">
-        <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Search events...">
-        <button type="submit" class="btn btn-primary ms-2">Search</button>
+</div>
+
+<div class="filters-container">
+    <form method="get" class="filters-form">
+        <div class="row g-3">
+            <!-- Search -->
+            <div class="col-md-3">
+                <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Search events...">
+            </div>
+            
+            <!-- Location Filter -->
+            <div class="col-md-2">
+                <select name="location" class="form-select">
+                    <option value="">All Locations</option>
+                    @foreach (var location in Model.AvailableLocations)
+                    {
+                        <option value="@location" selected="@(Model.LocationFilter == location)">@location</option>
+                    }
+                </select>
+            </div>
+            
+            <!-- Price Range Filter -->
+            <div class="col-md-2">
+                <select name="priceRange" class="form-select">
+                    <option value="">All Prices</option>
+                    <option value="free" selected="@(Model.PriceRange == "free")">Free</option>
+                    <option value="0-25" selected="@(Model.PriceRange == "0-25")">$0 - $25</option>
+                    <option value="25-50" selected="@(Model.PriceRange == "25-50")">$25 - $50</option>
+                    <option value="50-100" selected="@(Model.PriceRange == "50-100")">$50 - $100</option>
+                    <option value="100+" selected="@(Model.PriceRange == "100+")">$100+</option>
+                </select>
+            </div>
+            
+            <!-- Date Filter -->
+            <div class="col-md-2">
+                <select name="dateFilter" class="form-select">
+                    <option value="">All Dates</option>
+                    <option value="today" selected="@(Model.DateFilter == "today")">Today</option>
+                    <option value="tomorrow" selected="@(Model.DateFilter == "tomorrow")">Tomorrow</option>
+                    <option value="this-week" selected="@(Model.DateFilter == "this-week")">This Week</option>
+                    <option value="this-month" selected="@(Model.DateFilter == "this-month")">This Month</option>
+                    <option value="next-month" selected="@(Model.DateFilter == "next-month")">Next Month</option>
+                </select>
+            </div>
+            
+            <!-- Sort By -->
+            <div class="col-md-2">
+                <select name="sortBy" class="form-select">
+                    <option value="date-asc" selected="@(Model.SortBy == "date-asc")">Date (Earliest First)</option>
+                    <option value="date-desc" selected="@(Model.SortBy == "date-desc")">Date (Latest First)</option>
+                    <option value="price-asc" selected="@(Model.SortBy == "price-asc")">Price (Low to High)</option>
+                    <option value="price-desc" selected="@(Model.SortBy == "price-desc")">Price (High to Low)</option>
+                    <option value="name-asc" selected="@(Model.SortBy == "name-asc")">Name (A-Z)</option>
+                    <option value="name-desc" selected="@(Model.SortBy == "name-desc")">Name (Z-A)</option>
+                </select>
+            </div>
+            
+            <!-- Filter Button -->
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+            </div>
+        </div>
+        
+        <!-- Active Filters Display -->
+        @if (Model.HasActiveFilters)
+        {
+            <div class="active-filters mt-3">
+                <span class="filter-label">Active Filters:</span>
+                @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                {
+                    <span class="filter-tag">
+                        Search: @Model.SearchTerm
+                        <a href="@Url.Page("/Events/Index", new { location = Model.LocationFilter, priceRange = Model.PriceRange, dateFilter = Model.DateFilter, sortBy = Model.SortBy })" class="remove-filter">×</a>
+                    </span>
+                }
+                @if (!string.IsNullOrEmpty(Model.LocationFilter))
+                {
+                    <span class="filter-tag">
+                        Location: @Model.LocationFilter
+                        <a href="@Url.Page("/Events/Index", new { searchTerm = Model.SearchTerm, priceRange = Model.PriceRange, dateFilter = Model.DateFilter, sortBy = Model.SortBy })" class="remove-filter">×</a>
+                    </span>
+                }
+                @if (!string.IsNullOrEmpty(Model.PriceRange))
+                {
+                    <span class="filter-tag">
+                        Price: @Model.PriceRange
+                        <a href="@Url.Page("/Events/Index", new { searchTerm = Model.SearchTerm, location = Model.LocationFilter, dateFilter = Model.DateFilter, sortBy = Model.SortBy })" class="remove-filter">×</a>
+                    </span>
+                }
+                @if (!string.IsNullOrEmpty(Model.DateFilter))
+                {
+                    <span class="filter-tag">
+                        Date: @Model.DateFilter
+                        <a href="@Url.Page("/Events/Index", new { searchTerm = Model.SearchTerm, location = Model.LocationFilter, priceRange = Model.PriceRange, sortBy = Model.SortBy })" class="remove-filter">×</a>
+                    </span>
+                }
+                <a href="@Url.Page("/Events/Index")" class="clear-all">Clear All</a>
+            </div>
+        }
     </form>
+</div>
+
+<div class="results-info">
+    <p>Found <strong>@Model.Events.Count</strong> events</p>
 </div>
 
 <div class="row mt-4">
@@ -19,7 +121,7 @@
         {
             <div class="col-md-4 mb-4">
                 <div class="card event-listing">
-                    <div class="status-indicator"></div>
+                    <div class="status-indicator @(item.Status == "Available" ? "available" : item.Status == "Limited" ? "limited" : item.Status == "Sold Out" ? "sold-out" : "other")"></div>
                     @if (!string.IsNullOrEmpty(item.ImageUrl))
                     {
                         <img src="@item.ImageUrl" class="card-img-top" alt="@item.Title" />
@@ -27,28 +129,30 @@
                     else
                     {
                         <div class="card-img-top event-placeholder">
-                            <span>X</span>
+                            <i class="fas fa-calendar-alt"></i>
                         </div>
                     }
                     <div class="card-body">
                         <h5 class="card-title">@item.Title</h5>
-                        <p class="card-text"><strong>Date:</strong> @item.Date.ToString("MMMM d, yyyy")</p>
-                        <p class="card-text"><strong>Location:</strong> @item.Location</p>
+                        <p class="card-text"><i class="far fa-calendar"></i> @item.Date.ToString("MMMM d, yyyy")</p>
+                        <p class="card-text"><i class="fas fa-map-marker-alt"></i> @item.Location</p>
                         <p class="card-text text-truncate">@item.Description</p>
-                        <p class="card-text">
-                            <strong>Price:</strong> 
-                            @if (item.TicketPrice == 0)
-                            {
-                                <span>Free</span>
-                            }
-                            else
-                            {
-                                <span>$@item.TicketPrice.ToString("F2")</span>
-                            }
-                        </p>
-                        <p class="card-text">
-                            <strong>Seats:</strong> @item.AvailableSeatCount / @item.Capacity
-                        </p>
+                        <div class="price-seats-info">
+                            <div class="price-info">
+                                <strong>Price:</strong> 
+                                @if (item.TicketPrice == 0)
+                                {
+                                    <span class="price-tag free">Free</span>
+                                }
+                                else
+                                {
+                                    <span class="price-tag">$@item.TicketPrice.ToString("F2")</span>
+                                }
+                            </div>
+                            <div class="seats-info">
+                                <strong>Seats:</strong> @item.AvailableSeatCount / @item.Capacity
+                            </div>
+                        </div>
                         <div class="d-flex justify-content-between align-items-center">
                             @if (item.Status == "Available")
                             {
@@ -84,25 +188,18 @@
     else
     {
         <div class="col-12">
-            <div class="alert alert-info">
-                No events found. @if (!string.IsNullOrEmpty(Model.SearchTerm)) { <span>Try a different search term.</span> }
+            <div class="no-results">
+                <i class="fas fa-search fa-3x mb-3"></i>
+                <h4>No events found</h4>
+                <p>Try adjusting your filters or search terms</p>
+                <a href="@Url.Page("/Events/Index")" class="btn btn-primary">Clear Filters</a>
             </div>
-            @if (!string.IsNullOrEmpty(Model.DebugInfo))
-            {
-                <div class="alert alert-warning mt-3">
-                    <h5>Debug Info:</h5>
-                    <p>@Model.DebugInfo</p>
-                </div>
-            }
         </div>
     }
 </div>
 
 <style>
     .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
         margin-bottom: 2rem;
         padding-bottom: 1rem;
         border-bottom: 1px solid #e9ecef;
@@ -115,24 +212,89 @@
         color: #212121;
     }
     
-    .filters {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
+    .filters-container {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     
-    .filters .form-control {
+    .filters-form .form-control,
+    .filters-form .form-select {
         border-radius: 8px;
         border: 1px solid #ced4da;
         padding: 0.5rem 0.75rem;
         font-size: 0.875rem;
-        min-width: 250px;
+        background-color: white;
     }
-
-    .filters .btn {
+    
+    .filters-form .form-select {
+        cursor: pointer;
+    }
+    
+    .filters-form .btn {
         padding: 0.5rem 1rem;
         font-size: 0.875rem;
         border-radius: 8px;
+    }
+    
+    .active-filters {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .filter-label {
+        font-weight: 600;
+        color: #495057;
+        margin-right: 0.5rem;
+    }
+    
+    .filter-tag {
+        display: inline-flex;
+        align-items: center;
+        background-color: #212121;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.813rem;
+    }
+    
+    .filter-tag .remove-filter {
+        color: white;
+        text-decoration: none;
+        margin-left: 0.5rem;
+        font-weight: bold;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+    
+    .filter-tag .remove-filter:hover {
+        opacity: 1;
+    }
+    
+    .clear-all {
+        color: #dc3545;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-left: 0.5rem;
+    }
+    
+    .clear-all:hover {
+        text-decoration: underline;
+    }
+    
+    .results-info {
+        margin-bottom: 1.5rem;
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+    
+    .results-info strong {
+        color: #212121;
     }
     
     .event-listing {
@@ -143,19 +305,7 @@
         border: 1px solid #e9ecef;
         border-radius: 12px;
         background: white;
-        margin-bottom: 1.5rem;
-    }
-    
-    .event-listing::after {
-        content: '';
-        position: absolute;
-        top: 4px;
-        right: -4px;
-        bottom: -4px;
-        left: 4px;
-        background-color: rgba(0,0,0,0.03);
-        z-index: -1;
-        border-radius: 12px;
+        height: 100%;
     }
     
     .event-listing:hover {
@@ -169,31 +319,98 @@
         left: 0;
         right: 0;
         height: 4px;
-        background-color: #212121;
         border-radius: 12px 12px 0 0;
+    }
+    
+    .status-indicator.available {
+        background-color: #28a745;
+    }
+    
+    .status-indicator.limited {
+        background-color: #ffc107;
+    }
+    
+    .status-indicator.sold-out {
+        background-color: #dc3545;
+    }
+    
+    .status-indicator.other {
+        background-color: #6c757d;
+    }
+    
+    .event-placeholder {
+        height: 180px;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #dee2e6;
+    }
+    
+    .event-placeholder i {
+        font-size: 3rem;
+        font-weight: 300;
     }
     
     .card-body {
         padding: 1.25rem;
     }
-
+    
     .card-title {
         font-size: 1.1rem;
         font-weight: 600;
         margin-bottom: 0.75rem;
         color: #212121;
+        line-height: 1.3;
     }
-
+    
     .card-text {
         font-size: 0.875rem;
         margin-bottom: 0.5rem;
         color: #495057;
         line-height: 1.4;
     }
-
-    .card-text strong {
+    
+    .card-text i {
+        width: 16px;
+        margin-right: 0.25rem;
+        color: #6c757d;
+    }
+    
+    .price-seats-info {
+        display: flex;
+        justify-content: space-between;
+        margin: 0.75rem 0;
+        padding: 0.75rem 0;
+        border-top: 1px solid #f1f3f4;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .price-info strong,
+    .seats-info strong {
         color: #212121;
         font-weight: 600;
+        font-size: 0.813rem;
+    }
+    
+    .price-tag {
+        color: #28a745;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+    
+    .price-tag.free {
+        background-color: #e7f3ff;
+        color: #0066cc;
+        padding: 0.125rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+    }
+    
+    .card-img-top {
+        height: 180px;
+        object-fit: cover;
+        border-radius: 12px 12px 0 0;
     }
     
     .badge {
@@ -202,99 +419,32 @@
         border-radius: 6px;
         font-weight: 500;
     }
-
-    .badge.bg-dark {
-        background-color: #212121 !important;
-    }
-
-    .badge.bg-secondary {
-        background-color: #6c757d !important;
-    }
-
-    .badge.bg-light {
-        background-color: #f8f9fa !important;
-        color: #212121 !important;
-        border: 1px solid #dee2e6;
-    }
     
-    .btn {
-        font-size: 0.875rem;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        font-weight: 500;
-        transition: all 0.2s ease;
-    }
-
-    .btn-primary {
-        background-color: #212121;
-        border-color: #212121;
-    }
-
-    .btn-primary:hover {
-        background-color: #000;
-        border-color: #000;
-        transform: translateY(-1px);
-    }
-
-    .btn-outline-dark {
-        border: 1px solid #212121;
-        color: #212121;
-    }
-
-    .btn-outline-dark:hover {
-        background-color: #212121;
-        border-color: #212121;
-        color: white;
-        transform: translateY(-1px);
-    }
-
-    .btn-outline-secondary {
-        border: 1px solid #6c757d;
+    .no-results {
+        text-align: center;
+        padding: 4rem 2rem;
         color: #6c757d;
     }
-
-    .btn-outline-secondary:hover {
-        background-color: #6c757d;
-        border-color: #6c757d;
-        color: white;
-        transform: translateY(-1px);
+    
+    .no-results h4 {
+        color: #212121;
+        margin-bottom: 0.5rem;
     }
     
-    .card-img-top {
-        height: 180px;
-        object-fit: cover;
-        border-radius: 12px 12px 0 0;
-    }
-
-    .d-flex.justify-content-between.align-items-center {
+    .no-results .btn {
         margin-top: 1rem;
-        padding-top: 0.75rem;
-        border-top: 1px solid #f1f3f4;
     }
-
-    .alert {
-        border-radius: 8px;
-        border: none;
-        font-size: 0.875rem;
-        padding: 1rem 1.25rem;
-    }
-
-    .alert-info {
-        background-color: #e7f3ff;
-        color: #0c5460;
-    }
-
-    .alert-warning {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-
-    /* Grid layout for better spacing */
-    .row.mt-4 {
-        margin-top: 2rem !important;
-    }
-
-    .col-md-4 {
-        margin-bottom: 2rem;
+    
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .filters-form .row {
+            gap: 0.5rem;
+        }
+        
+        .filters-form .col-md-2,
+        .filters-form .col-md-3,
+        .filters-form .col-md-1 {
+            margin-bottom: 0.5rem;
+        }
     }
 </style> 
