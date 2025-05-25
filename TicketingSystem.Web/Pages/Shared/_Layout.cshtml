@@ -8,9 +8,76 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TicketingSystem.Web.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    
+    <style>
+        /* Ensure dropdown works properly */
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1000;
+            display: none;
+            min-width: 10rem;
+            padding: 0.5rem 0;
+            margin: 0;
+            font-size: 0.875rem;
+            color: #212529;
+            text-align: left;
+            list-style: none;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid rgba(0,0,0,.15);
+            border-radius: 0.375rem;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.175);
+        }
+        
+        .dropdown-menu.show {
+            display: block !important;
+        }
+        
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 0.25rem 1rem;
+            clear: both;
+            font-weight: 400;
+            color: #212529;
+            text-align: inherit;
+            text-decoration: none;
+            white-space: nowrap;
+            background-color: transparent;
+            border: 0;
+        }
+        
+        .dropdown-item:hover,
+        .dropdown-item:focus {
+            color: #1e2125;
+            background-color: #e9ecef;
+        }
+        
+        .dropdown-divider {
+            height: 0;
+            margin: 0.5rem 0;
+            overflow: hidden;
+            border-top: 1px solid rgba(0,0,0,.15);
+        }
+        
+        /* Debug styles */
+        .dropdown-toggle {
+            cursor: pointer !important;
+        }
+        
+        .dropdown-toggle:hover {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -53,15 +120,39 @@
                     <div class="auth-buttons">
                         @if (Context.Session.GetString("Username") != null)
                         {
+                            @if (Context.Session.GetString("UserType") == "Customer")
+                            {
+                                <a asp-page="/Customer/Notifications" class="btn btn-outline-primary btn-sm me-2 position-relative">
+                                    <i class="fas fa-bell"></i>
+                                    @* You can add notification count here if available *@
+                                </a>
+                                <a asp-page="/Customer/Profile" class="btn btn-outline-secondary btn-sm me-2">
+                                    <i class="fas fa-user"></i>
+                                </a>
+                            }
+                            
                             <div class="dropdown">
                                 <button class="btn btn-outline-primary dropdown-toggle btn-animated" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                     Welcome, @Context.Session.GetString("Username")
                                 </button>
                                 <ul class="dropdown-menu animate-fade-in-down" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-item" asp-page="/Dashboard/Index">My Dashboard</a></li>
                                     @if (Context.Session.GetString("UserType") == "Admin")
                                     {
                                         <li><a class="dropdown-item" asp-page="/Admin/Index">Admin Dashboard</a></li>
+                                    }
+                                    else
+                                    {
+                                        <li><a class="dropdown-item" asp-page="/Dashboard/Index">My Dashboard</a></li>
+                                    }
+                                    @if (Context.Session.GetString("UserType") == "Customer")
+                                    {
+                                        <li><a class="dropdown-item" asp-page="/Customer/Profile">Profile</a></li>
+                                        <li><a class="dropdown-item" asp-page="/Customer/Notifications">Notifications</a></li>
+                                    }
+                                    @if (Context.Session.GetString("UserType") == "Organizer")
+                                    {
+                                        <li><a class="dropdown-item" asp-page="/Organizer/Profile">Profile</a></li>
+                                        <li><a class="dropdown-item" asp-page="/Events/Create">Create Event</a></li>
                                     }
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" asp-page="/Account/Logout">Logout</a></li>
@@ -101,11 +192,6 @@
         </div>
     </footer>
 
-    <!-- Theme Toggle Button -->
-    <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Theme">
-        <i class="fas fa-moon" id="themeIcon"></i>
-    </button>
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true" />
@@ -113,57 +199,57 @@
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>
-        // Theme Toggle Functionality
+        // Initialize everything when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            const themeToggle = document.getElementById('themeToggle');
-            const themeIcon = document.getElementById('themeIcon');
-            const body = document.body;
-            
-            console.log('Theme toggle initialized');
-            console.log('Toggle button:', themeToggle);
-            console.log('Theme icon:', themeIcon);
-            
-            // Check for saved theme preference or default to light mode
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            console.log('Saved theme:', savedTheme);
-            
-            // Apply saved theme
-            if (savedTheme === 'dark') {
-                body.classList.add('dark-theme');
-                if (themeIcon) themeIcon.className = 'fas fa-sun';
-                console.log('Applied dark theme on load');
-            } else {
-                body.classList.remove('dark-theme');
-                if (themeIcon) themeIcon.className = 'fas fa-moon';
-                console.log('Applied light theme on load');
-            }
-            
-            // Theme toggle event listener
-            if (themeToggle) {
-                themeToggle.addEventListener('click', function() {
-                    console.log('Theme toggle clicked');
-                    console.log('Current body classes before toggle:', body.className);
-                    
-                    if (body.classList.contains('dark-theme')) {
-                        // Switch to light theme
-                        body.classList.remove('dark-theme');
-                        if (themeIcon) themeIcon.className = 'fas fa-moon';
-                        localStorage.setItem('theme', 'light');
-                        console.log('Switched to light theme');
-                    } else {
-                        // Switch to dark theme
-                        body.classList.add('dark-theme');
-                        if (themeIcon) themeIcon.className = 'fas fa-sun';
-                        localStorage.setItem('theme', 'dark');
-                        console.log('Switched to dark theme');
-                    }
-                    
-                    console.log('Current body classes after toggle:', body.className);
-                    console.log('Current background color:', getComputedStyle(body).backgroundColor);
+            console.log('DOM Content Loaded - Initializing...');
+
+            // Initialize Bootstrap dropdowns (this should work automatically, but let's ensure it)
+            const dropdownToggle = document.getElementById('userDropdown');
+            if (dropdownToggle) {
+                console.log('Dropdown button found, Bootstrap should handle it automatically');
+                
+                // Add event listeners for debugging
+                dropdownToggle.addEventListener('click', function() {
+                    console.log('Dropdown button clicked - Bootstrap handling');
+                });
+                
+                // Listen for Bootstrap dropdown events
+                dropdownToggle.addEventListener('show.bs.dropdown', function () {
+                    console.log('Dropdown is being shown');
+                });
+                
+                dropdownToggle.addEventListener('shown.bs.dropdown', function () {
+                    console.log('Dropdown has been shown');
+                });
+                
+                dropdownToggle.addEventListener('hide.bs.dropdown', function () {
+                    console.log('Dropdown is being hidden');
                 });
             } else {
-                console.error('Theme toggle button not found!');
+                console.error('Dropdown button not found!');
             }
+
+            // Animate page elements
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.classList.add('card-animated', 'animate-fade-in-up');
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            const buttons = document.querySelectorAll('.btn:not(.btn-animated)');
+            buttons.forEach(btn => {
+                btn.classList.add('btn-animated');
+            });
+
+            const tables = document.querySelectorAll('.table');
+            tables.forEach(table => {
+                table.classList.add('table-animated');
+            });
+
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.classList.add('alert-animated');
+            });
         });
 
         // Navbar scroll animation
@@ -173,78 +259,6 @@
                 navbar.classList.add('scrolled');
             } else {
                 navbar.classList.remove('scrolled');
-            }
-        });
-
-        // Add entrance animations to page elements
-        document.addEventListener('DOMContentLoaded', function() {
-            // Animate cards on page load
-            const cards = document.querySelectorAll('.card');
-            cards.forEach((card, index) => {
-                card.classList.add('card-animated', 'animate-fade-in-up');
-                card.style.animationDelay = `${index * 0.1}s`;
-            });
-
-            // Animate buttons
-            const buttons = document.querySelectorAll('.btn:not(.btn-animated)');
-            buttons.forEach(btn => {
-                btn.classList.add('btn-animated');
-            });
-
-            // Animate tables
-            const tables = document.querySelectorAll('.table');
-            tables.forEach(table => {
-                table.classList.add('table-animated');
-            });
-
-            // Animate alerts
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                alert.classList.add('alert-animated');
-            });
-
-            // Fix dropdown functionality
-            const dropdownToggle = document.getElementById('userDropdown');
-            const dropdownMenu = document.querySelector('.dropdown-menu');
-            
-            if (dropdownToggle && dropdownMenu) {
-                // Toggle dropdown on click
-                dropdownToggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    const isOpen = dropdownMenu.classList.contains('show');
-                    
-                    // Close all other dropdowns
-                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-                        menu.classList.remove('show');
-                    });
-                    
-                    // Toggle current dropdown
-                    if (!isOpen) {
-                        dropdownMenu.classList.add('show');
-                        dropdownToggle.setAttribute('aria-expanded', 'true');
-                    } else {
-                        dropdownMenu.classList.remove('show');
-                        dropdownToggle.setAttribute('aria-expanded', 'false');
-                    }
-                });
-                
-                // Close dropdown when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                        dropdownMenu.classList.remove('show');
-                        dropdownToggle.setAttribute('aria-expanded', 'false');
-                    }
-                });
-                
-                // Close dropdown when pressing Escape
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        dropdownMenu.classList.remove('show');
-                        dropdownToggle.setAttribute('aria-expanded', 'false');
-                    }
-                });
             }
         });
     </script>

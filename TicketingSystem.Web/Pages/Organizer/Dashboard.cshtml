@@ -49,7 +49,7 @@
                         </div>
                     </a>
                     
-                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                    <a asp-page="/Events/Create" class="list-group-item list-group-item-action d-flex align-items-center">
                         <div class="me-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-calendar-plus" viewBox="0 0 16 16">
                                 <path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z"/>
@@ -147,7 +147,7 @@
         {
             <div class="text-center py-4">
                 <p class="text-muted mb-3">You haven't created any events yet.</p>
-                <a href="#" class="btn btn-dark">Create Your First Event</a>
+                <a asp-page="/Events/Create" class="btn btn-dark">Create Your First Event</a>
             </div>
         }
     </div>

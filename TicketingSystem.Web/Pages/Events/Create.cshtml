@@ -53,7 +53,7 @@
     </div>
     <div class="mb-3">
         <label asp-for="EventInput.Capacity" class="form-label">Capacity</label>
-        <input asp-for="EventInput.Capacity" type="number" class="form-control" />
+        <input asp-for="EventInput.Capacity" type="number" class="form-control" max="80" min="1" />
         <span asp-validation-for="EventInput.Capacity" class="text-danger"></span>
     </div>
     <div class="mb-3">

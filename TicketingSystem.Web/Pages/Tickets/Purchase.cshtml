@@ -181,6 +181,25 @@
                         </div>
                     </div>
                 </div>
+                
+                <div id="paypalDetails" style="display: none;">
+                    <div class="paypal-info-card">
+                        <div class="paypal-logo-container">
+                            <div class="paypal-logo">
+                                <span class="paypal-text">Pay</span><span class="paypal-text-blue">Pal</span>
+                            </div>
+                        </div>
+                        <div class="paypal-info">
+                            <h6><i class="fas fa-shield-alt text-success me-2"></i>Secure PayPal Payment</h6>
+                            <p class="mb-2">You will be redirected to PayPal to complete your payment securely.</p>
+                            <ul class="paypal-benefits">
+                                <li><i class="fas fa-check text-success me-2"></i>Buyer Protection</li>
+                                <li><i class="fas fa-check text-success me-2"></i>No card details required</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Fast and secure checkout</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -348,6 +367,62 @@
         border: 1px solid #ddd;
         border-radius: 4px;
     }
+    
+    /* PayPal Styles */
+    .paypal-info-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 10px;
+    }
+    
+    .paypal-logo-container {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    
+    .paypal-logo {
+        display: inline-block;
+        font-size: 24px;
+        font-weight: bold;
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    .paypal-text {
+        color: #003087;
+    }
+    
+    .paypal-text-blue {
+        color: #009cde;
+    }
+    
+    .paypal-info h6 {
+        color: #003087;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    
+    .paypal-info p {
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .paypal-benefits {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .paypal-benefits li {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+    
+    .paypal-benefits li:last-child {
+        margin-bottom: 0;
+    }
 </style>
 
 @section Scripts {
@@ -359,23 +434,26 @@
             const creditCardMethod = document.getElementById('creditCard');
             const payPalMethod = document.getElementById('paypal');
             const creditCardDetails = document.getElementById('creditCardDetails');
+            const paypalDetails = document.getElementById('paypalDetails');
             const form = document.querySelector('form');
             
-            // Function to toggle credit card fields visibility
-            function toggleCreditCardFields() {
+            // Function to toggle payment method fields visibility
+            function togglePaymentFields() {
                 if (creditCardMethod.checked) {
                     creditCardDetails.style.display = 'block';
+                    paypalDetails.style.display = 'none';
                 } else if (payPalMethod.checked) {
                     creditCardDetails.style.display = 'none';
+                    paypalDetails.style.display = 'block';
                 }
             }
             
             // Set initial state on page load
-            toggleCreditCardFields();
+            togglePaymentFields();
             
             // Add event listeners
-            creditCardMethod.addEventListener('change', toggleCreditCardFields);
-            payPalMethod.addEventListener('change', toggleCreditCardFields);
+            creditCardMethod.addEventListener('change', togglePaymentFields);
+            payPalMethod.addEventListener('change', togglePaymentFields);
             
             // Initialize jQuery validation
             var validator = $("form").validate({

@@ -20,39 +20,6 @@
     </div>
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4 animate-fade-in-down">
-    <a asp-page="/Index" class="logo text-decoration-none">
-        <img src="~/images/logo-no-background.png" alt="Ticksy" style="height: 35px;" class="logo-img hover-scale" 
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-        <span class="logo-text hover-scale" style="display: none;">Ticksy</span>
-    </a>
-    <div class="d-flex align-items-center gap-3">
-        @if (Model.UserType == "Customer")
-        {
-            <a asp-page="/Customer/Notifications" class="btn btn-outline-primary btn-sm position-relative">
-                <i class="fas fa-bell"></i>
-                @if (Model.UnreadNotificationCount > 0)
-                {
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        @Model.UnreadNotificationCount
-                        <span class="visually-hidden">unread notifications</span>
-                    </span>
-                }
-            </a>
-            <a asp-page="/Customer/Profile" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-user"></i> Profile
-            </a>
-        }
-        @if (Model.UserType == "Organizer")
-        {
-            <a asp-page="/Organizer/Profile" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-user"></i> Profile
-            </a>
-        }
-        <a asp-page="/Account/Logout" class="btn btn-outline-dark btn-sm btn-animated hover-glow">Logout</a>
-    </div>
-</div>
-
 <h2 class="fs-5 mb-4 animate-fade-in-up animate-delay-1">Welcome, @Model.Username!</h2>
 
 @if (!string.IsNullOrEmpty(Model.ErrorMessage))
@@ -203,7 +170,7 @@
     }
 </div>
 
-<div class="text-center animate-fade-in-up animate-delay-5">
+<div class="text-center animate-fade-in-up animate-delay-5 mb-5">
     <a asp-page="/Events/Index" class="btn btn-dark btn-animated hover-glow animate-pulse">Browse All Events</a>
 </div>
 

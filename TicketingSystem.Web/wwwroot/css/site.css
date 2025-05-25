@@ -20,13 +20,10 @@ html {
 body {
   margin-bottom: 60px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #212121;
-  line-height: 1.4;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
   font-weight: 400;
-}
-
-/* Light theme background - only when not dark theme */
-body:not(.dark-theme) {
   background-color: #f8f9fa;
 }
 
