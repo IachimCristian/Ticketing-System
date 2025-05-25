@@ -27,6 +27,11 @@ namespace TicketingSystem.Infrastructure.Data
             modelBuilder.Entity<Organizer>().ToTable("Organizers");
             modelBuilder.Entity<Administrator>().ToTable("Administrators");
             
+            // Configure Event entity
+            modelBuilder.Entity<Event>()
+                .Property(e => e.ImageUrl)
+                .IsRequired(false); // Make ImageUrl nullable
+            
             // Configure SeatMap and SeatSection
             modelBuilder.Entity<SeatMap>().ToTable("SeatMaps");
             modelBuilder.Entity<SeatSection>().ToTable("SeatSections");

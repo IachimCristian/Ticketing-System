@@ -155,11 +155,11 @@
                     <label class="form-label">Payment Method</label>
                     <div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" asp-for="PaymentMethod" id="creditCard" value="CreditCard" checked />
+                            <input class="form-check-input" type="radio" asp-for="PaymentMethod" id="creditCard" value="creditcard" checked />
                             <label class="form-check-label" for="creditCard">Credit Card</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" asp-for="PaymentMethod" id="paypal" value="PayPal" />
+                            <input class="form-check-input" type="radio" asp-for="PaymentMethod" id="paypal" value="paypal" />
                             <label class="form-check-label" for="paypal">PayPal</label>
                         </div>
                     </div>
@@ -356,17 +356,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded');
             
-            // Debug seat layout
-            console.log('SeatLayout count: @Model.SeatLayout.Count');
-            @if (Model.SeatLayout.Count > 0) {
-                <text>
-                console.log('First row seat count: @Model.SeatLayout[0].Count');
-                </text>
-            }
-            
             const creditCardMethod = document.getElementById('creditCard');
             const payPalMethod = document.getElementById('paypal');
             const creditCardDetails = document.getElementById('creditCardDetails');
+            const form = document.querySelector('form');
             
             // Function to toggle credit card fields visibility
             function toggleCreditCardFields() {
@@ -383,9 +376,97 @@
             // Add event listeners
             creditCardMethod.addEventListener('change', toggleCreditCardFields);
             payPalMethod.addEventListener('change', toggleCreditCardFields);
+            
+            // Initialize jQuery validation
+            var validator = $("form").validate({
+                rules: {
+                    SelectedRow: {
+                        required: true,
+                        min: 1
+                    },
+                    SelectedColumn: {
+                        required: true,
+                        min: 0
+                    },
+                    CardNumber: {
+                        required: function() {
+                            return creditCardMethod.checked;
+                        },
+                        creditcard: function() {
+                            return creditCardMethod.checked;
+                        }
+                    },
+                    ExpiryDate: {
+                        required: function() {
+                            return creditCardMethod.checked;
+                        }
+                    },
+                    Cvv: {
+                        required: function() {
+                            return creditCardMethod.checked;
+                        },
+                        digits: true,
+                        minlength: 3,
+                        maxlength: 4
+                    }
+                },
+                messages: {
+                    SelectedRow: "Please select a seat",
+                    SelectedColumn: "Please select a seat",
+                    CardNumber: {
+                        required: "Please enter your credit card number",
+                        creditcard: "Please enter a valid credit card number"
+                    },
+                    ExpiryDate: "Please enter the expiry date",
+                    Cvv: {
+                        required: "Please enter the CVV",
+                        digits: "CVV must contain only digits",
+                        minlength: "CVV must be at least 3 digits",
+                        maxlength: "CVV cannot be more than 4 digits"
+                    }
+                },
+                errorPlacement: function(error, element) {
+                    if (element.attr("name") === "SelectedRow" || element.attr("name") === "SelectedColumn") {
+                        error.appendTo("#selectedSeatInfo");
+                    } else {
+                        error.insertAfter(element);
+                    }
+                },
+                submitHandler: function(form) {
+                    console.log('Form is valid, submitting...');
+                    form.submit();
+                }
+            });
+            
+            // Debug form submission
+            form.addEventListener('submit', function(e) {
+                console.log('Form submitted');
+                console.log('Selected Row:', document.getElementById('selectedRow').value);
+                console.log('Selected Column:', document.getElementById('selectedColumn').value);
+                console.log('Payment Method:', document.querySelector('input[name="PaymentMethod"]:checked').value);
+                console.log('Form Valid:', validator.form());
+                
+                if (!document.getElementById('selectedRow').value || !document.getElementById('selectedColumn').value) {
+                    e.preventDefault();
+                    console.log('Form submission prevented: No seat selected');
+                    alert('Please select a seat before proceeding with the purchase.');
+                    return false;
+                }
+                
+                var errors = validator.errorList;
+                if (errors.length > 0) {
+                    console.log('Validation errors:', errors);
+                    e.preventDefault();
+                    return false;
+                }
+                
+                console.log('Form submission proceeding...');
+                return true;
+            });
         });
         
         function selectSeat(row, column, section, price) {
+            console.log('Seat selected:', row, column, section, price);
             document.getElementById('selectedRow').value = row;
             document.getElementById('selectedColumn').value = column;
             
@@ -404,6 +485,10 @@
             `;
             
             document.getElementById('purchaseButton').disabled = false;
+            
+            // Trigger validation
+            $("form").validate().element("#selectedRow");
+            $("form").validate().element("#selectedColumn");
         }
     </script>
 } 

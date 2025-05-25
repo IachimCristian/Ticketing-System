@@ -104,6 +104,7 @@ namespace TicketingSystem.Core.Services
         
         public async Task<bool> CancelTicketAsync(Guid ticketId, Guid customerId)
         {
+            // Get ticket with related entities
             var ticket = await _ticketRepository.GetByIdAsync(ticketId);
             if (ticket == null || ticket.CustomerId != customerId)
             {
@@ -115,10 +116,22 @@ namespace TicketingSystem.Core.Services
                 return false;
             }
             
+            // Load the event if not loaded
+            if (ticket.Event == null)
+            {
+                ticket.Event = await _eventRepository.GetByIdAsync(ticket.EventId);
+            }
+            
             // Event date check - can't cancel too close to event
-            if (ticket.Event.StartDate.AddDays(-1) <= DateTime.UtcNow)
+            if (ticket.Event?.StartDate.AddDays(-1) <= DateTime.UtcNow)
             {
                 throw new InvalidOperationException("Cannot cancel tickets within 24 hours of the event");
+            }
+            
+            // Load the customer if not loaded
+            if (ticket.Customer == null)
+            {
+                ticket.Customer = await _customerRepository.GetByIdAsync(ticket.CustomerId);
             }
             
             ticket.Status = "Cancelled";
@@ -130,8 +143,8 @@ namespace TicketingSystem.Core.Services
             {
                 TicketId = ticket.Id,
                 TicketNumber = ticket.TicketNumber,
-                EventTitle = ticket.Event.Title,
-                CustomerEmail = ticket.Customer.Email
+                EventTitle = ticket.Event?.Title ?? "Unknown Event",
+                CustomerEmail = ticket.Customer?.Email ?? "Unknown Email"
             });
             
             return true;

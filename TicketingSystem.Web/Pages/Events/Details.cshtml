@@ -36,9 +36,16 @@
                     <h2 class="text-center mb-4">@Model.Event.Title</h2>
                     <div class="row align-items-center mb-4">
                         <div class="col-md-5 text-center mb-3 mb-md-0">
-                            <div class="placeholder-img d-flex align-items-center justify-content-center" style="height: 200px; width: 100%; border: 1px solid #e0e0e0;">
-                                <span class="display-1">X</span>
-                            </div>
+                            @if (!string.IsNullOrEmpty(Model.Event.ImageUrl))
+                            {
+                                <img src="@Model.Event.ImageUrl" alt="@Model.Event.Title" class="img-fluid" style="max-height: 200px; width: 100%; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="placeholder-img d-flex align-items-center justify-content-center" style="height: 200px; width: 100%; border: 1px solid #e0e0e0;">
+                                    <span class="display-1">X</span>
+                                </div>
+                            }
                         </div>
                         <div class="col-md-7">
                             <div class="mb-3">
@@ -118,5 +125,14 @@
 <style>
     .event-description p {
         white-space: pre-line;
+    }
+    
+    .placeholder-img {
+        background-color: #f5f5f5;
+    }
+    
+    .placeholder-img span {
+        font-size: 40px;
+        color: #aaa;
     }
 </style>

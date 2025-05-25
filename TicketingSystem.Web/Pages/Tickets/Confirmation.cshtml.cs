@@ -19,7 +19,7 @@ namespace TicketingSystem.Web.Pages.Tickets
         private readonly IPaymentService _paymentService;
 
         [BindProperty(SupportsGet = true)]
-        public Guid TicketId { get; set; }
+        public Guid Id { get; set; }
 
         public Ticket Ticket { get; set; }
         public Event Event { get; set; }
@@ -48,7 +48,7 @@ namespace TicketingSystem.Web.Pages.Tickets
 
         public async Task<IActionResult> OnGetAsync()
         {
-            if (TicketId == Guid.Empty)
+            if (Id == Guid.Empty)
             {
                 ErrorMessage = "Invalid ticket ID.";
                 return Page();
@@ -64,7 +64,7 @@ namespace TicketingSystem.Web.Pages.Tickets
 
             try
             {
-                Ticket = await _ticketRepository.GetByIdAsync(TicketId);
+                Ticket = await _ticketRepository.GetByIdAsync(Id);
 
                 if (Ticket == null)
                 {
@@ -99,7 +99,6 @@ namespace TicketingSystem.Web.Pages.Tickets
                 CanBeCancelled = (Event.StartDate > DateTime.Now) && (Ticket.Status == "Sold");
                 
                 // Calculate refund eligibility based on event policy
-                // For example, refund available if event is more than 48 hours away
                 TimeSpan timeUntilEvent = Event.StartDate - DateTime.Now;
                 CanBeRefunded = CanBeCancelled && timeUntilEvent.TotalHours > 48;
                 
@@ -120,49 +119,27 @@ namespace TicketingSystem.Web.Pages.Tickets
 
         public async Task<IActionResult> OnPostCancelTicketAsync()
         {
-            if (TicketId == Guid.Empty)
-            {
-                ErrorMessage = "Invalid ticket ID.";
-                return Page();
-            }
-
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            
-            if (string.IsNullOrEmpty(userId))
-            {
-                ErrorMessage = "Authentication error. Please sign in again.";
-                return RedirectToPage("/Account/Login");
-            }
-
             try
             {
-                // Get the ticket
-                Ticket = await _ticketRepository.GetByIdAsync(TicketId);
-
-                if (Ticket == null)
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                
+                if (string.IsNullOrEmpty(userId))
                 {
-                    ErrorMessage = "Ticket not found.";
-                    return Page();
-                }
-
-                // Check if the ticket belongs to the current user
-                if (Ticket.CustomerId.ToString() != userId)
-                {
-                    ErrorMessage = "You are not authorized to cancel this ticket.";
-                    return Page();
-                }
-
-                // Get the event
-                Event = await _eventService.GetEventByIdAsync(Ticket.EventId);
-
-                if (Event == null)
-                {
-                    ErrorMessage = "Event not found.";
-                    return Page();
+                    return RedirectToPage("/Account/Login");
                 }
 
                 // Cancel the ticket
-                await _ticketPurchaseFacade.CancelTicketAsync(TicketId, Guid.Parse(userId));
+                var cancellationResult = await _ticketPurchaseFacade.CancelTicketAsync(Id, Guid.Parse(userId));
+                
+                if (!cancellationResult)
+                {
+                    TempData["ErrorMessage"] = "Failed to cancel the ticket. Please try again.";
+                    return RedirectToPage("/Dashboard/Index");
+                }
+
+                // Get the ticket and event details for refund processing
+                Ticket = await _ticketRepository.GetByIdAsync(Id);
+                Event = await _eventService.GetEventByIdAsync(Ticket.EventId);
                 
                 // Process refund if eligible
                 TimeSpan timeUntilEvent = Event.StartDate - DateTime.Now;
@@ -177,33 +154,20 @@ namespace TicketingSystem.Web.Pages.Tickets
                     Ticket.RefundId = refundId;
                     await _ticketRepository.UpdateAsync(Ticket);
                     
-                    RefundIssued = true;
-                    SuccessMessage = "Your ticket has been cancelled and a refund has been issued.";
+                    TempData["SuccessMessage"] = "Your ticket has been cancelled and a refund has been issued.";
                 }
                 else
                 {
-                    SuccessMessage = "Your ticket has been cancelled. No refund was issued due to the event's refund policy.";
+                    TempData["SuccessMessage"] = "Your ticket has been cancelled. No refund was issued due to the event's refund policy.";
                 }
-                
-                // Refresh ticket data
-                Ticket = await _ticketRepository.GetByIdAsync(TicketId);
-                
-                // Check if ticket can be cancelled (event hasn't started and ticket isn't already cancelled)
-                CanBeCancelled = (Event.StartDate > DateTime.Now) && (Ticket.Status == "Sold");
-                
-                // Calculate refund eligibility based on event policy
-                CanBeRefunded = CanBeCancelled && timeUntilEvent.TotalHours > 48;
-                
-                // Calculate refund amount (example: full refund if eligible)
-                RefundAmount = CanBeRefunded ? Ticket.Price : 0;
 
-                return Page();
+                return RedirectToPage("/Dashboard/Index");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error cancelling ticket");
-                ErrorMessage = "An error occurred while cancelling the ticket.";
-                return Page();
+                TempData["ErrorMessage"] = "An error occurred while cancelling the ticket.";
+                return RedirectToPage("/Dashboard/Index");
             }
         }
     }

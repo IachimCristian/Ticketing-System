@@ -28,8 +28,8 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddScoped<TicketPurchaseFacade>();
-builder.Services.AddScoped<ITicketPurchaseFacade>(provider => provider.GetRequiredService<TicketPurchaseFacade>());
+builder.Services.AddScoped<TicketViewService>();
+builder.Services.AddScoped<TicketCancellationService>();
 builder.Services.AddSingleton<INotificationSubject, NotificationService>();
 builder.Services.AddSingleton<EmailNotificationObserver>();
 builder.Services.AddSingleton<SMSNotificationObserver>();
@@ -51,6 +51,32 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+});
+
+// Add authentication configuration
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = "Cookies";
+    options.DefaultChallengeScheme = "Cookies";
+})
+.AddCookie("Cookies", options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+});
+
+// Add authorization policies
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireClaim("UserType", "Admin"));
+        
+    options.AddPolicy("OrganizerOnly", policy =>
+        policy.RequireClaim("UserType", "Organizer"));
+        
+    options.AddPolicy("CustomerOnly", policy =>
+        policy.RequireClaim("UserType", "Customer"));
 });
 
 var app = builder.Build();
@@ -78,6 +104,8 @@ app.UseRouting();
 // Use session middleware
 app.UseSession();
 
+// Add authentication middleware
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();

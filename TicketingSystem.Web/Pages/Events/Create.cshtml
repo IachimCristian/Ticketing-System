@@ -61,6 +61,12 @@
         <input asp-for="EventInput.TicketPrice" type="number" step="0.01" class="form-control" />
         <span asp-validation-for="EventInput.TicketPrice" class="text-danger"></span>
     </div>
+    <div class="mb-3">
+        <label asp-for="EventInput.ImageUrl" class="form-label">Image URL</label>
+        <input asp-for="EventInput.ImageUrl" class="form-control" />
+        <small class="form-text text-muted">Enter a URL to an image (e.g., https://picsum.photos/seed/event1/200/300)</small>
+        <span asp-validation-for="EventInput.ImageUrl" class="text-danger"></span>
+    </div>
     <button type="submit" class="btn btn-primary">Create Event</button>
     <a asp-page="/Events/Index" class="btn btn-secondary">Cancel</a>
 </form>

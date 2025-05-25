@@ -4,14 +4,17 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using TicketingSystem.Core.Services;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using IAuthService = TicketingSystem.Core.Services.IAuthenticationService;
 
 namespace TicketingSystem.Web.Pages.Account
 {
     public class LoginModel : PageModel
     {
-        private readonly IAuthenticationService _authService;
+        private readonly IAuthService _authService;
 
-        public LoginModel(IAuthenticationService authService)
+        public LoginModel(IAuthService authService)
         {
             _authService = authService;
         }
@@ -56,7 +59,26 @@ namespace TicketingSystem.Web.Pages.Account
                     // Get user type (Admin, Customer, Organizer)
                     string userType = _authService.GetUserType(user);
                     
-                    // Store user details in session
+                    // Create claims for the user
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                        new Claim(ClaimTypes.Name, user.Username),
+                        new Claim(ClaimTypes.Email, user.Email),
+                        new Claim("UserType", userType)
+                    };
+
+                    var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+                    var authProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = LoginInput.RememberMe,
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                    };
+
+                    // Sign in the user
+                    await HttpContext.SignInAsync("Cookies", new ClaimsPrincipal(claimsIdentity), authProperties);
+                    
+                    // Store user details in session for backward compatibility
                     HttpContext.Session.SetString("UserId", user.Id.ToString());
                     HttpContext.Session.SetString("Username", user.Username);
                     HttpContext.Session.SetString("Email", user.Email);

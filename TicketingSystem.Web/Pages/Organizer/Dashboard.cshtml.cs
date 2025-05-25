@@ -7,9 +7,12 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using TicketingSystem.Core.Interfaces;
 using TicketingSystem.Core.Entities;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace TicketingSystem.Web.Pages.Organizer
 {
+    [Authorize(Policy = "OrganizerOnly")]
     public class DashboardModel : PageModel
     {
         private readonly IEventRepository _eventRepository;
@@ -25,19 +28,13 @@ namespace TicketingSystem.Web.Pages.Organizer
         
         public async Task<IActionResult> OnGetAsync()
         {
-            // Check if user is logged in and is an organizer
-            var userId = HttpContext.Session.GetString("UserId");
-            Username = HttpContext.Session.GetString("Username");
-            var userType = HttpContext.Session.GetString("UserType");
-            
-            if (string.IsNullOrEmpty(userId) || userType != "Organizer")
-            {
-                return RedirectToPage("/Account/Login");
-            }
+            // Get user info from claims
+            Username = User.Identity.Name;
             
             try
             {
                 // Get events for this organizer
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (Guid.TryParse(userId, out Guid organizerId))
                 {
                     var events = await _eventRepository.GetEventsByOrganizerAsync(organizerId);

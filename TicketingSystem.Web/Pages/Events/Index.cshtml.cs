@@ -23,6 +23,7 @@ namespace TicketingSystem.Web.Pages.Events
 
         public List<EventViewModel> Events { get; set; } = new List<EventViewModel>();
         public string SearchTerm { get; set; }
+        public string DebugInfo { get; set; } // Added for debugging
 
         public async Task OnGetAsync(string searchTerm = null)
         {
@@ -33,6 +34,8 @@ namespace TicketingSystem.Web.Pages.Events
 
                 try
                 {
+                    _logger.LogInformation($"Current DateTime: {DateTime.Now}, UTC: {DateTime.UtcNow}");
+                    
                     if (!string.IsNullOrWhiteSpace(SearchTerm))
                     {
                         // If there's a search term, use search functionality
@@ -42,13 +45,22 @@ namespace TicketingSystem.Web.Pages.Events
                     {
                         // Otherwise get all upcoming events
                         events = await _eventService.GetUpcomingEventsAsync();
+                        _logger.LogInformation($"Retrieved {events.Count()} events from service");
+                        foreach (var evt in events)
+                        {
+                            _logger.LogInformation($"Event: {evt.Id}, Title: {evt.Title}, StartDate: {evt.StartDate}, IsActive: {evt.IsActive}");
+                        }
                     }
+                    
+                    // Store debug info
+                    DebugInfo = $"Found {events.Count()} events. Current time: {DateTime.Now.ToString()}";
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Database error fetching events: {Message}", ex.Message);
                     // Continue with empty events collection
                     ModelState.AddModelError(string.Empty, "Could not retrieve events from the database. The database schema may need to be updated.");
+                    DebugInfo = $"Error: {ex.Message}";
                 }
 
                 // Map database events to view models
@@ -61,8 +73,10 @@ namespace TicketingSystem.Web.Pages.Events
                     Description = e.Description,
                     TicketPrice = e.TicketPrice,
                     Capacity = e.Capacity,
-                    AvailableSeatCount = CalculateAvailableSeats(e),
-                    // Determine status based on ticket availability
+                    ImageUrl = e.ImageUrl,
+                    // Default to full capacity if tickets collection is null
+                    AvailableSeatCount = e.Capacity, 
+                    // Determine status based on availability and dates
                     Status = DetermineEventStatus(e)
                 }).ToList();
             }
@@ -70,12 +84,17 @@ namespace TicketingSystem.Web.Pages.Events
             {
                 _logger.LogError(ex, "Error in page processing: {Message}", ex.Message);
                 ModelState.AddModelError(string.Empty, "An error occurred while processing the page.");
+                DebugInfo = $"Fatal error: {ex.Message}";
             }
         }
 
         private int CalculateAvailableSeats(Event e)
         {
-            int soldTickets = e.Tickets?.Count(t => t.Status != "Cancelled") ?? 0;
+            // If Tickets is null, we assume all seats are available
+            if (e.Tickets == null)
+                return e.Capacity;
+                
+            int soldTickets = e.Tickets.Count(t => t.Status != "Cancelled");
             return e.Capacity - soldTickets;
         }
 
@@ -88,6 +107,10 @@ namespace TicketingSystem.Web.Pages.Events
             if (e.StartDate < DateTime.Now)
                 return "Completed";
             
+            // For events with no ticket data, just show as Available
+            if (e.Tickets == null || !e.Tickets.Any())
+                return "Available";
+                
             int availableSeats = CalculateAvailableSeats(e);
             
             if (availableSeats <= 0)
@@ -111,5 +134,6 @@ namespace TicketingSystem.Web.Pages.Events
         public int Capacity { get; set; }
         public int AvailableSeatCount { get; set; }
         public string Status { get; set; }
+        public string ImageUrl { get; set; }
     }
 } 

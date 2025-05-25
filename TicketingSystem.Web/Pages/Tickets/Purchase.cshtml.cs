@@ -38,25 +38,27 @@ namespace TicketingSystem.Web.Pages.Tickets
         public Guid EventId { get; set; }
 
         [BindProperty]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a seat.")]
         public int SelectedRow { get; set; }
 
         [BindProperty]
+        [Range(0, int.MaxValue, ErrorMessage = "Please select a seat.")]
         public int SelectedColumn { get; set; }
 
         [BindProperty]
-        public string PaymentMethod { get; set; } = "CreditCard";
+        public string PaymentMethod { get; set; } = "creditcard";
 
         [BindProperty]
         [CreditCard(ErrorMessage = "The CardNumber field is not a valid credit card number.")]
-        [RequiredIf("PaymentMethod", "CreditCard", ErrorMessage = "Card Number is required when using Credit Card payment.")]
+        [RequiredIf("PaymentMethod", "creditcard", ErrorMessage = "Card Number is required when using Credit Card payment.")]
         public string CardNumber { get; set; }
 
         [BindProperty]
-        [RequiredIf("PaymentMethod", "CreditCard", ErrorMessage = "Expiry Date is required when using Credit Card payment.")]
+        [RequiredIf("PaymentMethod", "creditcard", ErrorMessage = "Expiry Date is required when using Credit Card payment.")]
         public string ExpiryDate { get; set; }
 
         [BindProperty]
-        [RequiredIf("PaymentMethod", "CreditCard", ErrorMessage = "CVV is required when using Credit Card payment.")]
+        [RequiredIf("PaymentMethod", "creditcard", ErrorMessage = "CVV is required when using Credit Card payment.")]
         public string Cvv { get; set; }
 
         public Event Event { get; set; }
@@ -134,33 +136,44 @@ namespace TicketingSystem.Web.Pages.Tickets
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // Skip validation for credit card fields if PayPal is selected
-            if (PaymentMethod == "PayPal")
-            {
-                ModelState.Remove("CardNumber");
-                ModelState.Remove("ExpiryDate");
-                ModelState.Remove("Cvv");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                await OnGetAsync();
-                return Page();
-            }
-
-            // Get user ID from session
-            var userIdStr = HttpContext.Session.GetString("UserId");
-            if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out Guid customerId))
-            {
-                return RedirectToPage("/Account/Login");
-            }
-
             try
             {
+                _logger.LogInformation("Starting ticket purchase process...");
+                _logger.LogInformation("Selected Row: {Row}, Column: {Column}, Payment Method: {PaymentMethod}",
+                    SelectedRow, SelectedColumn, PaymentMethod);
+
+                // Skip validation for credit card fields if PayPal is selected
+                if (PaymentMethod.ToLower() == "paypal")
+                {
+                    ModelState.Remove("CardNumber");
+                    ModelState.Remove("ExpiryDate");
+                    ModelState.Remove("Cvv");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogWarning("Model state is invalid. Errors: {Errors}",
+                        string.Join(", ", ModelState.Values
+                            .SelectMany(v => v.Errors)
+                            .Select(e => e.ErrorMessage)));
+                    await OnGetAsync();
+                    return Page();
+                }
+
+                // Get user ID from session
+                var userIdStr = HttpContext.Session.GetString("UserId");
+                if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out Guid customerId))
+                {
+                    _logger.LogWarning("User not logged in or invalid user ID");
+                    return RedirectToPage("/Account/Login");
+                }
+
                 // Reserve the selected seat
                 var seat = await _seatMapService.ReserveSeatAsync(EventId, SelectedRow, SelectedColumn, customerId);
                 if (seat == null)
                 {
+                    _logger.LogWarning("Selected seat is not available. Row: {Row}, Column: {Column}",
+                        SelectedRow, SelectedColumn);
                     ErrorMessage = "The selected seat is not available.";
                     await OnGetAsync();
                     return Page();
@@ -170,6 +183,7 @@ namespace TicketingSystem.Web.Pages.Tickets
                 var eventDetails = await _eventService.GetEventByIdAsync(EventId);
                 if (eventDetails == null)
                 {
+                    _logger.LogWarning("Event not found. EventId: {EventId}", EventId);
                     ErrorMessage = "Event not found";
                     await OnGetAsync();
                     return Page();
@@ -185,6 +199,9 @@ namespace TicketingSystem.Web.Pages.Tickets
                 decimal priceMultiplier = section?.PriceMultiplier ?? 1.0m;
                 decimal finalPrice = eventDetails.TicketPrice * priceMultiplier;
 
+                _logger.LogInformation("Processing purchase - Event: {EventId}, Customer: {CustomerId}, Price: {Price}, Payment Method: {PaymentMethod}",
+                    EventId, customerId, finalPrice, PaymentMethod);
+
                 // Purchase the ticket
                 var ticket = await _ticketPurchaseFacade.PurchaseTicketAsync(
                     EventId, 
@@ -192,14 +209,16 @@ namespace TicketingSystem.Web.Pages.Tickets
                     finalPrice,
                     SelectedRow,
                     SelectedColumn,
-                    null);
+                    PaymentMethod);
+
+                _logger.LogInformation("Ticket purchased successfully. TicketId: {TicketId}", ticket.Id);
                 
                 // Redirect to the confirmation page with the ticket ID
                 return RedirectToPage("/Tickets/Confirmation", new { ticketId = ticket.Id });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error purchasing ticket, EventId: {EventId}, CustomerId: {CustomerId}", EventId, customerId);
+                _logger.LogError(ex, "Error purchasing ticket, EventId: {EventId}", EventId);
                 ErrorMessage = $"An error occurred while purchasing the ticket: {ex.Message}";
                 await OnGetAsync();
                 return Page();

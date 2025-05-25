@@ -52,7 +52,9 @@ namespace TicketingSystem.Core.Entities
         
         private string GenerateTicketNumber()
         {
-            return $"TIX-{DateTime.UtcNow.ToString("yyyyMMdd")}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+            // Format: TIX-YYMMDD-XXXX (16 chars)
+            // YY = year, MM = month, DD = day, XXXX = random hex
+            return $"TIX-{DateTime.UtcNow.ToString("yyMMdd")}-{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}";
         }
     }
 } 

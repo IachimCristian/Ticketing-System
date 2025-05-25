@@ -7,9 +7,12 @@ using System.Linq;
 using TicketingSystem.Core.Interfaces;
 using TicketingSystem.Core.Entities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace TicketingSystem.Web.Pages.Dashboard
 {
+    [Authorize]
     public class IndexModel : PageModel
     {
         private readonly ITicketRepository _ticketRepository;
@@ -30,25 +33,20 @@ namespace TicketingSystem.Web.Pages.Dashboard
 
         public async Task<IActionResult> OnGetAsync()
         {
-            // Check if user is logged in
-            var userId = HttpContext.Session.GetString("UserId");
-            Username = HttpContext.Session.GetString("Username");
-            UserType = HttpContext.Session.GetString("UserType");
-            
-            if (string.IsNullOrEmpty(userId))
-            {
-                return RedirectToPage("/Account/Login");
-            }
+            // Get user info from claims
+            Username = User.Identity.Name;
+            UserType = User.FindFirst("UserType")?.Value;
             
             // Redirect organizers to organizer dashboard
             if (UserType == "Organizer")
             {
                 return RedirectToPage("/Organizer/Dashboard");
             }
-
+            
             try
             {
-                // Get real purchased tickets for this customer
+                // Get user's purchased tickets and upcoming events
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (Guid.TryParse(userId, out Guid customerId))
                 {
                     var tickets = await _ticketRepository.GetTicketsByCustomerAsync(customerId);

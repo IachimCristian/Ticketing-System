@@ -1,4 +1,4 @@
-@page "{ticketId}"
+@page "{id}"
 @model TicketingSystem.Web.Pages.Tickets.ConfirmationModel
 @{
     ViewData["Title"] = "Ticket Confirmation";
@@ -191,7 +191,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep Ticket</button>
                     <form method="post">
-                        <button type="submit" asp-page-handler="CancelTicketAsync" class="btn btn-danger">Cancel Ticket</button>
+                        <button type="submit" asp-page-handler="CancelTicket" class="btn btn-danger">Cancel Ticket</button>
                     </form>
                 </div>
             </div>

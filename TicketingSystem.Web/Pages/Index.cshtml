@@ -14,9 +14,16 @@
                 foreach (var eventItem in Model.FeaturedEvents)
                 {
                     <div class="event-card">
-                        <div class="placeholder-img">
-                            <span>X</span>
-                        </div>
+                        @if (!string.IsNullOrEmpty(eventItem.ImageUrl))
+                        {
+                            <img src="@eventItem.ImageUrl" alt="@eventItem.Title" class="event-img" />
+                        }
+                        else
+                        {
+                            <div class="placeholder-img">
+                                <span>X</span>
+                            </div>
+                        }
                         <div class="event-info">
                             <h3>@eventItem.Title</h3>
                             <p>@eventItem.Date</p>

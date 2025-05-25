@@ -32,7 +32,10 @@ namespace TicketingSystem.API.Controllers
                 var ticket = await _ticketPurchaseFacade.PurchaseTicketAsync(
                     purchaseDto.EventId,
                     purchaseDto.CustomerId,
-                    paymentAmount);
+                    paymentAmount,
+                    purchaseDto.SeatRow,
+                    purchaseDto.SeatColumn,
+                    purchaseDto.PaymentMethod);
 
                 return CreatedAtAction(nameof(GetTicket), new { id = ticket.Id }, ticket);
             }
@@ -86,6 +89,8 @@ namespace TicketingSystem.API.Controllers
         public Guid EventId { get; set; }
         public Guid CustomerId { get; set; }
         public string PaymentMethod { get; set; }
+        public int? SeatRow { get; set; }
+        public int? SeatColumn { get; set; }
     }
 
     public class CancelTicketDto

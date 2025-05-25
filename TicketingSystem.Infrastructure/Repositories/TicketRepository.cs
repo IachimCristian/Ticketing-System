@@ -51,5 +51,14 @@ namespace TicketingSystem.Infrastructure.Repositories
             
             return isValid;
         }
+
+        public override async Task<Ticket> GetByIdAsync(Guid id)
+        {
+            return await _dbSet
+                .Include(t => t.Event)
+                .Include(t => t.Customer)
+                .Include(t => t.Payment)
+                .FirstOrDefaultAsync(t => t.Id == id);
+        }
     }
 } 

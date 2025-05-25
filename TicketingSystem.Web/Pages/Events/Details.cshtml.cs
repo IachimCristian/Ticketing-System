@@ -1,10 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-<<<<<<< HEAD
 using Microsoft.AspNetCore.Http; 
-=======
 using Microsoft.Extensions.Logging;
->>>>>>> a1f2cea (Fixed issues)
 using System;
 using System.Linq;
 using System.Threading.Tasks;
