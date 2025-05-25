@@ -1,0 +1,254 @@
+@page
+@model TicketingSystem.Web.Pages.Admin.RefundsModel
+@{
+    ViewData["Title"] = "Manage Refunds";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 animate-fade-in-down">
+        <h2 class="mb-0">Manage Refunds</h2>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show alert-animated alert-danger-animated" role="alert">
+            @Model.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show alert-animated alert-success-animated" role="alert">
+            @Model.SuccessMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card card-animated hover-lift animate-fade-in-up animate-delay-1">
+        <div class="card-header">
+            <h5 class="card-title mb-0 animate-fade-in-left">Pending Refunds</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.PendingRefunds.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-animated">
+                        <thead class="animate-fade-in-down">
+                            <tr>
+                                <th>Ticket #</th>
+                                <th>Event</th>
+                                <th>Customer</th>
+                                <th>Purchase Date</th>
+                                <th>Cancel Date</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="stagger-animation">
+                            @foreach (var refund in Model.PendingRefunds)
+                            {
+                                <tr class="hover-lift transition-all">
+                                    <td>@refund.TicketNumber</td>
+                                    <td>@refund.EventTitle</td>
+                                    <td>@refund.CustomerEmail</td>
+                                    <td>@refund.PurchaseDate.ToString("MMM dd, yyyy")</td>
+                                    <td>@refund.CancelDate.ToString("MMM dd, yyyy")</td>
+                                    <td class="fw-bold text-success">$@refund.Amount.ToString("0.00")</td>
+                                    <td>
+                                        <form method="post" class="d-inline">
+                                            <input type="hidden" name="ticketId" value="@refund.TicketId" />
+                                            <button type="submit" asp-page-handler="IssueRefund" 
+                                                    class="btn btn-sm btn-success btn-animated hover-glow me-1">
+                                                <i class="fas fa-check"></i> Issue Refund
+                                            </button>
+                                            <button type="submit" asp-page-handler="DenyRefund"
+                                                    class="btn btn-sm btn-danger btn-animated hover-glow">
+                                                <i class="fas fa-times"></i> Deny
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5 animate-fade-in-up">
+                    <div class="mb-3">
+                        <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+                    </div>
+                    <p class="text-muted mb-0 fs-5">No pending refunds at this time.</p>
+                    <small class="text-muted">All refund requests have been processed!</small>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="card mt-4 card-animated hover-lift animate-fade-in-up animate-delay-2">
+        <div class="card-header">
+            <h5 class="card-title mb-0 animate-fade-in-left">Processed Refunds</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.ProcessedRefunds.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-animated">
+                        <thead class="animate-fade-in-down">
+                            <tr>
+                                <th>Ticket #</th>
+                                <th>Event</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Process Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="stagger-animation">
+                            @foreach (var refund in Model.ProcessedRefunds)
+                            {
+                                <tr class="hover-lift transition-all">
+                                    <td>@refund.TicketNumber</td>
+                                    <td>@refund.EventTitle</td>
+                                    <td>@refund.CustomerEmail</td>
+                                    <td class="fw-bold">$@refund.Amount.ToString("0.00")</td>
+                                    <td>
+                                        @if (refund.IsApproved)
+                                        {
+                                            <span class="badge bg-success animate-glow">
+                                                <i class="fas fa-check"></i> Approved
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times"></i> Denied
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>@(refund.ProcessDate?.ToString("MMM dd, yyyy") ?? "N/A")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5 animate-fade-in-up">
+                    <div class="mb-3">
+                        <i class="fas fa-history text-muted" style="font-size: 3rem;"></i>
+                    </div>
+                    <p class="text-muted mb-0 fs-5">No processed refunds to display.</p>
+                    <small class="text-muted">Processed refunds will appear here once you start handling requests.</small>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add confirmation dialogs for refund actions
+            const refundButtons = document.querySelectorAll('button[asp-page-handler="IssueRefund"]');
+            const denyButtons = document.querySelectorAll('button[asp-page-handler="DenyRefund"]');
+            
+            refundButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    if (!confirm('Are you sure you want to issue this refund? This action cannot be undone.')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+            
+            denyButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    if (!confirm('Are you sure you want to deny this refund request?')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+            
+            // Add ripple effect to action buttons
+            const actionButtons = document.querySelectorAll('.btn-animated');
+            actionButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple');
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+            
+            // Animate amount numbers
+            const amounts = document.querySelectorAll('.fw-bold');
+            amounts.forEach(amount => {
+                if (amount.textContent.includes('$')) {
+                    const finalValue = parseFloat(amount.textContent.replace('$', ''));
+                    let currentValue = 0;
+                    const increment = finalValue / 20;
+                    
+                    const timer = setInterval(() => {
+                        currentValue += increment;
+                        if (currentValue >= finalValue) {
+                            currentValue = finalValue;
+                            clearInterval(timer);
+                        }
+                        amount.textContent = '$' + currentValue.toFixed(2);
+                    }, 50);
+                }
+            });
+        });
+    </script>
+    
+    <style>
+        .btn-success.btn-animated:hover {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-danger.btn-animated:hover {
+            background: linear-gradient(45deg, #dc3545, #e74c3c);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+        }
+        
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            border-radius: 10px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #0056b3, #007bff);
+        }
+        
+        .fas {
+            margin-right: 4px;
+        }
+    </style>
+} 

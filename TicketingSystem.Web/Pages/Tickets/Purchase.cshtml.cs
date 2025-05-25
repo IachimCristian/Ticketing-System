@@ -16,23 +16,8 @@ namespace TicketingSystem.Web.Pages.Tickets
     {
         private readonly IEventService _eventService;
         private readonly ISeatMapService _seatMapService;
-        private readonly TicketPurchaseFacade _ticketPurchaseFacade;
-        private readonly IUserRepository<Customer> _customerRepository;
+        private readonly TicketPurchaseService _ticketPurchaseService;
         private readonly ILogger<PurchaseModel> _logger;
-
-        public PurchaseModel(
-            IEventService eventService,
-            ISeatMapService seatMapService,
-            TicketPurchaseFacade ticketPurchaseFacade,
-            IUserRepository<Customer> customerRepository,
-            ILogger<PurchaseModel> logger)
-        {
-            _eventService = eventService;
-            _seatMapService = seatMapService;
-            _ticketPurchaseFacade = ticketPurchaseFacade;
-            _customerRepository = customerRepository;
-            _logger = logger;
-        }
 
         [BindProperty(SupportsGet = true)]
         public Guid EventId { get; set; }
@@ -66,11 +51,23 @@ namespace TicketingSystem.Web.Pages.Tickets
         public List<SeatSectionViewModel> SeatSections { get; set; } = new List<SeatSectionViewModel>();
         public string ErrorMessage { get; set; }
 
+        public PurchaseModel(
+            IEventService eventService,
+            ISeatMapService seatMapService,
+            TicketPurchaseService ticketPurchaseService,
+            ILogger<PurchaseModel> logger)
+        {
+            _eventService = eventService;
+            _seatMapService = seatMapService;
+            _ticketPurchaseService = ticketPurchaseService;
+            _logger = logger;
+        }
+
         public async Task<IActionResult> OnGetAsync()
         {
             // Check if user is logged in
-            var userIdStr = HttpContext.Session.GetString("UserId");
-            if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out Guid userId))
+            var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr))
             {
                 return RedirectToPage("/Account/Login", new { returnUrl = $"/Tickets/Purchase/{EventId}" });
             }
@@ -139,8 +136,6 @@ namespace TicketingSystem.Web.Pages.Tickets
             try
             {
                 _logger.LogInformation("Starting ticket purchase process...");
-                _logger.LogInformation("Selected Row: {Row}, Column: {Column}, Payment Method: {PaymentMethod}",
-                    SelectedRow, SelectedColumn, PaymentMethod);
 
                 // Skip validation for credit card fields if PayPal is selected
                 if (PaymentMethod.ToLower() == "paypal")
@@ -152,74 +147,57 @@ namespace TicketingSystem.Web.Pages.Tickets
 
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogWarning("Model state is invalid. Errors: {Errors}",
-                        string.Join(", ", ModelState.Values
-                            .SelectMany(v => v.Errors)
-                            .Select(e => e.ErrorMessage)));
                     await OnGetAsync();
                     return Page();
                 }
 
-                // Get user ID from session
-                var userIdStr = HttpContext.Session.GetString("UserId");
-                if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out Guid customerId))
+                // Get user ID from claims
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
                 {
-                    _logger.LogWarning("User not logged in or invalid user ID");
                     return RedirectToPage("/Account/Login");
-                }
-
-                // Reserve the selected seat
-                var seat = await _seatMapService.ReserveSeatAsync(EventId, SelectedRow, SelectedColumn, customerId);
-                if (seat == null)
-                {
-                    _logger.LogWarning("Selected seat is not available. Row: {Row}, Column: {Column}",
-                        SelectedRow, SelectedColumn);
-                    ErrorMessage = "The selected seat is not available.";
-                    await OnGetAsync();
-                    return Page();
                 }
 
                 // Get the event to find the ticket price
                 var eventDetails = await _eventService.GetEventByIdAsync(EventId);
                 if (eventDetails == null)
                 {
-                    _logger.LogWarning("Event not found. EventId: {EventId}", EventId);
                     ErrorMessage = "Event not found";
                     await OnGetAsync();
                     return Page();
                 }
-                
-                // Get the seat section price multiplier
-                var seatMap = await _seatMapService.GetSeatMapForEventAsync(EventId);
-                var section = seatMap.Sections.FirstOrDefault(s => 
-                    SelectedRow >= s.StartRow && SelectedRow <= s.EndRow && 
-                    SelectedColumn >= s.StartColumn && SelectedColumn <= s.EndColumn);
-                
+
                 // Calculate the final price
-                decimal priceMultiplier = section?.PriceMultiplier ?? 1.0m;
-                decimal finalPrice = eventDetails.TicketPrice * priceMultiplier;
+                decimal finalPrice = eventDetails.TicketPrice;
 
                 _logger.LogInformation("Processing purchase - Event: {EventId}, Customer: {CustomerId}, Price: {Price}, Payment Method: {PaymentMethod}",
-                    EventId, customerId, finalPrice, PaymentMethod);
+                    EventId, userId, finalPrice, PaymentMethod);
 
                 // Purchase the ticket
-                var ticket = await _ticketPurchaseFacade.PurchaseTicketAsync(
-                    EventId, 
-                    customerId, 
+                var ticket = await _ticketPurchaseService.PurchaseTicketAsync(
+                    EventId,
+                    Guid.Parse(userId),
                     finalPrice,
                     SelectedRow,
                     SelectedColumn,
                     PaymentMethod);
 
                 _logger.LogInformation("Ticket purchased successfully. TicketId: {TicketId}", ticket.Id);
-                
-                // Redirect to the confirmation page with the ticket ID
-                return RedirectToPage("/Tickets/Confirmation", new { ticketId = ticket.Id });
+
+                // Redirect to the confirmation page
+                return RedirectToPage("/Tickets/Confirmation", new { id = ticket.Id });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Invalid operation during ticket purchase");
+                ErrorMessage = ex.Message;
+                await OnGetAsync();
+                return Page();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error purchasing ticket, EventId: {EventId}", EventId);
-                ErrorMessage = $"An error occurred while purchasing the ticket: {ex.Message}";
+                _logger.LogError(ex, "Error purchasing ticket");
+                ErrorMessage = "An error occurred while purchasing the ticket.";
                 await OnGetAsync();
                 return Page();
             }
@@ -252,11 +230,10 @@ namespace TicketingSystem.Web.Pages.Tickets
         private readonly string _propertyName;
         private readonly object _desiredValue;
 
-        public RequiredIfAttribute(string propertyName, object desiredValue, string errorMessage = "")
+        public RequiredIfAttribute(string propertyName, object desiredValue)
         {
             _propertyName = propertyName;
             _desiredValue = desiredValue;
-            ErrorMessage = errorMessage;
         }
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
@@ -265,12 +242,9 @@ namespace TicketingSystem.Web.Pages.Tickets
             var type = instance.GetType();
             var propertyValue = type.GetProperty(_propertyName).GetValue(instance, null);
 
-            if (propertyValue?.ToString() == _desiredValue.ToString())
+            if (propertyValue.ToString().ToLower() == _desiredValue.ToString().ToLower() && string.IsNullOrEmpty(value?.ToString()))
             {
-                if (value == null || (value is string stringValue && string.IsNullOrWhiteSpace(stringValue)))
-                {
-                    return new ValidationResult(ErrorMessage);
-                }
+                return new ValidationResult(ErrorMessage);
             }
 
             return ValidationResult.Success;

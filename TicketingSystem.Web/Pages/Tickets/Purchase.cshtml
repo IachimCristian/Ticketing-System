@@ -80,16 +80,6 @@
                         </div>
                     </div>
 
-                    <div class="airplane-header text-center mb-3">
-                        <div class="airplane-front">Front</div>
-                    </div>
-                    
-                    @* Debug info *@
-                    <div class="text-muted small mb-2">
-                        @Model.SeatLayout.Count rows, 
-                        @(Model.SeatLayout.Count > 0 ? Model.SeatLayout[0].Count : 0) columns per row
-                    </div>
-                    
                     <div class="airplane-container">
                         @for (int i = 0; i < Model.SeatLayout.Count; i++)
                         {
@@ -122,7 +112,7 @@
                                         }
                                         else
                                         {
-                                            <div class="@seatClass" title="Unavailable">@seatNumber</div>
+                                            <div class="@seatClass" title="Seat unavailable - Already purchased">@seatNumber</div>
                                         }
                                     </div>
                                 }
@@ -197,12 +187,6 @@
 <style>
     .event-image-placeholder {
         height: 150px;
-        background-color: #f5f5f5;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 3rem;
-        color: #ccc;
     }
     
     .seat-selection-container {

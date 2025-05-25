@@ -30,6 +30,7 @@ builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<TicketViewService>();
 builder.Services.AddScoped<TicketCancellationService>();
+builder.Services.AddScoped<TicketPurchaseService>();
 builder.Services.AddSingleton<INotificationSubject, NotificationService>();
 builder.Services.AddSingleton<EmailNotificationObserver>();
 builder.Services.AddSingleton<SMSNotificationObserver>();
@@ -93,8 +94,8 @@ if (!app.Environment.IsDevelopment())
 var notificationService = app.Services.GetRequiredService<INotificationSubject>();
 var emailObserver = app.Services.GetRequiredService<EmailNotificationObserver>();
 var smsObserver = app.Services.GetRequiredService<SMSNotificationObserver>();
-notificationService.RegisterObserverAsync(emailObserver).GetAwaiter().GetResult();
-notificationService.RegisterObserverAsync(smsObserver).GetAwaiter().GetResult();
+await notificationService.RegisterObserverAsync(emailObserver);
+await notificationService.RegisterObserverAsync(smsObserver);
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

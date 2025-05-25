@@ -52,23 +52,66 @@
 }
 
 .admin-nav-item {
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    margin-left: 15px;
+    margin-right: 15px;
 }
 
 .admin-nav-item a {
     display: block;
-    padding: 12px 25px;
-    color: #333;
+    padding: 12px 20px;
+    color: #495057;
     text-decoration: none;
     font-weight: 500;
     transition: all 0.3s ease;
-    border-left: 4px solid transparent;
+    border-radius: 8px;
+    border: none;
+    position: relative;
 }
 
-.admin-nav-item.active a,
+.admin-nav-item a i {
+    margin-right: 10px;
+    width: 18px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* Hover state */
+.admin-nav-item:hover {
+    background: linear-gradient(135deg, rgba(33, 33, 33, 0.08), rgba(33, 33, 33, 0.04));
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.admin-nav-item:hover a {
+    color: #212121;
+    background: transparent;
+}
+
+/* Active state - much darker for better contrast */
+.admin-nav-item.active {
+    background: linear-gradient(135deg, #212121, #333333) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(33, 33, 33, 0.3) !important;
+    transform: translateX(8px);
+}
+
+.admin-nav-item.active a {
+    color: white !important;
+    background: transparent !important;
+    font-weight: 600;
+}
+
+.admin-nav-item.active a i {
+    color: white !important;
+}
+
+/* Remove the old border-left styling */
 .admin-nav-item a:hover {
-    background-color: #f0f0f0;
-    border-left-color: #333;
+    background-color: transparent;
+    border-left-color: transparent;
 }
 
 /* Dashboard Content Styles */

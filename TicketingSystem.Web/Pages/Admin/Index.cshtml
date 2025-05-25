@@ -9,7 +9,7 @@
     <h3 class="mb-4">Dashboard Overview</h3>
     
     <div class="row">
-        <div class="col-md-4 mb-4">
+        <div class="col-md-3 mb-4">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Users</h5>
@@ -19,7 +19,7 @@
             </div>
         </div>
         
-        <div class="col-md-4 mb-4">
+        <div class="col-md-3 mb-4">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Events</h5>
@@ -29,12 +29,22 @@
             </div>
         </div>
         
-        <div class="col-md-4 mb-4">
+        <div class="col-md-3 mb-4">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Transactions</h5>
                     <p class="card-text">Total: @Model.TransactionCount</p>
                     <a href="#" class="btn btn-dark btn-sm" onclick="showSection('transactions')">View Transactions</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Refunds</h5>
+                    <p class="card-text">Manage ticket refunds</p>
+                    <a href="/Admin/Refunds" class="btn btn-dark btn-sm">Manage Refunds</a>
                 </div>
             </div>
         </div>

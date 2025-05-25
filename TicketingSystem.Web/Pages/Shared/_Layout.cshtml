@@ -7,37 +7,42 @@
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TicketingSystem.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 navbar-animated">
             <div class="container">
-                <div class="logo">
-                    <img src="~/images/logo-no-background.png" alt="Ticksy" class="logo-img" />
-                </div>
+                <a asp-page="/Index" class="logo animate-fade-in-left text-decoration-none">
+                    <!-- Try image logo first, fallback to text logo -->
+                    <img src="~/images/logo-no-background.png" alt="Ticksy" class="logo-img hover-scale" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                    <span class="logo-text hover-scale" style="display: none;">Ticksy</span>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between animate-fade-in-right">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link text-dark nav-link-animated" asp-area="" asp-page="/Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Events/Index">Events</a>
+                            <a class="nav-link text-dark nav-link-animated" asp-area="" asp-page="/Events/Index">Events</a>
                         </li>
                         @if (Context.Session.GetString("UserType") == "Organizer")
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Events/Create">Create Event</a>
+                                <a class="nav-link text-dark nav-link-animated" asp-area="" asp-page="/Events/Create">Create Event</a>
                             </li>
                         }
                         @if (Context.Session.GetString("UserType") == "Admin")
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Admin/Index">Admin Dashboard</a>
+                                <a class="nav-link text-dark nav-link-animated" asp-area="" asp-page="/Admin/Index">Admin Dashboard</a>
                             </li>
                         }
                     </ul>
@@ -45,10 +50,10 @@
                         @if (Context.Session.GetString("Username") != null)
                         {
                             <div class="dropdown">
-                                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="btn btn-outline-primary dropdown-toggle btn-animated" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                     Welcome, @Context.Session.GetString("Username")
                                 </button>
-                                <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                                <ul class="dropdown-menu animate-fade-in-down" aria-labelledby="userDropdown">
                                     <li><a class="dropdown-item" asp-page="/Dashboard/Index">My Dashboard</a></li>
                                     @if (Context.Session.GetString("UserType") == "Admin")
                                     {
@@ -61,8 +66,8 @@
                         }
                         else
                         {
-                            <a asp-page="/Account/Login" class="btn btn-outline-primary me-2">Login</a>
-                            <a asp-page="/Account/Register" class="btn btn-primary">Register</a>
+                            <a asp-page="/Account/Login" class="btn btn-outline-primary me-2 btn-animated">Login</a>
+                            <a asp-page="/Account/Register" class="btn btn-primary btn-animated">Register</a>
                         }
                     </div>
                 </div>
@@ -70,21 +75,116 @@
         </nav>
     </header>
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main" class="pb-3 animate-fade-in-up">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer text-muted animate-fade-in-up animate-delay-2">
         <div class="container py-3">
-            &copy; 2023 - Ticksy - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="footer-copyright mb-0">&copy; 2025 Ticksy. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="footer-credits mb-0">
+                        Developed with <i class="fas fa-heart text-danger"></i> by 
+                        <a href="https://github.com/IachimCristian" target="_blank" rel="noopener noreferrer" class="dev-credit">Iachim Cristian</a> & 
+                        <a href="https://github.com/AlexandruSerbicean" target="_blank" rel="noopener noreferrer" class="dev-credit">Serbicean Alexandru</a>
+                    </p>
+                </div>
+            </div>
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true" />
 
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        // Navbar scroll animation
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar-animated');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Add entrance animations to page elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate cards on page load
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.classList.add('card-animated', 'animate-fade-in-up');
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            // Animate buttons
+            const buttons = document.querySelectorAll('.btn:not(.btn-animated)');
+            buttons.forEach(btn => {
+                btn.classList.add('btn-animated');
+            });
+
+            // Animate tables
+            const tables = document.querySelectorAll('.table');
+            tables.forEach(table => {
+                table.classList.add('table-animated');
+            });
+
+            // Animate alerts
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.classList.add('alert-animated');
+            });
+
+            // Fix dropdown functionality
+            const dropdownToggle = document.getElementById('userDropdown');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+            
+            if (dropdownToggle && dropdownMenu) {
+                // Toggle dropdown on click
+                dropdownToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const isOpen = dropdownMenu.classList.contains('show');
+                    
+                    // Close all other dropdowns
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                    
+                    // Toggle current dropdown
+                    if (!isOpen) {
+                        dropdownMenu.classList.add('show');
+                        dropdownToggle.setAttribute('aria-expanded', 'true');
+                    } else {
+                        dropdownMenu.classList.remove('show');
+                        dropdownToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                        dropdownToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+                
+                // Close dropdown when pressing Escape
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        dropdownMenu.classList.remove('show');
+                        dropdownToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

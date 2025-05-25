@@ -146,7 +146,7 @@
             </a>
             @if (Model.CanBeCancelled)
             {
-                <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#cancelTicketModal">
+                <button type="button" class="btn btn-danger me-2" onclick="showCancelModal()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle me-1" viewBox="0 0 16 16">
                         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -158,15 +158,16 @@
         <a asp-page="/Dashboard/Index" class="btn btn-dark">Go to Dashboard</a>
     </div>
     
-    <!-- Cancel Ticket Modal -->
-    <div class="modal fade" id="cancelTicketModal" tabindex="-1" aria-labelledby="cancelTicketModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="cancelTicketModalLabel">Confirm Ticket Cancellation</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- Beautiful Cancel Ticket Modal -->
+    <div class="custom-modal" id="cancelTicketModal" style="display: none;">
+        <div class="custom-modal-backdrop" onclick="hideCancelModal()"></div>
+        <div class="custom-modal-dialog">
+            <div class="custom-modal-content">
+                <div class="custom-modal-header">
+                    <h5 class="custom-modal-title">Confirm Ticket Cancellation</h5>
+                    <button type="button" class="custom-close-btn" onclick="hideCancelModal()">&times;</button>
                 </div>
-                <div class="modal-body">
+                <div class="custom-modal-body">
                     <p>Are you sure you want to cancel this ticket?</p>
                     <ul>
                         <li>Ticket Number: @Model.Ticket.TicketNumber</li>
@@ -188,9 +189,9 @@
                         </div>
                     }
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep Ticket</button>
-                    <form method="post">
+                <div class="custom-modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" onclick="hideCancelModal()">Keep Ticket</button>
+                    <form method="post" style="display: inline;">
                         <button type="submit" asp-page-handler="CancelTicket" class="btn btn-danger">Cancel Ticket</button>
                     </form>
                 </div>
@@ -226,6 +227,133 @@ else if (string.IsNullOrEmpty(Model.ErrorMessage))
         max-height: 200px;
     }
     
+    /* Beautiful Custom Modal Styles */
+    .custom-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1050;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        animation: fadeIn 0.15s ease-out;
+    }
+    
+    .custom-modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0);
+        backdrop-filter: blur(3px);
+        z-index: 1049;
+    }
+    
+    .custom-modal-dialog {
+        position: relative;
+        width: 100%;
+        max-width: 500px;
+        z-index: 1051;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    .custom-modal-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        background-color: #fff;
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+        overflow: hidden;
+    }
+    
+    .custom-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #dee2e6;
+        background-color: #fff;
+    }
+    
+    .custom-modal-title {
+        margin-bottom: 0;
+        line-height: 1.5;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #212529;
+    }
+    
+    .custom-close-btn {
+        padding: 0.5rem;
+        margin: -0.5rem -0.5rem -0.5rem auto;
+        background: transparent;
+        border: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1;
+        color: #6c757d;
+        cursor: pointer;
+        border-radius: 0.25rem;
+        transition: all 0.15s ease-in-out;
+    }
+    
+    .custom-close-btn:hover {
+        color: #000;
+        background-color: #f8f9fa;
+    }
+    
+    .custom-modal-body {
+        position: relative;
+        flex: 1 1 auto;
+        padding: 1.5rem;
+        background-color: #fff;
+    }
+    
+    .custom-modal-footer {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #dee2e6;
+        background-color: #fff;
+        gap: 0.5rem;
+    }
+    
+    /* Animations */
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @@keyframes slideIn {
+        from { 
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Enhanced button styles in modal */
+    .custom-modal-footer .btn {
+        transition: all 0.15s ease-in-out;
+    }
+    
+    .custom-modal-footer .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+    }
+    
     @* Print styles *@
     @@media print {
         .btn, header, footer, .navbar {
@@ -237,4 +365,30 @@ else if (string.IsNullOrEmpty(Model.ErrorMessage))
             box-shadow: none !important;
         }
     }
-</style> 
+</style>
+
+<script>
+    function showCancelModal() {
+        const modal = document.getElementById('cancelTicketModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    }
+    
+    function hideCancelModal() {
+        const modal = document.getElementById('cancelTicketModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    // Handle ESC key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const modal = document.getElementById('cancelTicketModal');
+            if (modal && modal.style.display === 'flex') {
+                hideCancelModal();
+            }
+        }
+    });
+</script> 

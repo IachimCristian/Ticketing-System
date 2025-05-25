@@ -71,7 +71,7 @@ namespace TicketingSystem.Web.Pages.Events
 
         private int CalculateAvailableSeats(Event e)
         {
-            int soldTickets = e.Tickets?.Count(t => t.Status != "Cancelled") ?? 0;
+            int soldTickets = e.Tickets?.Count(t => t.Status == "Sold") ?? 0;
             return e.Capacity - soldTickets;
         }
     }

@@ -6,40 +6,55 @@
     <title>@ViewData["Title"] - Ticksy Admin</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
 <body class="admin-body">
-    <header class="admin-header">
+    <header class="admin-header animate-fade-in-down">
         <div class="container-fluid d-flex justify-content-between align-items-center">
-            <a href="/" class="logo text-decoration-none">Ticksy Admin</a>
-            <div class="user-info">
+            <a href="/" class="logo text-decoration-none hover-scale">Ticksy Admin</a>
+            <div class="user-info animate-fade-in-right">
                 <span>Welcome, @Context.Session.GetString("Username")</span>
-                <a href="/Account/Logout" class="btn btn-sm btn-outline-dark ms-3">Logout</a>
+                <a href="/Account/Logout" class="btn btn-sm btn-outline-dark ms-3 btn-animated hover-glow">Logout</a>
             </div>
         </div>
     </header>
 
     <div class="admin-container">
-        <aside class="admin-sidebar">
+        <aside class="admin-sidebar animate-fade-in-left">
             <nav>
-                <ul class="admin-nav">
-                    <li class="admin-nav-item" data-section="dashboard">
-                        <a href="#" onclick="showSection('dashboard')">Dashboard</a>
+                <ul class="admin-nav stagger-animation">
+                    <li class="admin-nav-item hover-glow" data-section="dashboard">
+                        <a href="#" onclick="showSection('dashboard')">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
                     </li>
-                    <li class="admin-nav-item" data-section="users">
-                        <a href="#" onclick="showSection('users')">Users</a>
+                    <li class="admin-nav-item hover-glow" data-section="users">
+                        <a href="#" onclick="showSection('users')">
+                            <i class="fas fa-users"></i> Users
+                        </a>
                     </li>
-                    <li class="admin-nav-item" data-section="events">
-                        <a href="#" onclick="showSection('events')">Events</a>
+                    <li class="admin-nav-item hover-glow" data-section="events">
+                        <a href="#" onclick="showSection('events')">
+                            <i class="fas fa-calendar-alt"></i> Events
+                        </a>
                     </li>
-                    <li class="admin-nav-item" data-section="transactions">
-                        <a href="#" onclick="showSection('transactions')">Transactions</a>
+                    <li class="admin-nav-item hover-glow" data-section="transactions">
+                        <a href="#" onclick="showSection('transactions')">
+                            <i class="fas fa-credit-card"></i> Transactions
+                        </a>
+                    </li>
+                    <li class="admin-nav-item hover-glow">
+                        <a href="/Admin/Refunds">
+                            <i class="fas fa-undo-alt"></i> Manage Refunds
+                        </a>
                     </li>
                 </ul>
             </nav>
         </aside>
 
-        <main class="admin-main">
+        <main class="admin-main animate-fade-in-up animate-delay-2">
             <div class="container-fluid">
                 @RenderBody()
             </div>
@@ -51,5 +66,127 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        // Enhanced admin navigation with animations
+        function showSection(section) {
+            // Hide all content sections with fade out
+            document.querySelectorAll('.admin-content').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    el.classList.remove('active');
+                }, 150);
+            });
+            
+            // Show the selected section with fade in
+            setTimeout(() => {
+                const targetSection = document.getElementById(section + '-content');
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    targetSection.style.opacity = '1';
+                    targetSection.style.transform = 'translateY(0)';
+                }
+            }, 200);
+            
+            // Update active nav item with glow effect
+            document.querySelectorAll('.admin-nav-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            const navItem = document.querySelector(`.admin-nav-item[data-section="${section}"]`);
+            if (navItem) {
+                navItem.classList.add('active');
+            }
+        }
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add smooth transitions to admin content
+            const adminContent = document.querySelectorAll('.admin-content');
+            adminContent.forEach(content => {
+                content.style.transition = 'all 0.3s ease';
+            });
+
+            // Highlight dashboard nav item
+            const dashboardNav = document.querySelector('.admin-nav-item[data-section="dashboard"]');
+            if (dashboardNav) {
+                dashboardNav.classList.add('active');
+            }
+
+            // Add hover effects to nav items
+            const navItems = document.querySelectorAll('.admin-nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(10px)';
+                });
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+        });
+    </script>
+
+    <style>
+        .admin-nav-item {
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 4px 0;
+        }
+
+        .admin-nav-item:hover {
+            background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 123, 255, 0.05));
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+        }
+
+        .admin-nav-item.active {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+        }
+
+        .admin-nav-item.active a {
+            color: white !important;
+        }
+
+        .admin-nav-item i {
+            margin-right: 8px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-header .logo {
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .admin-header .user-info {
+            color: white;
+        }
+
+        .admin-sidebar {
+            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .admin-content {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .admin-content.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
 </body>
 </html> 

@@ -74,8 +74,8 @@ namespace TicketingSystem.Web.Pages.Events
                     TicketPrice = e.TicketPrice,
                     Capacity = e.Capacity,
                     ImageUrl = e.ImageUrl,
-                    // Default to full capacity if tickets collection is null
-                    AvailableSeatCount = e.Capacity, 
+                    // Calculate actual available seats
+                    AvailableSeatCount = CalculateAvailableSeats(e), 
                     // Determine status based on availability and dates
                     Status = DetermineEventStatus(e)
                 }).ToList();
@@ -94,7 +94,7 @@ namespace TicketingSystem.Web.Pages.Events
             if (e.Tickets == null)
                 return e.Capacity;
                 
-            int soldTickets = e.Tickets.Count(t => t.Status != "Cancelled");
+            int soldTickets = e.Tickets.Count(t => t.Status == "Sold");
             return e.Capacity - soldTickets;
         }
 

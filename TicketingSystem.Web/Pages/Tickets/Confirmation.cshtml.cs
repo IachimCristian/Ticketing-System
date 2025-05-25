@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Threading.Tasks;
 using TicketingSystem.Core.Entities;
-using TicketingSystem.Core.Interfaces;
 using TicketingSystem.Core.Services;
 
 namespace TicketingSystem.Web.Pages.Tickets
@@ -12,11 +11,9 @@ namespace TicketingSystem.Web.Pages.Tickets
     [Authorize]
     public class ConfirmationModel : PageModel
     {
-        private readonly ITicketRepository _ticketRepository;
-        private readonly IEventService _eventService;
+        private readonly TicketViewService _ticketViewService;
+        private readonly TicketCancellationService _ticketCancellationService;
         private readonly ILogger<ConfirmationModel> _logger;
-        private readonly ITicketPurchaseFacade _ticketPurchaseFacade;
-        private readonly IPaymentService _paymentService;
 
         [BindProperty(SupportsGet = true)]
         public Guid Id { get; set; }
@@ -33,17 +30,13 @@ namespace TicketingSystem.Web.Pages.Tickets
         public decimal RefundAmount { get; set; }
 
         public ConfirmationModel(
-            ITicketRepository ticketRepository, 
-            IEventService eventService, 
-            ILogger<ConfirmationModel> logger,
-            ITicketPurchaseFacade ticketPurchaseFacade,
-            IPaymentService paymentService)
+            TicketViewService ticketViewService,
+            TicketCancellationService ticketCancellationService,
+            ILogger<ConfirmationModel> logger)
         {
-            _ticketRepository = ticketRepository;
-            _eventService = eventService;
+            _ticketViewService = ticketViewService;
+            _ticketCancellationService = ticketCancellationService;
             _logger = logger;
-            _ticketPurchaseFacade = ticketPurchaseFacade;
-            _paymentService = paymentService;
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -64,31 +57,11 @@ namespace TicketingSystem.Web.Pages.Tickets
 
             try
             {
-                Ticket = await _ticketRepository.GetByIdAsync(Id);
-
-                if (Ticket == null)
-                {
-                    ErrorMessage = "Ticket not found.";
-                    return Page();
-                }
-
-                // Check if the ticket belongs to the current user
-                if (Ticket.CustomerId.ToString() != userId)
-                {
-                    ErrorMessage = "You are not authorized to view this ticket.";
-                    return Page();
-                }
-
-                Event = await _eventService.GetEventByIdAsync(Ticket.EventId);
-
-                if (Event == null)
-                {
-                    ErrorMessage = "Event not found.";
-                    return Page();
-                }
-
+                // Use the view service to get ticket details
+                Ticket = await _ticketViewService.GetTicketDetailsAsync(Id, Guid.Parse(userId));
+                Event = Ticket.Event;
                 QRCodeUrl = Ticket.QRCode;
-                
+
                 // Derive seat information if available
                 if (Ticket.SeatId.HasValue)
                 {
@@ -107,6 +80,12 @@ namespace TicketingSystem.Web.Pages.Tickets
                 
                 // Check if this is a cancelled ticket with a refund already issued
                 RefundIssued = (Ticket.Status == "Cancelled") && Ticket.RefundId.HasValue;
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Access denied or invalid ticket");
+                ErrorMessage = ex.Message;
+                return Page();
             }
             catch (Exception ex)
             {
@@ -128,39 +107,16 @@ namespace TicketingSystem.Web.Pages.Tickets
                     return RedirectToPage("/Account/Login");
                 }
 
-                // Cancel the ticket
-                var cancellationResult = await _ticketPurchaseFacade.CancelTicketAsync(Id, Guid.Parse(userId));
+                // Use the cancellation service to cancel the ticket
+                await _ticketCancellationService.CancelTicketAsync(Id, Guid.Parse(userId));
                 
-                if (!cancellationResult)
-                {
-                    TempData["ErrorMessage"] = "Failed to cancel the ticket. Please try again.";
-                    return RedirectToPage("/Dashboard/Index");
-                }
-
-                // Get the ticket and event details for refund processing
-                Ticket = await _ticketRepository.GetByIdAsync(Id);
-                Event = await _eventService.GetEventByIdAsync(Ticket.EventId);
-                
-                // Process refund if eligible
-                TimeSpan timeUntilEvent = Event.StartDate - DateTime.Now;
-                bool isRefundEligible = (timeUntilEvent.TotalHours > 48);
-                
-                if (isRefundEligible)
-                {
-                    // Process refund
-                    Guid refundId = await _paymentService.ProcessRefundAsync(Ticket.PaymentId, Ticket.Price);
-                    
-                    // Update ticket with refund information
-                    Ticket.RefundId = refundId;
-                    await _ticketRepository.UpdateAsync(Ticket);
-                    
-                    TempData["SuccessMessage"] = "Your ticket has been cancelled and a refund has been issued.";
-                }
-                else
-                {
-                    TempData["SuccessMessage"] = "Your ticket has been cancelled. No refund was issued due to the event's refund policy.";
-                }
-
+                TempData["SuccessMessage"] = "Your ticket has been cancelled. If eligible, a refund will be processed.";
+                return RedirectToPage("/Dashboard/Index");
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Failed to cancel ticket");
+                TempData["ErrorMessage"] = ex.Message;
                 return RedirectToPage("/Dashboard/Index");
             }
             catch (Exception ex)
