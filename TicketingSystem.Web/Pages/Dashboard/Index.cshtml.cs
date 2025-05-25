@@ -83,7 +83,10 @@ namespace TicketingSystem.Web.Pages.Dashboard
                             Date = t.Event?.StartDate ?? DateTime.Now,
                             Status = t.Event?.StartDate > DateTime.Now ? "Upcoming" : "Past",
                             TicketType = "Standard",
-                            TicketNumber = t.TicketNumber ?? "N/A"
+                            TicketNumber = t.TicketNumber ?? "N/A",
+                            SeatRow = t.SeatRow,
+                            SeatColumn = t.SeatColumn,
+                            SeatInfo = GetSeatDisplayText(t.SeatRow, t.SeatColumn)
                         }).ToList();
                     }
                     
@@ -125,6 +128,22 @@ namespace TicketingSystem.Web.Pages.Dashboard
             
             return Page();
         }
+
+        private string GetSeatDisplayText(int? seatRow, int? seatColumn)
+        {
+            if (seatRow.HasValue && seatColumn.HasValue)
+            {
+                return $"Row {seatRow}, Seat {seatColumn + 1}";
+            }
+            else if (seatRow.HasValue)
+            {
+                return $"Row {seatRow}";
+            }
+            else
+            {
+                return "General Admission";
+            }
+        }
     }
 
     public class PurchasedEvent
@@ -136,6 +155,9 @@ namespace TicketingSystem.Web.Pages.Dashboard
         public string Status { get; set; }
         public string TicketType { get; set; }
         public string TicketNumber { get; set; }
+        public int? SeatRow { get; set; }
+        public int? SeatColumn { get; set; }
+        public string SeatInfo { get; set; }
     }
 
     public class EventViewModel

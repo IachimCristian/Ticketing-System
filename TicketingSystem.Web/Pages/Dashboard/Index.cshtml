@@ -91,6 +91,7 @@
                             <th>Ticket #</th>
                             <th>Event</th>
                             <th>Date</th>
+                            <th>Seat</th>
                             <th>Status</th>
                             <th>Type</th>
                             <th></th>
@@ -103,6 +104,12 @@
                                 <td>@ticket.TicketNumber</td>
                                 <td>@ticket.EventName</td>
                                 <td>@ticket.Date.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <span class="seat-info">
+                                        <i class="fas fa-chair me-1 text-muted"></i>
+                                        @ticket.SeatInfo
+                                    </span>
+                                </td>
                                 <td>
                                     @if (ticket.Status == "Upcoming")
                                     {
@@ -372,6 +379,29 @@
         border: none;
         font-size: 0.875rem;
         padding: 0.75rem 1rem;
+    }
+
+    /* Seat information styling */
+    .seat-info {
+        font-size: 0.85rem;
+        color: #495057;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        border: 1px solid #e9ecef;
+        transition: all 0.2s ease;
+    }
+
+    .seat-info:hover {
+        background-color: #e9ecef;
+        transform: translateY(-1px);
+    }
+
+    .seat-info i {
+        font-size: 0.75rem;
     }
 </style>
 
