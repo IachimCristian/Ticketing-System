@@ -5569,9 +5569,6 @@ textarea.form-control-lg {
 .modal-backdrop.fade {
   opacity: 0;
 }
-.modal-backdrop.show {
-  opacity: var(--bs-backdrop-opacity);
-}
 
 .modal-header {
   display: flex;

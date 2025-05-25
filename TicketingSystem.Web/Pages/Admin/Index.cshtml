@@ -67,6 +67,16 @@
     <h3 class="mb-4">Users Management</h3>
     <div class="card">
         <div class="card-body">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div>@error.ErrorMessage</div>
+                    }
+                </div>
+            }
+            
             <form method="post" asp-page="/Admin/Index">
                 <div class="table-responsive">
                     <table class="table table-hover">
@@ -85,25 +95,52 @@
                                 var currentUsername = HttpContext.Session.GetString("Username");
                                 var isCurrentAdmin = user.Username == currentUsername;
 
-                                <tr id="user-row-@user.Id">
+                                <tr id="user-row-@user.Id" class="@(isCurrentAdmin ? "table-warning" : "") @(user.Username == "system" || user.Username == "system-customer" ? "table-info" : "")">
                                     <td>
                                         @user.Username
+                                        @if (isCurrentAdmin)
+                                        {
+                                            <span class="badge bg-primary ms-2">You</span>
+                                        }
+                                        @if (user.Username == "system" || user.Username == "system-customer")
+                                        {
+                                            <span class="badge bg-secondary ms-2">System</span>
+                                        }
                                         <input type="hidden" name="Users[@i].Id" value="@user.Id" />
                                         <input type="hidden" name="Users[@i].Username" value="@user.Username" />
+                                        <input type="hidden" name="Users[@i].OriginalUserType" value="@user.UserType" />
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" name="Users[@i].Email" value="@user.Email" />
+                                        <input type="text" class="form-control" name="Users[@i].Email" value="@user.Email" 
+                                               @(isCurrentAdmin || user.Username == "system" || user.Username == "system-customer" ? "readonly" : "") />
                                     </td>
                                     <td>
-                                        <select name="Users[@i].UserType" class="form-select" @(isCurrentAdmin ? "disabled" : "")>
-                                            <option value="Customer" selected="@(user.UserType == "Customer" ? "selected" : null)">Customer</option>
-                                            <option value="Organizer" selected="@(user.UserType == "Organizer" ? "selected" : null)">Organizer</option>
-                                            <option value="Admin" selected="@(user.UserType == "Admin" ? "selected" : null)">Admin</option>
+                                        <select name="Users[@i].UserType" class="form-select" @(isCurrentAdmin || user.Username == "system" || user.Username == "system-customer" ? "disabled" : "")>
+                                            <option value="Customer" selected="@(user.UserType == "Customer")">Customer</option>
+                                            <option value="Organizer" selected="@(user.UserType == "Organizer")">Organizer</option>
+                                            <option value="Admin" selected="@(user.UserType == "Admin")">Admin</option>
                                         </select>
+                                        @if (isCurrentAdmin || user.Username == "system" || user.Username == "system-customer")
+                                        {
+                                            <input type="hidden" name="Users[@i].UserType" value="@user.UserType" />
+                                        }
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                                onclick="removeUser('@user.Id', '@user.UserType')">Remove</button>
+                                        @if (isCurrentAdmin)
+                                        {
+                                            <span class="text-muted">Cannot modify yourself</span>
+                                        }
+                                        else if (user.Username == "system" || user.Username == "system-customer")
+                                        {
+                                            <span class="text-muted">System account</span>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                    onclick="removeUser('@user.Id', '@user.UserType', '@user.Username')">
+                                                Remove
+                                            </button>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -184,26 +221,184 @@
     </div>
 </div>
 
+<!-- Custom Modal for Confirmations and Messages -->
+<div class="modal fade" id="customModal" tabindex="-1" aria-labelledby="customModalLabel" aria-hidden="true" data-bs-backdrop="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="customModalLabel">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-exclamation-triangle text-warning fs-2" id="modalIcon"></i>
+                    </div>
+                    <div>
+                        <p class="mb-0 fs-6" id="modalMessage">Are you sure you want to perform this action?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger px-4" id="confirmButton">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Toast -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="actionToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <i class="fas fa-check-circle text-success me-2" id="toastIcon"></i>
+            <strong class="me-auto" id="toastTitle">Success</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastMessage">
+            Action completed successfully.
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom modal styling */
+    .modal-content {
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        padding: 1.5rem;
+    }
+    
+    .modal-header .btn-close {
+        filter: invert(1);
+    }
+    
+    .modal-body {
+        padding: 2rem;
+        background-color: white;
+    }
+    
+    .modal-footer {
+        padding: 1rem 2rem 2rem;
+        background-color: white;
+        border-radius: 0 0 15px 15px;
+    }
+    
+    /* Toast styling */
+    .toast {
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* System account styling */
+    .table-info {
+        background-color: rgba(13, 202, 240, 0.1) !important;
+        border-left: 4px solid #0dcaf0;
+    }
+    
+    .badge.bg-secondary {
+        background-color: #6c757d !important;
+        font-size: 0.75em;
+    }
+</style>
 
 @section Scripts {
     <script>
-        async function removeUser(id, userType) {
-            if (!confirm("Are you sure you want to remove this user?")) return;
-
-            const formData = new FormData();
-            formData.append("id", id);
-            formData.append("userType", userType);
-
-            const response = await fetch('/Admin/Index?handler=Remove', {
-                method: "POST",
-                body: formData
-            });
-
-            if (response.ok) {
-                document.getElementById(`user-row-${id}`).remove();
-            } else {
-                alert("Error removing user.");
+        // Add form submission debugging
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form[method="post"]');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    console.log('Form is being submitted');
+                    
+                    // Log all form data
+                    const formData = new FormData(form);
+                    for (let [key, value] of formData.entries()) {
+                        console.log(`${key}: ${value}`);
+                    }
+                });
             }
+        });
+
+        // Custom modal functions
+        function showCustomModal(title, message, iconClass, onConfirm) {
+            document.getElementById('customModalLabel').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            
+            const icon = document.getElementById('modalIcon');
+            icon.className = iconClass;
+            
+            const confirmBtn = document.getElementById('confirmButton');
+            confirmBtn.onclick = function() {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('customModal'));
+                modal.hide();
+                if (onConfirm) onConfirm();
+            };
+            
+            const modal = new bootstrap.Modal(document.getElementById('customModal'));
+            modal.show();
+        }
+
+        function showToast(title, message, type = 'success') {
+            const toast = document.getElementById('actionToast');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            
+            if (type === 'success') {
+                toastIcon.className = 'fas fa-check-circle text-success me-2';
+            } else if (type === 'error') {
+                toastIcon.className = 'fas fa-exclamation-circle text-danger me-2';
+            }
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+
+        async function removeUser(id, userType, username) {
+            // Show custom confirmation modal
+            showCustomModal(
+                'Delete User',
+                `Are you sure you want to remove user "${username}"? This action cannot be undone.`,
+                'fas fa-exclamation-triangle text-warning fs-2',
+                async function() {
+                    const formData = new FormData();
+                    formData.append("id", id);
+                    formData.append("userType", userType);
+
+                    try {
+                        const response = await fetch('/Admin/Index?handler=Remove', {
+                            method: "POST",
+                            body: formData,
+                            headers: {
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                            }
+                        });
+
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            document.getElementById(`user-row-${id}`).remove();
+                            showToast('Success', `User "${username}" has been removed successfully.`, 'success');
+                        } else {
+                            showToast('Error', result.message || "Error removing user.", 'error');
+                        }
+                    } catch (error) {
+                        showToast('Error', "Network error occurred while removing user.", 'error');
+                        console.error('Error:', error);
+                    }
+                }
+            );
         }
 
         function showSection(section) {
@@ -226,7 +421,7 @@
             }
         }
 
-            document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function () {
             const section = '@ViewData["Section"]' || 'dashboard';
             showSection(section);
         });
